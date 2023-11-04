@@ -4,7 +4,7 @@ from team import Team
 from piece import Piece
 
 class Chariot(Piece):
-    """Some weird shit about to happen"""
+    """Everything about chariot"""
     def admissible_moves(self) -> list:
 
         x_direction = [1, -1, 0, 0]
