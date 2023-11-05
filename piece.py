@@ -52,7 +52,7 @@ class Piece(ABC):
 
     # [BEGIN METHODS]
     # Instance method
-    def get_piece_team_on_position(self, position: tuple) -> Team:
+    def _get_piece_team_on_position(self, position: tuple) -> Team:
         '''Return the team of the piece on the position (Team.NONE, Team.RED, Team.BLACK)'''
         if self.is_position_on_board(position) is False:
             raise ValueError("The position is out of range")
