@@ -60,7 +60,7 @@ class Piece(ABC):
         return self._board[position[0]][position[1]]
     
     def is_position_teammate(self, position: tuple):
-        '''Return True if the piece on the position is opponent piece, vice versa'''
+        '''Return True if the piece on the position is teammate piece, vice versa'''
         return self._get_piece_team_on_position(position) is self.team
 
     def is_position_free(self, position: tuple):
