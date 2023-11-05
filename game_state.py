@@ -1,4 +1,6 @@
 # Made by: Veil
+from copy import deepcopy
+from random import randint
 from piece import Piece
 from team import Team
 
@@ -28,7 +30,7 @@ class GameState:
     def value(self) -> float:
         """This is the Getter function of the value property,
         return the value of the game state using chess pieces value"""
-        
+
         if self._value is None:
             self._value = self._get_board_value()
 
