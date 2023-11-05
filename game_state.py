@@ -77,9 +77,7 @@ class GameState:
         # can always end the game with the victory
         return False
 
-    # Class method
-    @classmethod
-    def generate_board_state(cls, policy):
+    def generate_random_game_state(self, policy):
         """This method will generate another gamestate that can be tranformed
         by current method using each move of the piece"""
 
