@@ -2,9 +2,11 @@
 
 Tasks:
 
-- [x] 0-000: Upload current Team.py
-- [x] 1-000: Upload current Piece.py
-- [x] 2-000: Upload current GameState.py
+- [x] 0-000: Upload current team.py
+- [x] 1-000: Upload current piece.py
+- [x] 1-001: Remove *is_valid_move* method in piece.py
+- [x] 2-000: Upload current game_state.py
+- [ ] 2-001: Create the *generate_board_state* method in game_state.py
 - [ ] 3-000: Create the *generate_admissible_moves* method of General
 - [ ] 4-000: Create the *generate_admissible_moves* method of Advisor
 - [ ] 5-000: Create the *generate_admissible_moves* method of Elephant
