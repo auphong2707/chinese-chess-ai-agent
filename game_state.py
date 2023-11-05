@@ -4,11 +4,13 @@ from team import Team
 
 
 class GameState:
+    """This class respresents the state of game containing
+    information and transforming method"""
+
     # [BEGIN CONSTANTS]
     # Board size
     BOARD_SIZE_X = 10
     BOARD_SIZE_Y = 9
-    # [END CONSTANTS]
 
     # [BEGIN INITILIZATION]
     def __init__(self, chess_pieces: list) -> None:
@@ -24,14 +26,20 @@ class GameState:
     # .value
     @property
     def value(self) -> float:
+        """This is the Getter function of the value property,
+        return the value of the game state using chess pieces value"""
+        
         if self._value is None:
             self._value = self._get_board_value()
 
         return self._value
-    
+
     # .checked_team
     @property
     def checked_team(self) -> Team:
+        """This is the Getter function of the checked_team property,
+        return the team which checkmates the opponent"""
+
         if self._checked_team is Team.NONE:
             self._checked_team = self._get_checked_team
 
@@ -40,10 +48,14 @@ class GameState:
     # .win_status
     @property
     def win_status(self) -> bool:
+        """This is the Getter function of the win_status property.
+        If the state always recieves victory, then this will return True"""
+
         if self._win_status is None:
             self.win_status = self._get_win_status()
 
         return self._win_status
+
     # [END INITILIZATION]
 
     # [BEGIN METHOD]
@@ -64,6 +76,9 @@ class GameState:
     # Class method
     @classmethod
     def generate_board_state(cls, policy):
+        """This method will generate another gamestate that can be tranformed
+        by current method using each move of the piece"""
+
         pass
-    
+
     # [END METHOD]
