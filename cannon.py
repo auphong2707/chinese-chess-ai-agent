@@ -25,13 +25,14 @@ class Cannon(Piece):
                     if self.is_position_free(new_position) is False:
                         piece_behind += 1
 
-                        # Check if there is an enemy piece behind the piece in new position
+                        # If there is an enemy piece behind the piece in new position
                         if piece_behind == 2 and self.is_position_opponent(new_position):
 
                             admissible_moves.append(new_position)
                             break
 
-                    admissible_moves.append(new_position)
+                    elif piece_behind == 0:
+                        admissible_moves.append(new_position)
 
         return admissible_moves
 
