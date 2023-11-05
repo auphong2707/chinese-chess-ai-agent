@@ -76,6 +76,13 @@ class GameState:
         # Incomplete code: Return the evaluation result that confirm this state
         # can always end the game with the victory
         return False
+    
+    def _get_the_opponent_team(self):
+        """This method will return the opponent team in this game state"""
+        if self._current_team is Team.BLACK:
+            return Team.RED
+        else:
+            return Team.BLACK
 
     def generate_random_game_state(self, policy):
         """This method will generate another gamestate that can be tranformed
