@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 
 
 class Piece(ABC):
+    '''This class is an abtract class which is inherited by every pieces in the game'''
     # [BEGIN CONSTANTS]
     # Board size
     BOARD_SIZE_X = 10
@@ -63,11 +64,6 @@ class Piece(ABC):
     # Abstract method
     @abstractmethod
     def get_admissible_moves(self) -> list:
-        pass
-
-    @abstractmethod
-    def is_valid_move(self, position: tuple) -> bool:
-        # Check if the move to the position is available by all means
         pass
 
     # Static method
