@@ -2,6 +2,7 @@
 from copy import deepcopy
 from random import randint
 from piece import Piece
+from general import General
 from team import Team
 
 
@@ -25,6 +26,9 @@ class GameState:
         self._win_status = None
         self._board = board
         self._current_team = current_team
+
+        # Remove the checked move
+        self.remove_checked_move()
 
     # Properties initialization
     # .value
@@ -143,4 +147,15 @@ class GameState:
         # Return the game state which has the new information
         return GameState(new_chess_pieces, new_board, opponent)
 
+    def _remove_checked_move(self):
+        """This method will remove all the move which lead the current team be checked"""
+        # Get the opponent team
+        opponent = self._get_the_opponent_team()
+
+        # Find the current team general position
+        general_position = None
+        for piece in self.chess_pieces:
+            if piece.team is self._current_team and isinstance(piece, General):
+                general_position = piece
+                break
     # [END METHOD]
