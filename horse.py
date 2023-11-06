@@ -32,7 +32,8 @@ class Horse(Piece):
                 pos = (self.position[0] + x_orient[cnt], self.position[1] + y_orient[cnt])
 
                 # Check the goal position
-                if self.is_position_on_board(pos) and self.is_position_opponent(pos):
+                if self.is_position_on_board(pos)\
+                and not self.is_position_teammate(pos):
                     admissible_moves.append(pos)
 
         # Return
