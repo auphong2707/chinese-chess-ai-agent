@@ -158,4 +158,23 @@ class GameState:
             if piece.team is self._current_team and isinstance(piece, General):
                 general_position = piece
                 break
+
+        # This method will return False if the move made the current team be checked
+        def check_checkmate(board, general_position):
+            for piece in self.chess_pieces:
+                # If the piece is current team piece, then skip
+                if piece.team is self._current_team:
+                    continue
+
+                # Made the copy of the piece, add the board
+                # and get the new admissible moves of that piece
+                piece_clone = deepcopy(piece)
+                piece_clone.set_board(board)
+                piece_clone.admissible_moves = piece_clone.get_admissible_moves()
+
+                # Check if admissible moves of the piece containing the general position
+                if general_position in piece.admissible_moves:
+                    return False
+            return True
+
     # [END METHOD]
