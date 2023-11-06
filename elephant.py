@@ -4,7 +4,17 @@ from piece import Piece
 from team import Team
 
 class Elephant:
+    def __init__(self, position: tuple, init_team: Team) -> None:
+        super().__init__(self, position, init_team)
+        self._has_crossed_river = False
+
     @property
+    def _has_crossed_river(self):
+        if self._has_crossed_river == True:
+            return True
+        
+        self._has_crossed_river = abs(self.position[0] + 9*(self.team.value-1)/2) < 5
+
     def get_admissible_moves(self):
 
         admissible_moves = []
@@ -24,8 +34,8 @@ class Elephant:
             
             block_pos =(self.position[0] + x_block[direction], self.position[0] + y_block[direction])
 
-            # Check if the new position is in board and there is no piece between old position and new position
-            if self.is_position_on_board(new_pos) and self.is_position_free(block_pos):
+            # Check if the new position is in board and not cross river and there is no piece at block position  
+            if self.is_position_on_board(new_pos) and not self._has_crossed_river(new_pos) and self.is_position_free(block_pos):
 
                 # Check if the new position is free or have piece to catch
                 if self.is_position_free(new_pos) or self.is_position_opponent(new_pos):
