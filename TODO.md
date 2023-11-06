@@ -7,7 +7,7 @@ Tasks:
 - [x] 1-001: Remove *is_valid_move* method in piece.py
 - [x] 2-000: Upload current game_state.py
 - [ ] 2-001: Create the *generate_board_state* method in game_state.py
-- [ ] 3-000: Create the *generate_admissible_moves* method of General
+- [x] 3-000: Create the *generate_admissible_moves* method of General
 - [x] 4-000: Create the *generate_admissible_moves* method of Advisor
 - [ ] 5-000: Create the *generate_admissible_moves* method of Elephant
 - [x] 6-000: Create the *generate_admissible_moves* method of Horse
