@@ -103,6 +103,7 @@ class GameState:
         new_board = list(map(list, new_board))
         new_board[old_pos[0]][old_pos[1]] = Team.NONE
         new_board[new_pos[0]][new_pos[1]] = self._current_team
+        new_board = tuple(map(tuple, new_board))
 
         # Get the opponent team
         opponent = self._get_the_opponent_team()
