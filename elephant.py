@@ -5,7 +5,7 @@ from team import Team
 
 class Elephant:
     
-    def cross_river(self, position: tuple):
+    def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
         if self.team is Team.RED and position[0] < 6:
             return True
@@ -35,7 +35,7 @@ class Elephant:
             # Check if all the conditions below met to add admissible moves for elephant piece
             if self.is_position_on_board(new_pos)\
             and self.is_position_free(block_pos)\
-            and not self.cross_river(new_pos)\
+            and not self._cross_river(new_pos)\
             and not self.is_position_teammate(new_pos):
                 
                 admissible_moves.append(new_pos)
