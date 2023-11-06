@@ -79,15 +79,6 @@ class Piece(ABC):
         """Return True if the piece on the position is opponent piece, vice versa"""
         return self._get_piece_team_on_position(position).value == -self.team.value
     
-    def cross_river(self, position: tuple):
-        """Return True if the piece cross river, vice versa"""
-        if self.team is Team.RED and position[0] < 6:
-            return True
-        if self.team is Team.BLACK and position[0] > 5:
-            return True
-        return False
-    
-
     # Abstract method
     @abstractmethod
     def get_admissible_moves(self) -> list:

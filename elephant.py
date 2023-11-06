@@ -4,6 +4,15 @@ from piece import Piece
 from team import Team
 
 class Elephant:
+    
+    def cross_river(self, position: tuple):
+        """Return True if the piece cross river, vice versa"""
+        if self.team is Team.RED and position[0] < 6:
+            return True
+        if self.team is Team.BLACK and position[0] > 5:
+            return True
+        return False
+    
     def get_admissible_moves(self):
 
         admissible_moves = []
@@ -28,6 +37,7 @@ class Elephant:
             and self.is_position_free(block_pos)\
             and not self.cross_river(new_pos)\
             and not self.is_position_teammate(new_pos):
+                
                 admissible_moves.append(new_pos)
         
         return admissible_moves
