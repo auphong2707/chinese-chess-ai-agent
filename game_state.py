@@ -76,7 +76,7 @@ class GameState:
         # Incomplete code: Return the evaluation result that confirm this state
         # can always end the game with the victory
         return False
-    
+
     def _get_the_opponent_team(self):
         """This method will return the opponent team in this game state"""
         if self._current_team is Team.BLACK:
@@ -88,6 +88,14 @@ class GameState:
         """This method will generate another gamestate that can be tranformed
         by current method using each move of the piece"""
 
-        pass
+        # Get a random move and a random piece
+        rand_piece_index = randint(0, len(self.chess_pieces) - 1)
+        rand_move_index = randint(
+            0, len(self.chess_pieces[rand_piece_index].admissible_moves)
+        )
+
+        # Get the old position and new position of the chosen piece
+        old_pos = self.chess_pieces[rand_piece_index].position
+        new_pos = self.chess_pieces[rand_piece_index].admissible_moves[rand_move_index]
 
     # [END METHOD]
