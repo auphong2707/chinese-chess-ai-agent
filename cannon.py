@@ -1,12 +1,11 @@
 #TheSyx
 
 """Module providing Piece and Team"""
-from team import Team
 from piece import Piece
 
 class Cannon(Piece):
     """Class representing a cannon"""
-    def admissible_moves(self) -> list:
+    def get_admissible_moves(self) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
         admissible_moves = []
