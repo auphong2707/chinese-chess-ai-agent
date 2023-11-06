@@ -89,7 +89,7 @@ class GameState:
             return Team.BLACK
 
     def _create_a_new_board(self, old_pos, new_pos):
-        """This is method will return a new board with a move has been invoked"""
+        """This method returns a new board after a piece moved"""
         # Create a deepcopy of a new board
         new_board = deepcopy(self._board)
 
@@ -148,7 +148,7 @@ class GameState:
         return GameState(new_chess_pieces, new_board, opponent)
 
     def _remove_checked_move(self):
-        """This method will remove all the move which lead the current team be checked"""
+        """This method removes all moves that lead to the current team be checked"""
         # Get the opponent team
         opponent = self._get_the_opponent_team()
 
