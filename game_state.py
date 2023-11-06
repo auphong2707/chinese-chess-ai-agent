@@ -177,4 +177,27 @@ class GameState:
                     return False
             return True
 
+        # Iterate through all the moves
+        for piece in self.chess_pieces:
+            # If the piece is opponent piece, then skip
+            if piece.team is opponent:
+                continue
+
+            # Assign current position of the piece
+            old_pos = piece.position
+            
+            # Iterate over admissible position of the piece
+            new_admisible_moves = list()       # Create the new admissible moves list
+            for new_pos in piece.admissible_moves:
+                # Creating a new board by using the move
+                new_board = self._create_a_new_board(old_pos, new_pos)
+
+                # Check if the move made the current team be checked
+                if (isinstance(piece, General) and check_checkmate(new_board, new_pos)) \
+                or (not isinstance(piece, General) and check_checkmate(new_board, general_position)):
+                    new_admisible_moves.append(new_pos)
+
+            # Assign filtered adssible moves list
+            piece.admissible_moves = new_admisible_moves
+
     # [END METHOD]
