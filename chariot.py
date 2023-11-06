@@ -1,11 +1,9 @@
 # TheSyx
-
-from team import Team
 from piece import Piece
 
 
 class Chariot(Piece):
-    def admissible_moves(self) -> list:
+    def get_admissible_moves(self) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
 
@@ -21,7 +19,7 @@ class Chariot(Piece):
                 # Check if the new position is on the board
                 if self.is_position_on_board(new_position):
                     # Check if there is any piece on the new position
-                    if self.is_position_free(new_position) == False:
+                    if self.is_position_free(new_position) is False:
                         # Check if the piece on the new position is on the enemy team
                         if self.is_position_opponent(new_position):
                             admissible_moves.append(new_position)
