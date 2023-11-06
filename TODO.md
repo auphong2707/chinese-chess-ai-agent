@@ -12,5 +12,5 @@ Tasks:
 - [ ] 5-000: Create the *generate_admissible_moves* method of Elephant
 - [ ] 6-000: Create the *generate_admissible_moves* method of Horse
 - [x] 7-000: Create the *generate_admissible_moves* method of Chariot
-- [ ] 8-000: Create the *generate_admissible_moves* method of Canon
+- [x] 8-000: Create the *generate_admissible_moves* method of Canon
 - [x] 9-000: Create the *generate_admissible_moves* method of Pawn
