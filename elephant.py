@@ -4,6 +4,7 @@ from piece import Piece
 from team import Team
 
 class Elephant:
+    @property
     def get_admissible_moves(self):
 
         admissible_moves = []
