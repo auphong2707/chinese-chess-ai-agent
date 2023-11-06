@@ -98,4 +98,9 @@ class GameState:
         old_pos = self.chess_pieces[rand_piece_index].position
         new_pos = self.chess_pieces[rand_piece_index].admissible_moves[rand_move_index]
 
+        # Create a copy of current board and transform it
+        new_board = deepcopy(self._board)
+        new_board = list(map(list, new_board))
+        new_board[old_pos[0]][old_pos[1]] = Team.NONE
+        new_board[new_pos[0]][new_pos[1]] = self._current_team
     # [END METHOD]
