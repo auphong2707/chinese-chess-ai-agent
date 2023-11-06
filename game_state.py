@@ -118,12 +118,11 @@ class GameState:
             # Create a copy of the current piece, and initialize it
             new_piece = deepcopy(piece)
 
-            new_piece.set_board(new_board)  # Update board
-            if piece.position == old_pos:   # Update position
+            new_piece.set_board(new_board)          # Update board
+            if piece.position == old_pos:           # Update position
                 new_piece.position = new_pos
-            new_piece.admissible_moves = (  # Update admissible_moves
-                new_piece.get_admissible_moves()
-            )
+            if piece.team is self._current_team:    # Update admissible_moves
+                new_piece.admissible_moves = new_piece.get_admissible_moves()
 
             new_chess_pieces.append(new_piece)
 
