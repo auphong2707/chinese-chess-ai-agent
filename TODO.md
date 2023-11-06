@@ -10,7 +10,7 @@ Tasks:
 - [x] 3-000: Create the *generate_admissible_moves* method of General
 - [x] 4-000: Create the *generate_admissible_moves* method of Advisor
 - [ ] 5-000: Create the *generate_admissible_moves* method of Elephant
-- [ ] 6-000: Create the *generate_admissible_moves* method of Horse
+- [x] 6-000: Create the *generate_admissible_moves* method of Horse
 - [x] 7-000: Create the *generate_admissible_moves* method of Chariot
 - [x] 8-000: Create the *generate_admissible_moves* method of Canon
 - [x] 9-000: Create the *generate_admissible_moves* method of Pawn
