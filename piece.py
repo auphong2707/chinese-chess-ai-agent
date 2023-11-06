@@ -34,6 +34,7 @@ class Piece(ABC):
 
     @position.setter
     def position(self, new_position: tuple) -> None:
+        """Setter of the position property, recieve a position as a tuple"""
         if self.is_position_on_board(new_position) is False:
             raise ValueError("The position is out of range")
 
@@ -46,8 +47,14 @@ class Piece(ABC):
         return self.admissible_moves
 
     @admissible_moves.setter
-    def set_admissible_moves(self, other: list) -> None:
+    def admissible_moves(self, other: list) -> None:
+        """Setter of the admissible move property, recieve a list type"""
         self._admissible_moves = other
+
+    # .board
+    def set_board(self, board: tuple) -> None:
+        """Setter of board property"""
+        self._board = board
 
     # [END INITILIZATION]
 
