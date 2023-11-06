@@ -126,4 +126,7 @@ class GameState:
 
             new_chess_pieces.append(new_piece)
 
+        # Return the game state which has the new information
+        return GameState(new_chess_pieces, new_board, opponent)
+
     # [END METHOD]
