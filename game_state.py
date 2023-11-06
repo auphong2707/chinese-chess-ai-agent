@@ -83,6 +83,24 @@ class GameState:
             return Team.RED
         else:
             return Team.BLACK
+        
+    def _create_a_new_board(self, old_pos, new_pos):
+        """This is method will return a new board with a move has been invoked"""
+        # Create a deepcopy of a new board
+        new_board = deepcopy(self._board)
+
+        # Transform the new board to list
+        new_board = list(map(list, new_board))
+
+        # Assign new value to the old position and new position of the moved piece
+        new_board[old_pos[0]][old_pos[1]] = Team.NONE
+        new_board[new_pos[0]][new_pos[1]] = self._current_team
+
+        # Transform the new board to tuple again
+        new_board = tuple(map(tuple, new_board))
+
+        # Return the answer
+        return new_board
 
     def generate_random_game_state(self, policy):
         """This method will generate another gamestate that can be tranformed
@@ -99,11 +117,7 @@ class GameState:
         new_pos = self.chess_pieces[rand_piece_index].admissible_moves[rand_move_index]
 
         # Create a copy of current board and transform it
-        new_board = deepcopy(self._board)
-        new_board = list(map(list, new_board))
-        new_board[old_pos[0]][old_pos[1]] = Team.NONE
-        new_board[new_pos[0]][new_pos[1]] = self._current_team
-        new_board = tuple(map(tuple, new_board))
+        new_board = self._create_a_new_board(old_pos, new_pos)
 
         # Get the opponent team
         opponent = self._get_the_opponent_team()
