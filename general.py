@@ -1,9 +1,7 @@
 from piece import Piece
-from team import Team
-from abc import ABC
 
 class General(Piece):
-    def admissible_moves(self) -> list:
+    def get_admissible_moves(self) -> list:
 
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
