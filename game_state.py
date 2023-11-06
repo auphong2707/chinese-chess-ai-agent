@@ -28,7 +28,7 @@ class GameState:
         self._current_team = current_team
 
         # Remove the checked move
-        self.remove_checked_move()
+        self._remove_checked_move()
 
     # Properties initialization
     # .value
@@ -185,16 +185,20 @@ class GameState:
 
             # Assign current position of the piece
             old_pos = piece.position
-            
+
             # Iterate over admissible position of the piece
-            new_admisible_moves = list()       # Create the new admissible moves list
+            new_admisible_moves = list()  # Create the new admissible moves list
             for new_pos in piece.admissible_moves:
                 # Creating a new board by using the move
                 new_board = self._create_a_new_board(old_pos, new_pos)
 
                 # Check if the move made the current team be checked
-                if (isinstance(piece, General) and check_checkmate(new_board, new_pos)) \
-                or (not isinstance(piece, General) and check_checkmate(new_board, general_position)):
+                if (
+                    isinstance(piece, General) and check_checkmate(new_board, new_pos)
+                ) or (
+                    not isinstance(piece, General)
+                    and check_checkmate(new_board, general_position)
+                ):
                     new_admisible_moves.append(new_pos)
 
             # Assign filtered adssible moves list
