@@ -83,7 +83,7 @@ class GameState:
             return Team.RED
         else:
             return Team.BLACK
-        
+
     def _create_a_new_board(self, old_pos, new_pos):
         """This is method will return a new board with a move has been invoked"""
         # Create a deepcopy of a new board
@@ -132,10 +132,10 @@ class GameState:
             # Create a copy of the current piece, and initialize it
             new_piece = deepcopy(piece)
 
-            new_piece.set_board(new_board)          # Update board
-            if piece.position == old_pos:           # Update position
+            new_piece.set_board(new_board)  # Update board
+            if piece.position == old_pos:  # Update position
                 new_piece.position = new_pos
-            if piece.team is self._current_team:    # Update admissible_moves
+            if piece.team is self._current_team:  # Update admissible_moves
                 new_piece.admissible_moves = new_piece.get_admissible_moves()
 
             new_chess_pieces.append(new_piece)
