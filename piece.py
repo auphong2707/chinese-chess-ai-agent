@@ -24,6 +24,8 @@ class Piece(ABC):
         self.team = team
         self._board = board
 
+        self._admissible_moves = list()
+
     # Properties initialization
     # .position
     @property
