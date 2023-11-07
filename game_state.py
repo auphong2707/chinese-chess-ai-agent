@@ -17,7 +17,7 @@ class GameState:
     BOARD_SIZE_Y = 9
 
     # [BEGIN INITILIZATION]
-    def __init__(self, chess_pieces: list, board: tuple, current_team) -> None:
+    def __init__(self, chess_pieces: list, board: tuple, current_team: Team) -> None:
         # Add the chess pieces to the list
         self.chess_pieces = chess_pieces
 
@@ -215,5 +215,9 @@ class GameState:
 
             # Assign filtered adssible moves list
             piece.admissible_moves = new_admisible_moves
-
+    
+    # Class method
+    @classmethod
+    def generate_initial_game_state(cls):
+        pass
     # [END METHOD]
