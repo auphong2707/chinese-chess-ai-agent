@@ -118,7 +118,7 @@ class GameState:
         # Get a random move and a random piece
         rand_piece_index = randint(0, len(self.chess_pieces) - 1)
         rand_move_index = randint(
-            0, len(self.chess_pieces[rand_piece_index].admissible_moves)
+            0, len(self.chess_pieces[rand_piece_index].admissible_moves) - 1
         )
 
         # Get the old position and new position of the chosen piece
