@@ -22,17 +22,17 @@ class Pawn(Piece):
         possible_moves = []
 
         # Movement
-        pos = (self.position[0] - self.team.value, self.position[1])
-        if self.is_position_on_board(pos) and not self.is_position_teammate(pos):
-            possible_moves.append(pos)
+        new_pos = (self.position[0] - self.team.value, self.position[1])
+        if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
+            possible_moves.append(new_pos)
 
         if self.has_crossed_river is True:
             new_pos = (self.position[0], self.position[1] + 1)
-            if self.is_position_on_board(pos) and not self.is_position_teammate(pos):
+            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
                 possible_moves.append(new_pos)
 
             new_pos = (self.position[0], self.position[1] - 1)
-            if self.is_position_on_board(pos) and not self.is_position_teammate(pos):
+            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
                 possible_moves.append(new_pos)
 
         # Capture (it's the same with movement, dang it)
