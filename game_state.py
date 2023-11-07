@@ -171,6 +171,13 @@ class GameState:
                 if isinstance(piece, Advisor) or isinstance(piece, Elephant):
                     continue
 
+                # If the piece is general, check the y position
+                if (
+                    isinstance(piece, General)
+                    and piece.position[1] == general_position[1]
+                ):
+                    return False
+
                 # Made the copy of the piece, add the board
                 # and get the new admissible moves of that piece
                 piece_clone = deepcopy(piece)
