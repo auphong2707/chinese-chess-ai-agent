@@ -1,7 +1,9 @@
 # Made by: Veil
 from copy import deepcopy
 from random import randint
-from piece import Piece
+from general import General
+from advisor import Advisor
+from elephant import Elephant
 from team import Team
 
 
@@ -25,6 +27,9 @@ class GameState:
         self._win_status = None
         self._board = board
         self._current_team = current_team
+
+        # Remove the checked move
+        self._remove_checked_move()
 
     # Properties initialization
     # .value
@@ -84,6 +89,24 @@ class GameState:
         else:
             return Team.BLACK
 
+    def _create_a_new_board(self, old_pos, new_pos):
+        """This method returns a new board after a piece moved"""
+        # Create a deepcopy of a new board
+        new_board = deepcopy(self._board)
+
+        # Transform the new board to list
+        new_board = list(map(list, new_board))
+
+        # Assign new value to the old position and new position of the moved piece
+        new_board[old_pos[0]][old_pos[1]] = Team.NONE
+        new_board[new_pos[0]][new_pos[1]] = self._current_team
+
+        # Transform the new board to tuple again
+        new_board = tuple(map(tuple, new_board))
+
+        # Return the answer
+        return new_board
+
     def generate_random_game_state(self, policy):
         """This method will generate another gamestate that can be tranformed
         by current method using each move of the piece"""
@@ -99,11 +122,7 @@ class GameState:
         new_pos = self.chess_pieces[rand_piece_index].admissible_moves[rand_move_index]
 
         # Create a copy of current board and transform it
-        new_board = deepcopy(self._board)
-        new_board = list(map(list, new_board))
-        new_board[old_pos[0]][old_pos[1]] = Team.NONE
-        new_board[new_pos[0]][new_pos[1]] = self._current_team
-        new_board = tuple(map(tuple, new_board))
+        new_board = self._create_a_new_board(old_pos, new_pos)
 
         # Get the opponent team
         opponent = self._get_the_opponent_team()
@@ -118,15 +137,83 @@ class GameState:
             # Create a copy of the current piece, and initialize it
             new_piece = deepcopy(piece)
 
-            new_piece.set_board(new_board)          # Update board
-            if piece.position == old_pos:           # Update position
+            new_piece.set_board(new_board)  # Update board
+            if piece.position == old_pos:  # Update position
                 new_piece.position = new_pos
-            if piece.team is self._current_team:    # Update admissible_moves
+            if piece.team is self._current_team:  # Update admissible_moves
                 new_piece.admissible_moves = new_piece.get_admissible_moves()
 
             new_chess_pieces.append(new_piece)
 
         # Return the game state which has the new information
         return GameState(new_chess_pieces, new_board, opponent)
+
+    def _remove_checked_move(self):
+        """This method removes all moves that lead to the current team be checked"""
+        # Get the opponent team
+        opponent = self._get_the_opponent_team()
+
+        # Find the current team general position
+        general_position = None
+        for piece in self.chess_pieces:
+            if piece.team is self._current_team and isinstance(piece, General):
+                general_position = piece
+                break
+
+        # This method will return False if the move made the current team be checked
+        def check_checkmate(board, general_position):
+            for piece in self.chess_pieces:
+                # If the piece is current team piece, then skip
+                if piece.team is self._current_team:
+                    continue
+
+                # If the piece is advisor or elephant, then skip
+                if isinstance(piece, Advisor) or isinstance(piece, Elephant):
+                    continue
+
+                # If the piece is general, check the y position
+                if (
+                    isinstance(piece, General)
+                    and piece.position[1] == general_position[1]
+                ):
+                    return False
+
+                # Made the copy of the piece, add the board
+                # and get the new admissible moves of that piece
+                piece_clone = deepcopy(piece)
+                piece_clone.set_board(board)
+                piece_clone.admissible_moves = piece_clone.get_admissible_moves()
+
+                # Check if admissible moves of the piece containing the general position
+                if general_position in piece.admissible_moves:
+                    return False
+            return True
+
+        # Iterate through all the moves
+        for piece in self.chess_pieces:
+            # If the piece is opponent piece, then skip
+            if piece.team is opponent:
+                continue
+
+            # Assign current position of the piece
+            old_pos = piece.position
+
+            # Iterate over admissible position of the piece
+            new_admisible_moves = list()  # Create the new admissible moves list
+            for new_pos in piece.admissible_moves:
+                # Creating a new board by using the move
+                new_board = self._create_a_new_board(old_pos, new_pos)
+
+                # Check if the move made the current team be checked
+                if (
+                    isinstance(piece, General) and check_checkmate(new_board, new_pos)
+                ) or (
+                    not isinstance(piece, General)
+                    and check_checkmate(new_board, general_position)
+                ):
+                    new_admisible_moves.append(new_pos)
+
+            # Assign filtered adssible moves list
+            piece.admissible_moves = new_admisible_moves
 
     # [END METHOD]
