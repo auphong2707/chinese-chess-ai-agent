@@ -3,7 +3,7 @@
 from piece import Piece
 from team import Team
 
-class Elephant:
+class Elephant(Piece):
     
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
