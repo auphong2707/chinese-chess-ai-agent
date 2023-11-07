@@ -11,7 +11,7 @@ Tasks:
 - [x] 2-003: Create the *remove_checked_move* method in game_state.py
 - [x] 3-000: Create the *generate_admissible_moves* method of General
 - [x] 4-000: Create the *generate_admissible_moves* method of Advisor
-- [ ] 5-000: Create the *generate_admissible_moves* method of Elephant
+- [x] 5-000: Create the *generate_admissible_moves* method of Elephant
 - [x] 6-000: Create the *generate_admissible_moves* method of Horse
 - [x] 7-000: Create the *generate_admissible_moves* method of Chariot
 - [x] 8-000: Create the *generate_admissible_moves* method of Canon
