@@ -28,12 +28,12 @@ class Elephant(Piece):
         for direction in range(maximum_move_count):
             new_pos = (
                 self.position[0] + x_direction[direction],
-                self.position[0] + y_direction[direction],
+                self.position[1] + y_direction[direction],
             )
 
             block_pos = (
                 self.position[0] + x_block[direction],
-                self.position[0] + y_block[direction],
+                self.position[1] + y_block[direction],
             )
 
             # Check if all the conditions below met to add admissible moves for elephant piece
