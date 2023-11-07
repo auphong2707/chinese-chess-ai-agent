@@ -167,6 +167,10 @@ class GameState:
                 if piece.team is self._current_team:
                     continue
 
+                # If the piece is advisor or elephant, then skip
+                if isinstance(piece, Advisor) or isinstance(piece, Elephant):
+                    continue
+
                 # Made the copy of the piece, add the board
                 # and get the new admissible moves of that piece
                 piece_clone = deepcopy(piece)
@@ -183,7 +187,7 @@ class GameState:
             # If the piece is opponent piece, then skip
             if piece.team is opponent:
                 continue
-            
+
             # Assign current position of the piece
             old_pos = piece.position
 
