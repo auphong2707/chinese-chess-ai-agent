@@ -149,8 +149,8 @@ class GameState:
             new_piece.set_board(new_board)  # Update board
             if piece.position == old_pos:  # Update position
                 new_piece.position = new_pos
-            if piece.team is self._current_team:  # Update admissible_moves
-                new_piece.admissible_moves = new_piece.get_admissible_moves()
+            if piece.team is opponent:  # Update admissible_moves
+                new_piece.set_admissible_moves()
 
             new_chess_pieces.append(new_piece)
 
