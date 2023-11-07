@@ -5,8 +5,8 @@ from team import Team
 
 
 class Pawn(Piece):
-    def __init__(self, position: tuple, init_team: Team) -> None:
-        super().__init__(self, position, init_team)
+    def __init__(self, position: tuple, team: Team, board: tuple) -> None:
+        super().__init__(position, team, board)
         self._has_crossed_river = False
 
     @property
