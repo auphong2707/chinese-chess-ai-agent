@@ -19,7 +19,11 @@ class Advisor(Piece):
             pos = (self.position[0] + x_orient[cnt], self.position[1] + y_orient[cnt])
 
             # Checkment
-            if not self.is_position_teammate(pos) and self.is_position_in_palace(pos):
+            if (
+                self.is_position_on_board(pos)
+                and not self.is_position_teammate(pos)
+                and self.is_position_in_palace(pos)
+            ):
                 admissible_moves.append(pos)
 
         # Return
