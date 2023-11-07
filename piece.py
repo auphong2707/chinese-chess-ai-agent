@@ -44,7 +44,7 @@ class Piece(ABC):
     @property
     def admissible_moves(self) -> list:
         """Getter of the admissible_moves property, return the list of admissible move of a piece"""
-        return self.admissible_moves
+        return self._admissible_moves
 
     @admissible_moves.setter
     def admissible_moves(self, other: list) -> None:
@@ -78,7 +78,7 @@ class Piece(ABC):
     def is_position_opponent(self, position: tuple):
         """Return True if the piece on the position is opponent piece, vice versa"""
         return self._get_piece_team_on_position(position).value == -self.team.value
-    
+
     # Abstract method
     @abstractmethod
     def get_admissible_moves(self) -> list:
