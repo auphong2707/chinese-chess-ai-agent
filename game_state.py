@@ -161,7 +161,7 @@ class GameState:
         general_position = None
         for piece in self.chess_pieces:
             if piece.team is self._current_team and isinstance(piece, General):
-                general_position = piece
+                general_position = piece.position
                 break
 
         # This method will return False if the move made the current team be checked
