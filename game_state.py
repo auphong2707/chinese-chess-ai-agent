@@ -234,7 +234,6 @@ class GameState:
 
         # Create pieces in the first row of black team
         for columns in range(GameState.BOARD_SIZE_Y):
-
             # Create black chariots
             if columns == 0 or columns == 8:
                 black_piece = Chariot((0, columns), Team.BLACK, board)
@@ -254,24 +253,35 @@ class GameState:
             # Create black general
             else:
                 black_piece = General((0, columns), Team.BLACK, board)
+
+            # Put the pieces created into chess_pieces list
             chess_pieces.append(black_piece)
+
+            # Assign team of the pieces to its position
             board[0][columns] = Team.BLACK
 
         # Create black cannons
         for columns in range(1, 8, 6):
             black_cannon = Cannon((2, columns), Team.BLACK, board)
+
+            # Put the pieces created into chess_pieces list
             chess_pieces.append(black_cannon)
+
+            # Assign team of the pieces to its position
             board[2][columns] = Team.BLACK
 
         # Create black pawns
         for columns in range(0, GameState.BOARD_SIZE_Y, 2):
             black_pawn = Pawn((3, columns), Team.BLACK, board)
+
+            # Put the pieces created into chess_pieces list
             chess_pieces.append(black_pawn)
+
+            # Assign team of the pieces to its position
             board[3][columns] = Team.BLACK
 
-        # Create pieces in the lasr row of red team
+        # Create pieces in the last row of red team
         for columns in range(GameState.BOARD_SIZE_Y):
-
             # Create red chariots
             if columns == 0 or columns == 8:
                 red_piece = Chariot((9, columns), Team.RED, board)
@@ -291,21 +301,37 @@ class GameState:
             # Create red general
             else:
                 red_piece = General((9, columns), Team.RED, board)
+
+            # Put the pieces created into chess_pieces list
             chess_pieces.append(red_piece)
+
+            # Assign team of the pieces to its position
             board[9][columns] = Team.RED
 
         # Create red cannons
         for columns in range(1, 8, 6):
             red_cannon = Cannon((7, columns), Team.RED, board)
+
+            # Put the pieces created into chess_pieces list
             chess_pieces.append(red_cannon)
+
+            # Assign team of the pieces to its position
             board[7][columns] = Team.RED
 
         # Create red pawns
         for columns in range(0, GameState.BOARD_SIZE_Y, 2):
             red_pawn = Pawn((6, columns), Team.RED, board)
+
+            # Put the pieces created into chess_pieces list
             chess_pieces.append(red_pawn)
+
+            # Assign team of the pieces to its position
             board[6][columns] = Team.RED
 
+        # Change type of board into tuple
+        board = tuple(map(tuple, board))
+
+        # return the initial board
         return GameState(chess_pieces, board, Team.RED)
 
     # [END METHOD]
