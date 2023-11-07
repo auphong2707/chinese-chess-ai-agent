@@ -1,8 +1,9 @@
 # Made by: Veil
 from copy import deepcopy
 from random import randint
-from piece import Piece
 from general import General
+from advisor import Advisor
+from elephant import Elephant
 from team import Team
 
 
@@ -182,7 +183,7 @@ class GameState:
             # If the piece is opponent piece, then skip
             if piece.team is opponent:
                 continue
-
+            
             # Assign current position of the piece
             old_pos = piece.position
 
