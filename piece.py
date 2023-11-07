@@ -77,7 +77,7 @@ class Piece(ABC):
     def is_position_opponent(self, position: tuple):
         """Return True if the piece on the position is opponent piece, vice versa"""
         return self._get_piece_team_on_position(position).value == -self.team.value
-    
+
     def set_admissible_moves(self):
         """This method will set a new list of admissible moves of the piece"""
         self.admissible_moves = self.get_admissible_moves()
