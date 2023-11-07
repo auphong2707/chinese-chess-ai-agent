@@ -10,7 +10,8 @@ class Pawn(Piece):
         self._has_crossed_river = False
 
     @property
-    def _has_crossed_river(self):
+    def has_crossed_river(self):
+        """Return True if the pawn is crossed the river"""
         if self._has_crossed_river is True:
             return True
 
