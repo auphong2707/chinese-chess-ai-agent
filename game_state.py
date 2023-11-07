@@ -117,8 +117,10 @@ class GameState:
 
         # Get a random move and a random piece
         rand_piece_index = randint(0, len(self.chess_pieces) - 1)
-        while self.chess_pieces[rand_piece_index].team is not self._current_team\
-        or len(self.chess_pieces[rand_piece_index].admissible_moves) == 0:
+        while (
+            self.chess_pieces[rand_piece_index].team is not self._current_team
+            or len(self.chess_pieces[rand_piece_index].admissible_moves) == 0
+        ):
             rand_piece_index = randint(0, len(self.chess_pieces) - 1)
         rand_move_index = randint(
             0, len(self.chess_pieces[rand_piece_index].admissible_moves) - 1
@@ -183,16 +185,30 @@ class GameState:
                     isinstance(piece, General)
                     and piece.position[1] == general_position[1]
                 ):
-                    return False
+                    x_min = piece.position[0] - opponent.value
+                    x_max = general_position[0] - self._current_team.value
+                    if x_min > x_max:
+                        x_min, x_max = x_max, x_min
+
+                    has_obstacle = False
+                    for x in range(x_min, x_max + 1):
+                        if board[x][general_position[1]] is not Team.NONE:
+                            has_obstacle = True
+                            break
+
+                    if has_obstacle is False:
+                        return False
+
+                    continue
 
                 # Made the copy of the piece, add the board
                 # and get the new admissible moves of that piece
                 piece_clone = deepcopy(piece)
                 piece_clone.set_board(board)
-                piece_clone.admissible_moves = piece_clone.get_admissible_moves()
+                piece_clone.set_admissible_moves()
 
                 # Check if admissible moves of the piece containing the general position
-                if general_position in piece.admissible_moves:
+                if general_position in piece_clone.admissible_moves:
                     return False
             return True
 
@@ -232,8 +248,10 @@ class GameState:
         chess_pieces = []
 
         # Create a list to keep track of the team of pieces in chess_pieces
-        board = [[Team.NONE for columns in range(GameState.BOARD_SIZE_Y)]
-                for rows in range(GameState.BOARD_SIZE_X)]
+        board = [
+            [Team.NONE for columns in range(GameState.BOARD_SIZE_Y)]
+            for rows in range(GameState.BOARD_SIZE_X)
+        ]
 
         # Create pieces in the first row of black team
         for columns in range(GameState.BOARD_SIZE_Y):
