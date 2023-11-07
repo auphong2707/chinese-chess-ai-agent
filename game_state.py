@@ -306,7 +306,6 @@ class GameState:
                 red_piece = General((9, columns), Team.RED, board)
 
             # Put the pieces created into chess_pieces list
-            red_piece.set_admissible_moves()
             chess_pieces.append(red_piece)
 
             # Assign team of the pieces to its position
@@ -317,7 +316,6 @@ class GameState:
             red_cannon = Cannon((7, columns), Team.RED, board)
 
             # Put the pieces created into chess_pieces list
-            red_cannon.set_admissible_moves()
             chess_pieces.append(red_cannon)
 
             # Assign team of the pieces to its position
@@ -328,7 +326,6 @@ class GameState:
             red_pawn = Pawn((6, columns), Team.RED, board)
 
             # Put the pieces created into chess_pieces list
-            red_pawn.get_admissible_moves()
             chess_pieces.append(red_pawn)
 
             # Assign team of the pieces to its position
@@ -336,6 +333,12 @@ class GameState:
 
         # Change type of board into tuple
         board = tuple(map(tuple, board))
+
+        # Set all admissible moves of the red pieces
+        for piece in reversed(chess_pieces):
+            if piece.team is not Team.RED:
+                break
+            piece.set_admissible_moves()
 
         # return the initial board
         return GameState(chess_pieces, board, Team.RED)
