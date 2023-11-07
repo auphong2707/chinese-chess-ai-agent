@@ -28,7 +28,7 @@ class Pawn(Piece):
         if self.is_position_on_board(pos) and not self.is_position_teammate(pos):
             possible_moves.append(pos)
 
-        if self._has_crossed_river is True:
+        if self.has_crossed_river is True:
             new_pos = (self.position[0], self.position[1] + 1)
             if self.is_position_on_board(pos) and not self.is_position_teammate(pos):
                 possible_moves.append(new_pos)
