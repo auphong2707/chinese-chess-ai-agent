@@ -283,7 +283,7 @@ class GameState:
                 black_piece = General((0, columns), Team.BLACK, board)
 
             # Put the pieces created into chess_pieces list
-            chess_pieces.append(black_piece)
+            pieces_list_black.append(black_piece)
 
             # Assign team of the pieces to its position
             board[0][columns] = Team.BLACK
@@ -293,7 +293,7 @@ class GameState:
             black_cannon = Cannon((2, columns), Team.BLACK, board)
 
             # Put the pieces created into chess_pieces list
-            chess_pieces.append(black_cannon)
+            pieces_list_black.append(black_cannon)
 
             # Assign team of the pieces to its position
             board[2][columns] = Team.BLACK
@@ -303,7 +303,7 @@ class GameState:
             black_pawn = Pawn((3, columns), Team.BLACK, board)
 
             # Put the pieces created into chess_pieces list
-            chess_pieces.append(black_pawn)
+            pieces_list_black.append(black_pawn)
 
             # Assign team of the pieces to its position
             board[3][columns] = Team.BLACK
