@@ -260,6 +260,23 @@ class GameState:
             # Assign filtered adssible moves list
             piece.admissible_moves = new_admisible_moves
 
+
+    def game_win(self):
+        """ This method return the team win """
+
+        pieces_list_current_team = self._get_the_current_team_pieces_list()
+        pieces_list_opponent = self._get_the_opponent_pieces_list()
+
+        for piece in pieces_list_current_team:
+            if piece.admissible_moves is bool:
+                return self._get_the_opponent_team
+            
+        for piece in pieces_list_opponent:
+            if piece.admissible_moves is bool:
+                return self._current_team
+            
+        return Team.NONE     
+
     # Class method
     @classmethod
     def generate_initial_game_state(cls):
