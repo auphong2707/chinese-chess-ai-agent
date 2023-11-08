@@ -118,6 +118,20 @@ class GameState:
         # Return the answer
         return new_board
 
+    def _get_the_current_team_pieces_list(self):
+        """This method will return the chess pieces list of the current team"""
+        if self._current_team is Team.RED:
+            return self.pieces_list_red
+        else:
+            return self.pieces_list_black
+
+    def _get_the_opponent_pieces_list(self):
+        """This method will return the chess pieces list of the opponent"""
+        if self._current_team is Team.RED:
+            return self.pieces_list_black
+        else:
+            return self.pieces_list_red
+
     def generate_random_game_state(self, policy):
         """This method will generate another gamestate that can be tranformed
         by current method using each move of the piece"""
