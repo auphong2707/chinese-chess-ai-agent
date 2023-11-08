@@ -252,7 +252,7 @@ class GameState:
         """This method creates the initial board"""
 
         # Create a list of chess pieces
-        chess_pieces = []
+        pieces_list_red, pieces_list_black = list(), list()
 
         # Create a list to keep track of the team of pieces in chess_pieces
         board = [
