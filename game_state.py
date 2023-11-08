@@ -193,18 +193,14 @@ class GameState:
 
         # Find the current team general position
         general_position = None
-        for piece in self.chess_pieces:
-            if piece.team is self._current_team and isinstance(piece, General):
+        for piece in pieces_list_current_team:
+            if isinstance(piece, General):
                 general_position = piece.position
                 break
 
         # This method will return False if the move made the current team be checked
         def check_checkmate(board, general_position):
-            for piece in self.chess_pieces:
-                # If the piece is current team piece, then skip
-                if piece.team is self._current_team:
-                    continue
-
+            for piece in pieces_list_opponent:
                 # If the piece is advisor or elephant, then skip
                 if isinstance(piece, Advisor) or isinstance(piece, Elephant):
                     continue
@@ -242,11 +238,7 @@ class GameState:
             return True
 
         # Iterate through all the moves
-        for piece in self.chess_pieces:
-            # If the piece is opponent piece, then skip
-            if piece.team is opponent:
-                continue
-
+        for piece in pieces_list_current_team:
             # Assign current position of the piece
             old_pos = piece.position
 
