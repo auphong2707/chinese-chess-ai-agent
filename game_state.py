@@ -136,6 +136,9 @@ class GameState:
         """This method will generate another gamestate that can be tranformed
         by current method using each move of the piece"""
 
+        # Get the current team chess chess pieces list
+        pieces_list = self._get_the_current_team_pieces_list()
+
         # Get a random move and a random piece
         rand_piece_index = randint(0, len(self.chess_pieces) - 1)
         while (
