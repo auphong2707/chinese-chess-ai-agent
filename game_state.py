@@ -142,44 +142,44 @@ class GameState:
 
         # Iterating through all moves
         for pieces in pieces_list:
-            if len(pieces.admissible_moves) != 0:
-                for moves in pieces.admissible_moves:
-                # For each move, create a new state with that move given if available
+            for move in pieces.admissible_moves:
+            # For each move, create a new state with that move given if available
 
-                    # Get the old position and new position of the chosen piece
-                    old_pos = pieces.position
-                    new_pos = moves
+                # Get the old position and new position of the chosen piece
+                old_pos = pieces.position
+                new_pos = move
 
-                    # Create a copy of current board and transform it
-                    new_board = self._create_a_new_board(old_pos, new_pos)
+                # Create a copy of current board and transform it
+                new_board = self._create_a_new_board(old_pos, new_pos)
 
-                    # Get the opponent team
-                    opponent = self._get_the_opponent_team()
+                # Get the opponent team
+                opponent = self._get_the_opponent_team()
 
-                    # Create new chess piece list
-                    new_pieces_list_red, new_pieces_list_black = list(), list()
+                # Create new chess piece list
+                new_pieces_list_red, new_pieces_list_black = list(), list()
 
-                    for piece in self.pieces_list_red + self.pieces_list_black:
-                        # If the piece is on the new position of the chosen one, then remove it
-                        if piece.position == new_pos:
-                            continue
+                for piece in self.pieces_list_red + self.pieces_list_black:
+                    # If the piece is on the new position of the chosen one, then remove it
+                    if piece.position == new_pos:
+                        continue
 
-                        # Create a copy of the current piece, and initialize it
-                        new_piece = deepcopy(piece)
+                    # Create a copy of the current piece, and initialize it
+                    new_piece = deepcopy(piece)
 
-                        new_piece.set_board(new_board)  # Update board
-                        if piece.position == old_pos:  # Update position
-                            new_piece.position = new_pos
-                        if piece.team is opponent:  # Update admissible_moves
-                            new_piece.set_admissible_moves()
+                    new_piece.set_board(new_board)  # Update board
+                    if piece.position == old_pos:  # Update position
+                        new_piece.position = new_pos
+                    if piece.team is opponent:  # Update admissible_moves
+                        new_piece.set_admissible_moves()
 
-                        # Append new piece to the list
-                        if new_piece.team is Team.RED:
-                            new_pieces_list_red.append(new_piece)
-                        else:
-                            new_pieces_list_black.append(new_piece)
-        
-                    game_states_available.append(GameState(new_pieces_list_red, new_pieces_list_black, new_board, opponent))
+                    # Append new piece to the list
+                    if new_piece.team is Team.RED:
+                        new_pieces_list_red.append(new_piece)
+                    else:
+                        new_pieces_list_black.append(new_piece)
+    
+                game_states_available.append(GameState(new_pieces_list_red, new_pieces_list_black, new_board, opponent))
+                
         return game_states_available
 
     def generate_random_game_state(self, policy):
