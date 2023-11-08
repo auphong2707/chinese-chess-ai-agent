@@ -364,6 +364,6 @@ class GameState:
             piece.set_admissible_moves()
 
         # return the initial board
-        return GameState(chess_pieces, board, Team.RED)
+        return GameState(pieces_list_red, pieces_list_black, board, Team.RED)
 
     # [END METHOD]
