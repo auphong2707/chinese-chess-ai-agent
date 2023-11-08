@@ -310,6 +310,20 @@ class GameState:
             # Assign filtered adssible moves list
             piece.admissible_moves = new_admisible_moves
 
+
+    def get_team_win(self):
+        """ This method return the team win """
+
+        # Get the current team piece list
+        pieces_list_current_team = self._get_the_current_team_pieces_list()
+        
+        for piece in pieces_list_current_team: # Check every piece in team
+            if len(piece.admissible_moves) > 0: # If any piece has at least 1 possible move, then return none
+                return Team.NONE
+
+        # Return the opponent if current team has no admissible move
+        return self._get_the_opponent_team()
+
     # Class method
     @classmethod
     def generate_initial_game_state(cls):
