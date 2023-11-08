@@ -331,7 +331,7 @@ class GameState:
                 red_piece = General((9, columns), Team.RED, board)
 
             # Put the pieces created into chess_pieces list
-            chess_pieces.append(red_piece)
+            pieces_list_red.append(red_piece)
 
             # Assign team of the pieces to its position
             board[9][columns] = Team.RED
@@ -341,7 +341,7 @@ class GameState:
             red_cannon = Cannon((7, columns), Team.RED, board)
 
             # Put the pieces created into chess_pieces list
-            chess_pieces.append(red_cannon)
+            pieces_list_red.append(red_cannon)
 
             # Assign team of the pieces to its position
             board[7][columns] = Team.RED
@@ -351,7 +351,7 @@ class GameState:
             red_pawn = Pawn((6, columns), Team.RED, board)
 
             # Put the pieces created into chess_pieces list
-            chess_pieces.append(red_pawn)
+            pieces_list_red.append(red_pawn)
 
             # Assign team of the pieces to its position
             board[6][columns] = Team.RED
