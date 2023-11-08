@@ -157,8 +157,9 @@ class GameState:
         opponent = self._get_the_opponent_team()
 
         # Create new chess piece list
-        new_chess_pieces = []
-        for piece in self.chess_pieces:
+        new_pieces_list_red, new_pieces_list_black = list(), list()
+
+        for piece in self.pieces_list_red + self.pieces_list_black:
             # If the piece is on the new position of the chosen one, then remove it
             if piece.position == new_pos:
                 continue
@@ -172,10 +173,14 @@ class GameState:
             if piece.team is opponent:  # Update admissible_moves
                 new_piece.set_admissible_moves()
 
-            new_chess_pieces.append(new_piece)
+            # Append new piece to the list
+            if new_piece.team is Team.RED:
+                new_pieces_list_red.append(new_piece)
+            else:
+                new_pieces_list_black.append(new_piece)
 
         # Return the game state which has the new information
-        return GameState(new_chess_pieces, new_board, opponent)
+        return GameState(new_pieces_list_red, new_pieces_list_black, new_board, opponent)
 
     def _remove_checked_move(self):
         """This method removes all moves that lead to the current team be checked"""
