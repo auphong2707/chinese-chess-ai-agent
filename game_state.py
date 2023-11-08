@@ -147,8 +147,8 @@ class GameState:
         rand_move_index = randint(0, len(pieces_list[rand_piece_index].admissible_moves) - 1)
 
         # Get the old position and new position of the chosen piece
-        old_pos = self.chess_pieces[rand_piece_index].position
-        new_pos = self.chess_pieces[rand_piece_index].admissible_moves[rand_move_index]
+        old_pos = pieces_list[rand_piece_index].position
+        new_pos = pieces_list[rand_piece_index].admissible_moves[rand_move_index]
 
         # Create a copy of current board and transform it
         new_board = self._create_a_new_board(old_pos, new_pos)
