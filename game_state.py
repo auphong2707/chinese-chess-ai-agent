@@ -187,6 +187,10 @@ class GameState:
         # Get the opponent team
         opponent = self._get_the_opponent_team()
 
+        # Get the piece list
+        pieces_list_current_team = self._get_the_current_team_pieces_list()
+        pieces_list_opponent = self._get_the_opponent_pieces_list()
+
         # Find the current team general position
         general_position = None
         for piece in self.chess_pieces:
