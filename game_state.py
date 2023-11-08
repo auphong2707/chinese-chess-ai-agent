@@ -360,9 +360,8 @@ class GameState:
         board = tuple(map(tuple, board))
 
         # Set all admissible moves of the red pieces
-        for piece in chess_pieces:
-            if piece.team is Team.RED:
-                piece.set_admissible_moves()
+        for piece in pieces_list_red:
+            piece.set_admissible_moves()
 
         # return the initial board
         return GameState(chess_pieces, board, Team.RED)
