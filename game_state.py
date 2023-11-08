@@ -183,7 +183,7 @@ class GameState:
         return GameState(new_pieces_list_red, new_pieces_list_black, new_board, opponent)
 
     def _remove_checked_move(self):
-        """This method removes all moves that lead to the current team be checked"""
+        """This method removes all moves that lead the current team's loss"""
         # Get the opponent team
         opponent = self._get_the_opponent_team()
 
