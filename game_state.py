@@ -265,17 +265,12 @@ class GameState:
         """ This method return the team win """
 
         pieces_list_current_team = self._get_the_current_team_pieces_list()
-        pieces_list_opponent = self._get_the_opponent_pieces_list()
 
         for piece in pieces_list_current_team:
-            if piece.admissible_moves is bool:
-                return self._get_the_opponent_team
-            
-        for piece in pieces_list_opponent:
-            if piece.admissible_moves is bool:
-                return self._current_team
-            
-        return Team.NONE     
+            if len(piece.admissible_moves) > 0:
+                return Team.NONE
+        
+        return self._get_the_opponent_team
 
     # Class method
     @classmethod
