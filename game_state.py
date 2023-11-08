@@ -140,15 +140,11 @@ class GameState:
         pieces_list = self._get_the_current_team_pieces_list()
 
         # Get a random move and a random piece
-        rand_piece_index = randint(0, len(self.chess_pieces) - 1)
-        while (
-            self.chess_pieces[rand_piece_index].team is not self._current_team
-            or len(self.chess_pieces[rand_piece_index].admissible_moves) == 0
-        ):
-            rand_piece_index = randint(0, len(self.chess_pieces) - 1)
-        rand_move_index = randint(
-            0, len(self.chess_pieces[rand_piece_index].admissible_moves) - 1
-        )
+        rand_piece_index = randint(0, len(pieces_list) - 1)
+        while len(pieces_list[rand_piece_index].admissible_moves) == 0:
+            rand_piece_index = randint(0, len(pieces_list) - 1)
+
+        rand_move_index = randint(0, len(pieces_list[rand_piece_index].admissible_moves) - 1)
 
         # Get the old position and new position of the chosen piece
         old_pos = self.chess_pieces[rand_piece_index].position
