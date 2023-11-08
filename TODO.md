@@ -9,9 +9,9 @@ Tasks:
 - [x] 2-001: Create the *generate_random_game_state* method in game_state.py
 - [x] 2-002: Create the class method *generate_initial_game_state* in game_state.py
 - [x] 2-003: Create the *remove_checked_move* method in game_state.py
-- [ ] 2-004: Split chess pieces list into 2 teams
+- [x] 2-004: Split chess pieces list into 2 teams
 - [ ] 2-005: Add detect function when the games is end
-- [ ] 2-006: Create the *generate_all_game_states* method in game_state.py
+- [x] 2-006: Create the *generate_all_game_states* method in game_state.py
 - [x] 3-000: Create the *generate_admissible_moves* method of General
 - [x] 4-000: Create the *generate_admissible_moves* method of Advisor
 - [x] 5-000: Create the *generate_admissible_moves* method of Elephant
