@@ -21,9 +21,16 @@ class GameState:
     BOARD_SIZE_Y = 9
 
     # [BEGIN INITILIZATION]
-    def __init__(self, chess_pieces: list, board: tuple, current_team: Team) -> None:
+    def __init__(
+        self,
+        pieces_list_red: list,
+        pieces_list_black: list,
+        board: tuple,
+        current_team: Team,
+    ) -> None:
         # Add the chess pieces to the list
-        self.chess_pieces = chess_pieces
+        self.pieces_list_red = pieces_list_red
+        self.pieces_list_black = pieces_list_black
 
         # Declare read-only properties
         self._value = None
