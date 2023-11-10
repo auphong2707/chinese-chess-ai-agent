@@ -38,3 +38,19 @@ class Node:
 
     # [METHOD]
     # Instance methods
+    
+    def generate_all_children(self) -> list:
+        """This generates all descendants of the current node"""
+        
+        current_state = self.game_state
+        children = []
+
+        #Create list of possible game states
+        list_of_states = current_state.generate_all_game_states()
+
+        #Create new node and append to children list
+        for state in list_of_states:
+            new_node = Node(state)
+            children.append(new_node)
+
+        return children
