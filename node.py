@@ -12,7 +12,7 @@ class Node:
         self.game_state = game_state
         self.is_fully_expanded = False
 
-        self.list_of_children = list()
+        self.list_of_children = self.generate_all_children()
 
         self._uct = None
         self.win_until_now = 0
