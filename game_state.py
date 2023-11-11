@@ -206,39 +206,8 @@ class GameState:
         old_pos = pieces_list[rand_piece_index].position
         new_pos = pieces_list[rand_piece_index].admissible_moves[rand_move_index]
 
-        # Create a copy of current board and transform it
-        new_board = self._create_a_new_board(old_pos, new_pos)
-
-        # Get the opponent team
-        opponent = self._get_the_opponent_team()
-
-        # Create new chess piece list
-        new_pieces_list_red, new_pieces_list_black = list(), list()
-
-        for piece in self.pieces_list_red + self.pieces_list_black:
-            # If the piece is on the new position of the chosen one, then remove it
-            if piece.position == new_pos:
-                continue
-
-            # Create a copy of the current piece, and initialize it
-            new_piece = deepcopy(piece)
-
-            new_piece.set_board(new_board)  # Update board
-            if piece.position == old_pos:  # Update position
-                new_piece.position = new_pos
-            if piece.team is opponent:  # Update admissible_moves
-                new_piece.set_admissible_moves()
-
-            # Append new piece to the list
-            if new_piece.team is Team.RED:
-                new_pieces_list_red.append(new_piece)
-            else:
-                new_pieces_list_black.append(new_piece)
-
         # Return the game state which has the new information
-        return GameState(
-            new_pieces_list_red, new_pieces_list_black, new_board, opponent
-        )
+        return self.generate_game_state_with_move(old_pos, new_pos)
 
     def generate_game_state_with_move(self, old_pos, new_pos):
         """This method creates a game state with a move"""
