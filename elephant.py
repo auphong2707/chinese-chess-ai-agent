@@ -5,6 +5,11 @@ from team import Team
 
 
 class Elephant(Piece):
+    """Class representing an elephant"""
+    
+    def _get_piece_value(self):
+        return 2.5
+    
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
         if self.team is Team.RED and position[0] < 6:

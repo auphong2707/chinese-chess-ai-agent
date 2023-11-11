@@ -26,6 +26,8 @@ class Piece(ABC):
 
         self._admissible_moves = list()
 
+        self.piece_value = self._get_piece_value()
+
     # Properties initialization
     # .position
     @property
@@ -67,6 +69,10 @@ class Piece(ABC):
             raise ValueError("The position is out of range")
 
         return self._board[position[0]][position[1]]
+    
+    def _get_piece_value(self):
+        """Return the value of a piece"""
+        return self.piece_value
 
     def is_position_teammate(self, position: tuple):
         """Return True if the piece on the position is teammate piece, vice versa"""
@@ -89,7 +95,6 @@ class Piece(ABC):
     def get_admissible_moves(self) -> list:
         """Abstract method that return the list of admissible moves of a piece.
         This method is used to initialize the piece"""
-        pass
 
     # Static method
     @staticmethod

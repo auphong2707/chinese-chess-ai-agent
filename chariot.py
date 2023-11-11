@@ -3,6 +3,11 @@ from piece import Piece
 
 
 class Chariot(Piece):
+    """Class representing a chariot"""
+    
+    def _get_piece_value(self):
+        return 9
+
     def get_admissible_moves(self) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
