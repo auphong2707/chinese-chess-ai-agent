@@ -82,8 +82,6 @@ class GameState:
     # Instance method
     def _get_game_state_value(self):
         """Return the evaluation value of the board"""
-
-        
         return 0
 
     def _get_checked_team(self):
