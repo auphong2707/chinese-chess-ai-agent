@@ -82,7 +82,16 @@ class GameState:
     # Instance method
     def _get_game_state_value(self):
         """Return the evaluation value of the board"""
-        return 0
+
+        current_value = 0
+
+        for piece in self.pieces_list_black:
+            current_value = current_value - piece.piece_value
+
+        for piece in self.pieces_list_red:
+            current_value = current_value + piece.piece_value
+        
+        return current_value
 
     def _get_checked_team(self):
         # Incomplete code: Return the team that checked the oponent in this state
