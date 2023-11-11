@@ -14,7 +14,7 @@ Tasks:
 - [x] 2-005: Add detect function when the games is end
 - [x] 2-006: Create the *generate_all_game_states* method in game_state.py
 - [ ] 2-007: Finish the get value of class GameState
-- [ ] 2-008: Create *generate_game_state_with_move* method
+- [x] 2-008: Create *generate_game_state_with_move* method
 - [x] 3-000: Create the *generate_admissible_moves* method of General
 - [x] 4-000: Create the *generate_admissible_moves* method of Advisor
 - [x] 5-000: Create the *generate_admissible_moves* method of Elephant
