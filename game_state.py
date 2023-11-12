@@ -1,4 +1,5 @@
 # Made by: Veil
+from cmath import inf
 from copy import deepcopy
 from random import randint
 from general import General
@@ -50,7 +51,7 @@ class GameState:
         return the value of the game state using chess pieces value"""
 
         if self._value is None:
-            self._value = self._get_board_value()
+            self._value = self._get_game_state_value()
 
         return self._value
 
@@ -80,9 +81,24 @@ class GameState:
 
     # [BEGIN METHOD]
     # Instance method
-    def _get_board_value(self):
-        # Incomplete code: Return the evaluation value of the board
-        return 0
+    def _get_game_state_value(self):
+        """Return the evaluation value of the board"""
+
+        current_value = 0
+
+        if self.get_team_win is Team.RED:
+            return inf
+        
+        if self.get_team_win is Team.BLACK:
+            return -inf
+
+        for piece in self.pieces_list_black:
+            current_value = current_value - piece.piece_value
+
+        for piece in self.pieces_list_red:
+            current_value = current_value + piece.piece_value
+        
+        return current_value
 
     def _get_checked_team(self):
         # Incomplete code: Return the team that checked the oponent in this state

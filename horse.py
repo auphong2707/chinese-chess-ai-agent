@@ -3,7 +3,9 @@
 from piece import Piece
 
 class Horse(Piece):
-    #why horse, why?
+    """Class representing a horse"""
+    
+    _piece_value =  4
 
     def get_admissible_moves(self):
 
