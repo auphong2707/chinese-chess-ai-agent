@@ -4,8 +4,7 @@ from piece import Piece
 class General(Piece):
     """Class representing a general"""
 
-    def _get_piece_value(self):
-        return 0
+    _piece_value =  0
     
     def get_admissible_moves(self) -> list:
         x_direction = [1, -1, 0, 0]

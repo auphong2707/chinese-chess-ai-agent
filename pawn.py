@@ -8,6 +8,7 @@ class Pawn(Piece):
     """Class representing a pawn"""
 
     _has_crossed_river = False
+    _piece_value = 1
 
     @property
     def has_crossed_river(self):
@@ -19,12 +20,12 @@ class Pawn(Piece):
             abs(self.position[0] + 9 * (self.team.value - 1) / 2) < 5
         )
 
-    def _get_piece_value(self):
+    @property
+    def piece_value(self):
         if self.has_crossed_river is True:
-            return 2
-        else:
-            return 1
-        
+            self._piece_value = 2
+        return self._piece_value
+
     # Searching admissible moves for the pawn
     def get_admissible_moves(self):
         possible_moves = []

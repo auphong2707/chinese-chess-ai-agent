@@ -18,7 +18,7 @@ class Piece(ABC):
     # [END CONSTANTS]
 
     # [BEGIN INITILIZATION]
-    def __init__(self, position: tuple, team: Team, board: tuple) -> None:
+    def __init__(self, position: tuple, team: Team, board: tuple, piece_value) -> None:
         # Create properties
         self.position = position
         self.team = team
@@ -26,7 +26,7 @@ class Piece(ABC):
 
         self._admissible_moves = list()
 
-        self.piece_value = self._get_piece_value()
+        self._piece_value = piece_value
 
     # Properties initialization
     # .position
@@ -59,6 +59,11 @@ class Piece(ABC):
         """Setter of board property"""
         self._board = board
 
+    # .piece value
+    @property
+    def piece_value(self):
+        return self._piece_value
+
     # [END INITILIZATION]
 
     # [BEGIN METHODS]
@@ -69,10 +74,6 @@ class Piece(ABC):
             raise ValueError("The position is out of range")
 
         return self._board[position[0]][position[1]]
-    
-    def _get_piece_value(self):
-        """Return the value of a piece"""
-        return self.piece_value
 
     def is_position_teammate(self, position: tuple):
         """Return True if the piece on the position is teammate piece, vice versa"""

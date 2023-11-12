@@ -5,9 +5,8 @@ from piece import Piece
 
 class Cannon(Piece):
     """Class representing a cannon"""
-
-    def _get_piece_value(self):
-        return 4.5
+    
+    _piece_value = 4.5
     
     def get_admissible_moves(self) -> list:
         x_direction = [1, -1, 0, 0]

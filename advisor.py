@@ -6,8 +6,7 @@ from piece import Piece
 class Advisor(Piece):
     """Class representing an advisor"""
 
-    def _get_piece_value(self):
-        return 2
+    _piece_value = 2
     
     def get_admissible_moves(self):
         # Movement
