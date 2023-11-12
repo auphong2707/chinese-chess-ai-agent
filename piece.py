@@ -7,6 +7,9 @@ class Piece(ABC):
     """This class is an abtract class which is inherited by every pieces in the game"""
 
     # [BEGIN CONSTANTS]
+
+    _piece_value = None
+
     # Board size
     BOARD_SIZE_X = 10
     BOARD_SIZE_Y = 9
@@ -18,15 +21,13 @@ class Piece(ABC):
     # [END CONSTANTS]
 
     # [BEGIN INITILIZATION]
-    def __init__(self, position: tuple, team: Team, board: tuple, piece_value) -> None:
+    def __init__(self, position: tuple, team: Team, board: tuple) -> None:
         # Create properties
         self.position = position
         self.team = team
         self._board = board
 
         self._admissible_moves = list()
-
-        self._piece_value = piece_value
 
     # Properties initialization
     # .position
@@ -96,6 +97,7 @@ class Piece(ABC):
     def get_admissible_moves(self) -> list:
         """Abstract method that return the list of admissible moves of a piece.
         This method is used to initialize the piece"""
+    pass
 
     # Static method
     @staticmethod
