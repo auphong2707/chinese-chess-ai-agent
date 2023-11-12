@@ -97,7 +97,7 @@ class Piece(ABC):
     def get_admissible_moves(self) -> list:
         """Abstract method that return the list of admissible moves of a piece.
         This method is used to initialize the piece"""
-    pass
+        pass
 
     # Static method
     @staticmethod
