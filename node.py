@@ -1,8 +1,8 @@
 from game_state import GameState
 from math import sqrt, log
+from abc import ABC
 
-
-class Node:
+class Node(ABC):
     """This class represents a "node" in the game tree"""
 
     EXPLORATION_PARAMETER = sqrt(2)
