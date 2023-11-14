@@ -182,6 +182,8 @@ class GameState:
         # Return the game state which has the new information
         return GameState(
             new_pieces_list_red, new_pieces_list_black, new_board, opponent
+        ), (
+            old_pos, new_pos
         )
 
     def generate_random_game_state(self, policy):
