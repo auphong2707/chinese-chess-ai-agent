@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from game_state import GameState
 
 
-class Node(ABC):
+class Node():
     """This class represents a "node" in the game tree"""
 
     # [INITIALIZATION]
@@ -20,25 +20,7 @@ class Node(ABC):
     # [END INITIALIZATION]
 
     # [METHOD]
-    # Instance methods
-    def get_all_children(self) -> list:
-        """This generates all descendants of the current node"""
 
-        current_state = self.game_state
-        children = []
-
-        # Create list of possible game states
-        list_of_states = current_state.generate_all_game_states()
-
-        # Create new node and append to children list
-        for state, move in list_of_states:
-            new_node = Node(state, self, move)
-            children.append(new_node)
-
-        return children
-
-    # Abstract method
-    @abstractmethod
     def best_move(self):
         """This method will return the best node to move to from the current"""
         pass
@@ -63,9 +45,20 @@ class NodeMinimax(Node):
     # [METHOD]
     # Instance methods
     def generate_all_children(self) -> None:
-        """This method fills up the list of children nodes"""
+        """This generates all descendants of the current node"""
 
-        self.list_of_children = self.get_all_children()
+        current_state = self.game_state
+        children = []
+
+        # Create list of possible game states
+        list_of_states = current_state.generate_all_game_states()
+
+        # Create new node and append to children list
+        for state, move in list_of_states:
+            new_node = Node(state, self, move)
+            children.append(new_node)
+
+        self.list_of_children = children
 
     def _reset_statistics(self) -> None:
         """This method resets the minimax statistics"""
@@ -74,3 +67,5 @@ class NodeMinimax(Node):
         self._beta = inf
         self._minimax_value = None
         self._depth = None
+
+
