@@ -1,6 +1,7 @@
-from game_state import GameState
+from cmath import inf
 from math import sqrt, log
 from abc import ABC, abstractmethod
+from game_state import GameState
 
 
 class Node(ABC):
@@ -41,3 +42,35 @@ class Node(ABC):
     def best_move(self):
         """This method will return the best node to move to from the current"""
         pass
+
+
+class NodeMinimax(Node):
+    """This class represents a "minimax's node" in game tree"""
+
+    # [INITIALIZATION]
+    def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
+        # Reference to a node
+        super().__init__(game_state, parent, parent_move)
+
+        # Minimax statistics
+        self._alpha = -inf
+        self._beta = inf
+        self._minimax_value = None
+        self._depth = None
+
+    # [END INITIALIZATION]
+
+    # [METHOD]
+    # Instance methods
+    def generate_all_children(self) -> None:
+        """This method fills up the list of children nodes"""
+
+        self.list_of_children = self.get_all_children()
+
+    def _reset_statistics(self) -> None:
+        """This method resets the minimax statistics"""
+
+        self._alpha = -inf
+        self._beta = inf
+        self._minimax_value = None
+        self._depth = None
