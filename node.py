@@ -7,9 +7,14 @@ class Node(ABC):
     """This class represents a "node" in the game tree"""
 
     # [INITIALIZATION]
-    def __init__(self, game_state) -> None:
-        self.game_state = game_state
+    def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
+        # Reference to parent and decendants of the node
+        self.parent = parent
+        self.parent_move = parent_move
         self.list_of_children = list()
+
+        # Node statistic
+        self.game_state = game_state
 
     # [END INITIALIZATION]
 
