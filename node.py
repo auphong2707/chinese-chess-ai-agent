@@ -1,6 +1,6 @@
 from game_state import GameState
 from math import sqrt, log
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class Node(ABC):
@@ -20,7 +20,6 @@ class Node(ABC):
 
     # [METHOD]
     # Instance methods
-
     def get_all_children(self) -> list:
         """This generates all descendants of the current node"""
 
@@ -36,3 +35,9 @@ class Node(ABC):
             children.append(new_node)
 
         return children
+
+    # Abstract method
+    @abstractmethod
+    def best_move(self):
+        """This method will return the best node to move to from the current"""
+        pass
