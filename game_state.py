@@ -88,7 +88,7 @@ class GameState:
 
         if self.get_team_win is Team.RED:
             return inf
-        
+
         if self.get_team_win is Team.BLACK:
             return -inf
 
@@ -97,7 +97,7 @@ class GameState:
 
         for piece in self.pieces_list_red:
             current_value = current_value + piece.piece_value
-        
+
         return current_value
 
     def _get_checked_team(self):
@@ -221,7 +221,7 @@ class GameState:
                 # Get the old position and new position of the chosen piece
                 old_pos = pieces.position
                 new_pos = move
-                
+
                 # Add new game state into the above list
                 game_states_available.append(
                     self.generate_game_state_with_move(old_pos, new_pos)
