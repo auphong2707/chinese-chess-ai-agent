@@ -7,6 +7,9 @@ class Piece(ABC):
     """This class is an abtract class which is inherited by every pieces in the game"""
 
     # [BEGIN CONSTANTS]
+
+    _piece_value = None
+
     # Board size
     BOARD_SIZE_X = 10
     BOARD_SIZE_Y = 9
@@ -56,6 +59,11 @@ class Piece(ABC):
     def set_board(self, board: tuple) -> None:
         """Setter of board property"""
         self._board = board
+
+    # .piece value
+    @property
+    def piece_value(self):
+        return self._piece_value
 
     # [END INITILIZATION]
 
