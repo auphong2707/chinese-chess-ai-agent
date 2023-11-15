@@ -16,12 +16,12 @@ class GameTree(ABC):
         )
 
     def move_to_best_child(self):
-        # This moves the current node to its "best child" on the game tree
+        """This moves the current node to its "best child" on the game tree"""
         self.current_node = self.current_node.best_move()
         self.team = self.current_node.game_state.team
 
     def move_to_child_node_with_move(self, old_pos, new_pos):
-        # This moves the current node to its "destination" on the game tree
+        """This moves the current node to its "destination" on the game tree"""
 
         # Defining a comparative game state
         new_state = GameState.generate_game_state_with_move(
@@ -44,7 +44,7 @@ class GameTree(ABC):
     # Abstract method
     @abstractmethod
     def _create_node(self, game_state, parent, parent_move):
-        """Create a new node here"""
+        """This method return a new node of the tree"""
         pass
 
 if __name__ == "main":
