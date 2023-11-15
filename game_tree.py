@@ -17,8 +17,8 @@ class GameTree(ABC):
 
     def move_to_best_child(self):
         """This moves the current node to its "best child" on the game tree"""
-        self.current_node = self.current_node.best_move()
-        self.team = self.current_node.game_state.team
+        self.current_node = self.current_node.best_move(self.team)
+        self.current_node.parent = None
 
     def move_to_child_node_with_move(self, old_pos, new_pos):
         """This moves the current node to its "destination" on the game tree"""
