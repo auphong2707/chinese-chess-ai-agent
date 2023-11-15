@@ -24,13 +24,13 @@ class GameTree(ABC):
         """This moves the current node to its "destination" on the game tree"""
 
         # Defining a comparative game state
-        new_state = GameState.generate_game_state_with_move(
+        new_state, move = GameState.generate_game_state_with_move(
             self.current_node.game_state, old_pos, new_pos
         )
 
         # Traversing states in the children list to find a suitable child
         for node in self.current_node.list_of_children:
-            if new_state[0]._board == node.game_state._board:
+            if new_state._board == node.game_state._board:
                 # Suitable child found
                 self.current_node = node
                 self.current_node.parent = None
@@ -38,7 +38,7 @@ class GameTree(ABC):
 
         # Suitable child not found
         self.current_node = self._create_node(
-            new_state, None, (old_pos, new_pos)
+            new_state, None, move
         )
 
     # Abstract method
