@@ -5,6 +5,7 @@ from piece import Piece
 from node import Node
 from abc import ABC, abstractmethod
 
+
 class GameTree(ABC):
     """This class is responsible for the game tree representation"""
 
@@ -46,6 +47,7 @@ class GameTree(ABC):
     def _create_node(self, game_state, parent, parent_move):
         """This method return a new node of the tree"""
         pass
+
 
 if __name__ == "main":
     # Test the class here Focalors
