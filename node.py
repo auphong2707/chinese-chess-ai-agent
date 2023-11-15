@@ -1,7 +1,9 @@
 from cmath import inf
 from math import sqrt, log
 from abc import ABC, abstractmethod
+from random import randint
 from game_state import GameState
+from team import Team
 
 
 class Node(ABC):
@@ -39,7 +41,7 @@ class Node(ABC):
 
     # Abstract method
     @abstractmethod
-    def best_move(self):
+    def best_move(self, team: Team):
         """This method will return the best node to move to from the current"""
         pass
 
@@ -77,8 +79,26 @@ class NodeMinimax(Node):
 
         self._alpha = -inf
         self._beta = inf
-        self._minimax_value = None
-        self._depth = None
+        self.minimax_value = None
+        self.depth = None
+
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMinimax(game_state, parent, parent_move)
 
+    def best_move(self, team: Team):
+        # Create a list of best value node
+        best_children, best_value = list(), 0
+
+        for child in self.list_of_children:
+            evaluation_value = child.minimax_value*team.value
+            # If we found a new best value, then update it and reset the list
+            if evaluation_value > best_value:
+                best_value = evaluation_value
+                best_children.clear()
+
+            # If the node has value equal to the best value, then add it to the list
+            if evaluation_value == best_value:
+                best_children.append(child)
+
+        # Return a random child among the best
+        return best_children[randint(0, len(best_children) - 1)]
