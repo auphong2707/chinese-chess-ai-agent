@@ -11,7 +11,7 @@ class GameTree:
         # This generates the initial game tree, not a forged one
         self.team = team
         self.current_node = Node(
-            GameState.generate_initial_game_state, None, None
+            GameState.generate_initial_game_state(), None, None
         )
 
     def move_to_best_child(self):
@@ -32,11 +32,12 @@ class GameTree:
             if new_state[0]._board == node.game_state._board:
                 # Suitable child found
                 self.current_node = node
+                self.current_node.parent = None
                 return
 
         # Suitable child not found
-        self.current_node = Node(
-            new_state, self.current_node, (old_pos, new_pos)
+        self.current_node = self._create_node(
+            new_state, None, (old_pos, new_pos)
         )
 
 
