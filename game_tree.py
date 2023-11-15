@@ -11,7 +11,7 @@ class GameTree(ABC):
     def __init__(self, team) -> None:
         # This generates the initial game tree, not a forged one
         self.team = team
-        self.current_node = Node(
+        self.current_node = self._create_node(
             GameState.generate_initial_game_state(), None, None
         )
 
