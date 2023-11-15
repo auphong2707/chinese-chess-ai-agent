@@ -32,7 +32,7 @@ class Node(ABC):
 
         # Create new node and append to children list
         for state, move in list_of_states:
-            new_node = Node(state, self, move)
+            new_node = self._create_node(state, self, move)
             children.append(new_node)
 
         return children
@@ -41,6 +41,11 @@ class Node(ABC):
     @abstractmethod
     def best_move(self):
         """This method will return the best node to move to from the current"""
+        pass
+
+    @abstractmethod
+    def _create_node(self, game_state: GameState, parent, parent_move: tuple):
+        """This method will return a new node"""
         pass
 
 
@@ -74,3 +79,6 @@ class NodeMinimax(Node):
         self._beta = inf
         self._minimax_value = None
         self._depth = None
+    def _create_node(self, game_state: GameState, parent, parent_move: tuple):
+        return NodeMinimax(game_state, parent, parent_move)
+
