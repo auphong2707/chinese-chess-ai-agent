@@ -7,15 +7,18 @@ from node import Node
 class GameTree:
     """This class is responsible for the game tree representation"""
 
-    def __init__(self,team,current_node: Node) -> None:
+    def __init__(self, team) -> None:
+        # This generates the initial game tree, not a forged one
         self.team = team
-        self.current_node = current_node
+        self.current_node = Node(
+            GameState.generate_initial_game_state, None, None
+        )
 
     def move_to_best_child(self):
         # This moves the current node to its "best child" on the game tree
-        self.current_node = self.current_node.best_move
+        self.current_node = self.current_node.best_move()
         self.team = self.current_node.game_state.team
-    
+
     def move_to_child_node_with_move(self, old_pos, new_pos):
         # This moves the current node to its "destination" on the game tree
 
@@ -30,10 +33,13 @@ class GameTree:
                 # Suitable child found
                 self.current_node = node
                 return
-            
-            # Suitable child not found
-            raise ValueError("This position node is not possible!")
-        
+
+        # Suitable child not found
+        self.current_node = Node(
+            new_state, self.current_node, (old_pos, new_pos)
+        )
+
+
 if __name__ == "main":
     # Test the class here Focalors
     pass
