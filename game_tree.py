@@ -20,7 +20,7 @@ class GameTree(ABC):
         """This moves the current node to its "best child" on the game tree"""
         self.current_node = self.current_node.best_move(self.team)
         self.current_node.parent = None
-        
+
         return self.current_node.parent_move
 
     def move_to_child_node_with_move(self, old_pos, new_pos):
