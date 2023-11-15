@@ -3,8 +3,9 @@
 from game_state import GameState
 from piece import Piece
 from node import Node
+from abc import ABC, abstractmethod
 
-class GameTree:
+class GameTree(ABC):
     """This class is responsible for the game tree representation"""
 
     def __init__(self, team) -> None:
@@ -40,6 +41,11 @@ class GameTree:
             new_state, None, (old_pos, new_pos)
         )
 
+    # Abstract method
+    @abstractmethod
+    def _create_node(self, game_state, parent, parent_move):
+        """Create a new node here"""
+        pass
 
 if __name__ == "main":
     # Test the class here Focalors
