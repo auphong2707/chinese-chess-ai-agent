@@ -70,7 +70,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
 
         # If the node reaches the target depth
         if node.depth == TARGET_DEPTH:
-            return node.minimax
+            return node.minimax_value
         
         # Max turn
         if max_turn is True:
