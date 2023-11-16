@@ -4,7 +4,10 @@ from game_state import GameState
 from piece import Piece
 from node import Node
 from abc import ABC, abstractmethod
+from node import NodeMinimax
 
+TARGET_DEPTH = 7
+INF = 1e9
 
 class GameTree(ABC):
     """This class is responsible for the game tree representation"""
@@ -50,6 +53,54 @@ class GameTree(ABC):
         """This method return a new node of the tree"""
         pass
 
+class GameTreeMinimax(GameTree, NodeMinimax):
+    """This class is responsible for the game tree minimax"""
+    @abstractmethod
+    def _create_node(self, game_state, parent, parent_move) -> None:
+        return NodeMinimax._create_node(self, game_state, parent, parent_move)
+
+    def minimax(self, node_depth, max_turn: bool, value_list: list, alpha, beta):
+        """Minimax method""" 
+        
+        node = self.current_node
+        
+        # Get more minimax value from children node
+        for node in node.list_of_children:
+            value_list.append(node.minimax_value)
+
+        # If the node reaches the target depth
+        if node.depth == TARGET_DEPTH:
+            return node.minimax
+        
+        # Max turn
+        if max_turn is True:
+            
+            result = -INF
+            
+            for child in node.list_of_children:
+                
+                value = GameTreeMinimax.minimax(self, child.depth, False, value_list, node.alpha, node.beta)
+                result = max(result, value)
+                node.alpha = max(node.alpha, result)
+
+                if node.beta <= node.alpha:
+                    break
+        
+        # Min turn
+        else:
+            
+            result = INF
+            
+            for child in node.list_of_children:
+                
+                value = GameTreeMinimax.minimax(self, child.depth, True, value_list, node.alpha, node.beta)
+                result = min(result, value)
+                node.alpha = min(node.alpha, result)
+
+                if node.beta <= node.alpha:
+                    break
+        
+        return result
 
 if __name__ == "main":
     # Test the class here Focalors
