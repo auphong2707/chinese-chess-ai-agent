@@ -1,11 +1,10 @@
 # Made by Kleecon~
-
+from cmath import inf
+from abc import ABC, abstractmethod
 from game_state import GameState
 from piece import Piece
 from node import Node
-from abc import ABC, abstractmethod
 from node import NodeMinimax
-from cmath import inf
 
 
 class GameTree(ABC):
@@ -64,7 +63,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
         if depth == self.TARGET_DEPTH:
             node.minimax_value = node.game_state.value
             return node.minimax_value
-        
+
         node.list_of_children = node.generate_all_children()
         # Max turn
         if max_turn is True:
