@@ -54,50 +54,41 @@ class GameTree(ABC):
 class GameTreeMinimax(GameTree, NodeMinimax):
     """This class is responsible for the game tree minimax"""
 
-    TARGET_DEPTH = 7   
+    TARGET_DEPTH = 7
 
     def minimax(self, node, depth: int, max_turn: bool):
-        """Minimax method""" 
-        
+        """Minimax method"""
         # If the node reaches the target depth
         if depth == self.TARGET_DEPTH:
             return node.minimax_value
-        
+
         # Max turn
         if max_turn is True:
-            
             result = -inf
-            
             for child in node.list_of_children:
-                
-                value = GameTreeMinimax.minimax(self, child, depth + 1, False)
+                value = self.minimax(child, depth + 1, False)
                 result = max(result, value)
                 node.alpha = max(node.alpha, result)
-
                 if node.beta <= node.alpha:
                     break
-            
+
             return result
-        
+
         # Min turn
         else:
-            
             result = inf
-            
             for child in node.list_of_children:
-                
-                value = GameTreeMinimax.minimax(self, child, depth + 1, True)
+                value = self.minimax(child, depth + 1, True)
                 result = min(result, value)
                 node.beta = min(node.beta, result)
-
                 if node.beta <= node.alpha:
                     break
-        
+
             return result
-    
+
     def _create_node(self, game_state, parent, parent_move) -> None:
         return NodeMinimax._create_node(self, game_state, parent, parent_move)
-    
+
 if __name__ == "main":
     # Test the class here Focalors
     pass
