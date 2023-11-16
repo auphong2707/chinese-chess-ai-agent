@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from node import NodeMinimax
 from cmath import inf
 
+
 class GameTree(ABC):
     """This class is responsible for the game tree representation"""
 
@@ -51,6 +52,7 @@ class GameTree(ABC):
         """This method return a new node of the tree"""
         pass
 
+
 class GameTreeMinimax(GameTree, NodeMinimax):
     """This class is responsible for the game tree minimax"""
 
@@ -88,6 +90,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
 
     def _create_node(self, game_state, parent, parent_move) -> None:
         return NodeMinimax._create_node(self, game_state, parent, parent_move)
+
 
 if __name__ == "main":
     # Test the class here Focalors
