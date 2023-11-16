@@ -58,8 +58,8 @@ class GameTreeMinimax(GameTree, NodeMinimax):
 
     def minimax(self, node, depth: int, max_turn: bool):
         """Minimax method""" 
-        # If the node reaches the target depth
         
+        # If the node reaches the target depth
         if depth == self.TARGET_DEPTH:
             return node.minimax_value
         
@@ -84,7 +84,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
             
             for child in node.list_of_children:
                 
-                value = GameTreeMinimax.minimax(self, child, depth + 1 True)
+                value = GameTreeMinimax.minimax(self, child, depth + 1, True)
                 result = min(result, value)
                 node.alpha = min(node.alpha, result)
 
