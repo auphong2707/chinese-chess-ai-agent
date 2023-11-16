@@ -64,7 +64,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
             node.minimax_value = node.game_state.value
             return node.minimax_value
 
-        node.list_of_children = node.generate_all_children()
+        node.generate_all_children()
         # Max turn
         if max_turn is True:
             result = -inf
