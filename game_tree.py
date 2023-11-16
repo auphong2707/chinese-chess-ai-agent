@@ -86,7 +86,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
                 
                 value = GameTreeMinimax.minimax(self, child, depth + 1, True)
                 result = min(result, value)
-                node.alpha = min(node.alpha, result)
+                node.beta = min(node.beta, result)
 
                 if node.beta <= node.alpha:
                     break
