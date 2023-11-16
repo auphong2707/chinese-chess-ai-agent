@@ -66,7 +66,6 @@ class NodeMinimax(Node):
         self.alpha = -inf
         self.beta = inf
         self.minimax_value = None
-        self.depth = None
 
     # [END INITIALIZATION]
 
@@ -83,7 +82,6 @@ class NodeMinimax(Node):
         self.alpha = -inf
         self.beta = inf
         self.minimax_value = None
-        self.depth = None
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMinimax(game_state, parent, parent_move)
