@@ -63,7 +63,6 @@ class GameTreeMinimax(GameTree, NodeMinimax):
         # If the node reaches the target depth
         if depth == self.TARGET_DEPTH:
             return node.minimax_value
-
         # Max turn
         if max_turn is True:
             result = -inf
@@ -73,9 +72,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
                 node.alpha = max(node.alpha, result)
                 if node.beta <= node.alpha:
                     break
-
             return result
-
         # Min turn
         else:
             result = inf
@@ -85,7 +82,6 @@ class GameTreeMinimax(GameTree, NodeMinimax):
                 node.beta = min(node.beta, result)
                 if node.beta <= node.alpha:
                     break
-
             return result
 
     def _create_node(self, game_state, parent, parent_move) -> None:
