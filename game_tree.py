@@ -76,6 +76,8 @@ class GameTreeMinimax(GameTree, NodeMinimax):
 
                 if node.beta <= node.alpha:
                     break
+            
+            return result
         
         # Min turn
         else:
@@ -91,7 +93,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
                 if node.beta <= node.alpha:
                     break
         
-        return result
+            return result
     
     def _create_node(self, game_state, parent, parent_move) -> None:
         return NodeMinimax._create_node(self, game_state, parent, parent_move)
