@@ -126,3 +126,289 @@ class Piece(ABC):
         return result_x and result_y
 
     # [END METHODS]
+
+
+class Advisor(Piece):
+    """Class representing an advisor"""
+
+    _piece_value = 2
+
+    def get_admissible_moves(self):
+        # Movement
+        admissible_moves = []
+
+        # Possible goal positions
+        x_orient = [1, 1, -1, -1]
+        y_orient = [1, -1, -1, 1]
+        maximum_move_count = 4
+
+        # Iteration through all positions
+        for cnt in range(maximum_move_count):
+            # Possible position setting
+            pos = (self.position[0] + x_orient[cnt],
+                   self.position[1] + y_orient[cnt])
+
+            # Checkment
+            if (
+                self.is_position_on_board(pos)
+                and not self.is_position_teammate(pos)
+                and self.is_position_in_palace(pos)
+            ):
+                admissible_moves.append(pos)
+
+        # Return
+        return admissible_moves
+
+    def create_copy(self, new_board):
+        return Advisor(self.position, self.team, new_board)
+
+
+class Cannon(Piece):
+    """Class representing a cannon"""
+
+    _piece_value = 4.5
+
+    def get_admissible_moves(self) -> list:
+        x_direction = [1, -1, 0, 0]
+        y_direction = [0, 0, 1, -1]
+        admissible_moves = []
+
+        for direction in range(4):
+            piece_behind = 0
+
+            for steps in range(1, 10):
+                new_position = (self.position[0] + steps*x_direction[direction],
+                                self.position[1] + steps*y_direction[direction])
+
+                # Check if the new position is on the board
+                if self.is_position_on_board(new_position):
+
+                    # Check if there is any piece on the new position
+                    if self.is_position_free(new_position) is False:
+                        piece_behind += 1
+
+                        # If there is an enemy piece behind the piece in new position
+                        if piece_behind == 2 and self.is_position_opponent(new_position):
+
+                            admissible_moves.append(new_position)
+                            break
+
+                    elif piece_behind == 0:
+                        admissible_moves.append(new_position)
+
+        return admissible_moves
+
+    def create_copy(self, new_board):
+        return Cannon(self.position, self.team, new_board)
+
+
+class Chariot(Piece):
+    """Class representing a chariot"""
+
+    _piece_value = 9
+
+    def get_admissible_moves(self) -> list:
+        x_direction = [1, -1, 0, 0]
+        y_direction = [0, 0, 1, -1]
+
+        admissible_moves = []
+
+        for direction in range(4):
+            for steps in range(1, 10):
+                new_position = (
+                    self.position[0] + steps * x_direction[direction],
+                    self.position[1] + steps * y_direction[direction],
+                )
+
+                # Check if the new position is on the board
+                if self.is_position_on_board(new_position):
+                    # Check if there is any piece on the new position
+                    if self.is_position_free(new_position) is False:
+                        # Check if the piece on the new position is on the enemy team
+                        if self.is_position_opponent(new_position):
+                            admissible_moves.append(new_position)
+                        break
+
+                    admissible_moves.append(new_position)
+
+        return admissible_moves
+
+    def create_copy(self, new_board):
+        return Chariot(self.position, self.team, new_board)
+
+
+class Elephant(Piece):
+    """Class representing an elephant"""
+
+    _piece_value = 2.5
+
+    def _cross_river(self, position: tuple):
+        """Return True if the piece cross river, vice versa"""
+        if self.team is Team.RED and position[0] < 6:
+            return True
+        if self.team is Team.BLACK and position[0] > 5:
+            return True
+        return False
+
+    def get_admissible_moves(self):
+        admissible_moves = []
+
+        # Possible goal positions
+        x_direction = [2, 2, -2, -2]
+        y_direction = [2, -2, 2, -2]
+        maximum_move_count = 4
+
+        # Possible block positions
+        x_block = [1, 1, -1, -1]
+        y_block = [1, -1, 1, -1]
+
+        for direction in range(maximum_move_count):
+            new_pos = (
+                self.position[0] + x_direction[direction],
+                self.position[1] + y_direction[direction],
+            )
+
+            block_pos = (
+                self.position[0] + x_block[direction],
+                self.position[1] + y_block[direction],
+            )
+
+            # Check if all the conditions below met to add admissible moves for elephant piece
+            if (
+                self.is_position_on_board(new_pos)
+                and self.is_position_free(block_pos)
+                and not self._cross_river(new_pos)
+                and not self.is_position_teammate(new_pos)
+            ):
+                admissible_moves.append(new_pos)
+
+        return admissible_moves
+
+    def create_copy(self, new_board):
+        return Elephant(self.position, self.team, new_board)
+
+
+class General(Piece):
+    """Class representing a general"""
+
+    _piece_value = 0
+
+    def get_admissible_moves(self) -> list:
+        x_direction = [1, -1, 0, 0]
+        y_direction = [0, 0, 1, -1]
+
+        admissible_moves = []
+
+        for direction in range(4):
+            new_position = (
+                self.position[0] + x_direction[direction],
+                self.position[1] + y_direction[direction],
+            )
+
+            # Check if the new position is in the palace
+            if self.is_position_in_palace(new_position):
+                # Check if there is any piece on the new position
+                if self.is_position_free(new_position):
+                    admissible_moves.append(new_position)
+
+                # Check if the piece on the new position is on the enemy team
+                elif self.is_position_opponent(new_position):
+                    admissible_moves.append(new_position)
+
+        return admissible_moves
+
+    def create_copy(self, new_board):
+        return General(self.position, self.team, new_board)
+
+
+class Pawn(Piece):
+    """Class representing a pawn"""
+
+    _has_crossed_river = False
+    _piece_value = 1
+
+    @property
+    def has_crossed_river(self):
+        """Return True if the pawn is crossed the river"""
+        if self._has_crossed_river is True:
+            return True
+
+        self._has_crossed_river = (
+            abs(self.position[0] + 9 * (self.team.value - 1) / 2) < 5
+        )
+
+    @property
+    def piece_value(self):
+        if self.has_crossed_river is True:
+            self._piece_value = 2
+        return self._piece_value
+
+    # Searching admissible moves for the pawn
+    def get_admissible_moves(self):
+        possible_moves = []
+
+        # Movement
+        new_pos = (self.position[0] - self.team.value, self.position[1])
+        if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
+            possible_moves.append(new_pos)
+
+        if self.has_crossed_river is True:
+            new_pos = (self.position[0], self.position[1] + 1)
+            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
+                possible_moves.append(new_pos)
+
+            new_pos = (self.position[0], self.position[1] - 1)
+            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
+                possible_moves.append(new_pos)
+
+        # Capture (it's the same with movement, dang it)
+
+        return possible_moves
+
+    def create_copy(self, new_board):
+        return Pawn(self.position, self.team, new_board)
+
+
+class Horse(Piece):
+    """Class representing a horse"""
+
+    _piece_value = 4
+
+    def get_admissible_moves(self):
+
+        # Movement
+        admissible_moves = []
+
+        # Possible goal positions
+        x_orient = [2, 2, 1, -1, -2, -2, -1, 1]
+        y_orient = [1, -1, -2, -2, -1, 1, 2, 2]
+        maximum_move_count = 8
+
+        # Possible middle move positions
+        p_orient = [1, 0, -1, 0]
+        q_orient = [0, -1, 0, 1]
+
+        for cnt in range(maximum_move_count):
+
+            # Middle position
+            pos = (self.position[0] + p_orient[cnt//2],
+                   self.position[1] + q_orient[cnt//2])
+
+            # Check the middle position
+            if self.is_position_on_board(pos)\
+                    and self.is_position_free(pos):
+
+                # Goal position
+                pos = (self.position[0] + x_orient[cnt],
+                       self.position[1] + y_orient[cnt])
+
+                # Check the goal position
+                if self.is_position_on_board(pos)\
+                        and not self.is_position_teammate(pos):
+                    admissible_moves.append(pos)
+
+        # Return
+        return admissible_moves
+
+    def create_copy(self, new_board):
+        return Horse(self.position, self.team, new_board)
