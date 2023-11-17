@@ -128,15 +128,17 @@ class GameState:
             return self.pieces_list_red
 
     def generate_game_state_with_move(self, old_pos, new_pos):
-        """This method creates a game state with a move"""
+        """This method creates a game state with a move
+        (return None if the game state is invalid)"""
         # Create a copy of current board and transform it
         new_board = self._create_a_new_board(old_pos, new_pos)
 
         # Get the opponent team
         opponent = self._get_the_opponent_team()
 
-        # Create new chess piece list
+        # Create new chess piece list and current team's general position
         new_pieces_list_red, new_pieces_list_black = list(), list()
+        current_team_general_position = None
 
         for piece in self.pieces_list_red + self.pieces_list_black:
             # If the piece is on the new position of the chosen one, then remove it
@@ -152,11 +154,54 @@ class GameState:
             if piece.team is opponent:  # Update admissible_moves
                 new_piece.set_admissible_moves()
 
+            # If the piece is current team general, get the position
+            if new_piece.team is self._current_team and isinstance(new_piece, General):
+                current_team_general_position = new_piece.position
+
             # Append new piece to the list
             if new_piece.team is Team.RED:
                 new_pieces_list_red.append(new_piece)
             else:
                 new_pieces_list_black.append(new_piece)
+
+        # Check if the game state is valid
+        # Get the new opponent pieces list
+        new_opponent_pieces_list = None
+        if opponent is Team.RED:
+            new_opponent_pieces_list = new_pieces_list_red
+        else:
+            new_opponent_pieces_list = new_pieces_list_black
+
+        # Iterate for each piece in the list and detect the invalid
+        for piece in new_opponent_pieces_list:
+            # If the piece is advisor or elephant, then skip
+            if isinstance(piece, Advisor) or isinstance(piece, Elephant):
+                continue
+
+            # If the piece is general, check the y position
+            if (
+                isinstance(piece, General)
+                and piece.position[1] == current_team_general_position[1]
+            ):
+                x_min = piece.position[0] - opponent.value
+                x_max = current_team_general_position[0] - \
+                    self._current_team.value
+                if x_min > x_max:
+                    x_min, x_max = x_max, x_min
+
+                has_obstacle = False
+                for x in range(x_min, x_max + 1):
+                    if new_board[x][piece.position[1]] is not Team.NONE:
+                        has_obstacle = True
+                        break
+
+                if has_obstacle is False:
+                    return None
+                continue
+
+            #Else: Check if admissible moves of the piece containing the general position
+            if current_team_general_position in piece.admissible_moves:
+                return None
 
         # Return the game state which has the new information
         return GameState(
