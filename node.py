@@ -74,10 +74,9 @@ class NodeMinimax(Node):
     # Instance methods
     def generate_all_children(self) -> None:
         """This method fills up the list of children nodes"""
-
-        self.list_of_children = self.get_all_children()
         if self._is_generated_all_children:
             return
+        self.list_of_children = self.get_all_children()
         self._is_generated_all_children = True
     
     def reset_statistics(self) -> None:
