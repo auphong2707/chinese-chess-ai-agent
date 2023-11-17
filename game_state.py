@@ -321,14 +321,9 @@ class GameState:
     def get_team_win(self):
         """This method return the winning team"""
 
-        # Get the current team piece list
-        pieces_list_current_team = self._get_the_current_team_pieces_list()
-
-        for piece in pieces_list_current_team:  # Check every piece in team
-            if (
-                len(piece.admissible_moves) > 0
-            ):  # If any piece has at least 1 possible move, then return none
-                return Team.NONE
+        # If the current game state has child game states, then return Team.NONE
+        if len(self.all_child_gamestates) > 0:
+            return Team.NONE
 
         # Return the opponent if current team has no admissible move
         return self._get_the_opponent_team()
