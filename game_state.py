@@ -35,8 +35,6 @@ class GameState:
 
         # Declare read-only properties
         self._value = None
-        self._checked_team = Team.NONE
-        self._win_status = None
         self._board = board
         self._current_team = current_team
         self._all_child_gamestates = None
