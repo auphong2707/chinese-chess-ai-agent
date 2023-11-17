@@ -54,29 +54,6 @@ class GameState:
             self._value = self._get_game_state_value()
 
         return self._value
-
-    # .checked_team
-    @property
-    def checked_team(self) -> Team:
-        """This is the Getter function of the checked_team property,
-        return the team which checkmates the opponent"""
-
-        if self._checked_team is Team.NONE:
-            self._checked_team = self._get_checked_team
-
-        return self._checked_team
-
-    # .win_status
-    @property
-    def win_status(self) -> bool:
-        """This is the Getter function of the win_status property.
-        If the state always recieves victory, then this will return True"""
-
-        if self._win_status is None:
-            self.win_status = self._get_win_status()
-
-        return self._win_status
-
     # [END INITILIZATION]
 
     # [BEGIN METHOD]
@@ -99,15 +76,6 @@ class GameState:
             current_value = current_value + piece.piece_value
 
         return current_value
-
-    def _get_checked_team(self):
-        # Incomplete code: Return the team that checked the oponent in this state
-        return Team.NONE
-
-    def _get_win_status(self):
-        # Incomplete code: Return the evaluation result that confirm this state
-        # can always end the game with the victory
-        return False
 
     def _get_the_opponent_team(self):
         """This method will return the opponent team in this game state"""
