@@ -117,9 +117,9 @@ class GameState:
             # If the piece is the moved one
             if piece.position == old_pos:
                 # Create a copy of that piece and update the statistic
-                new_piece = piece.create_copy(new_board)
+                new_piece = piece.create_copy()
                 new_piece.position = new_pos
-                new_piece.set_admissible_moves()
+                new_piece.set_admissible_moves(new_board)
 
                 # Append new piece to the list
                 new_pieces_list_opponent.append(new_piece)
@@ -138,8 +138,8 @@ class GameState:
                 continue
 
             # Create a copy of the piece and update the statistic
-            new_piece = piece.create_copy(new_board)
-            new_piece.set_admissible_moves()
+            new_piece = piece.create_copy()
+            new_piece.set_admissible_moves(new_board)
 
             # Append new piece to the list
             new_pieces_list_current.append(new_piece)
@@ -241,23 +241,23 @@ class GameState:
         for columns in range(GameState.BOARD_SIZE_Y):
             # Create black chariots
             if columns == 0 or columns == 8:
-                black_piece = Chariot((0, columns), Team.BLACK, board)
+                black_piece = Chariot((0, columns), Team.BLACK)
 
             # Create black horses
             elif columns == 1 or columns == 7:
-                black_piece = Horse((0, columns), Team.BLACK, board)
+                black_piece = Horse((0, columns), Team.BLACK)
 
             # Create black elephants
             elif columns == 2 or columns == 6:
-                black_piece = Elephant((0, columns), Team.BLACK, board)
+                black_piece = Elephant((0, columns), Team.BLACK)
 
             # Create black advisors
             elif columns == 3 or columns == 5:
-                black_piece = Advisor((0, columns), Team.BLACK, board)
+                black_piece = Advisor((0, columns), Team.BLACK)
 
             # Create black general
             else:
-                black_piece = General((0, columns), Team.BLACK, board)
+                black_piece = General((0, columns), Team.BLACK)
 
             # Put the pieces created into chess_pieces list
             pieces_list_black.append(black_piece)
@@ -267,7 +267,7 @@ class GameState:
 
         # Create black cannons
         for columns in range(1, 8, 6):
-            black_cannon = Cannon((2, columns), Team.BLACK, board)
+            black_cannon = Cannon((2, columns), Team.BLACK)
 
             # Put the pieces created into chess_pieces list
             pieces_list_black.append(black_cannon)
@@ -277,7 +277,7 @@ class GameState:
 
         # Create black pawns
         for columns in range(0, GameState.BOARD_SIZE_Y, 2):
-            black_pawn = Pawn((3, columns), Team.BLACK, board)
+            black_pawn = Pawn((3, columns), Team.BLACK)
 
             # Put the pieces created into chess_pieces list
             pieces_list_black.append(black_pawn)
@@ -289,23 +289,23 @@ class GameState:
         for columns in range(GameState.BOARD_SIZE_Y):
             # Create red chariots
             if columns == 0 or columns == 8:
-                red_piece = Chariot((9, columns), Team.RED, board)
+                red_piece = Chariot((9, columns), Team.RED)
 
             # Create red horses
             elif columns == 1 or columns == 7:
-                red_piece = Horse((9, columns), Team.RED, board)
+                red_piece = Horse((9, columns), Team.RED)
 
             # Create red elephants
             elif columns == 2 or columns == 6:
-                red_piece = Elephant((9, columns), Team.RED, board)
+                red_piece = Elephant((9, columns), Team.RED)
 
             # Create red advisors
             elif columns == 3 or columns == 5:
-                red_piece = Advisor((9, columns), Team.RED, board)
+                red_piece = Advisor((9, columns), Team.RED)
 
             # Create red general
             else:
-                red_piece = General((9, columns), Team.RED, board)
+                red_piece = General((9, columns), Team.RED)
 
             # Put the pieces created into chess_pieces list
             pieces_list_red.append(red_piece)
@@ -315,7 +315,7 @@ class GameState:
 
         # Create red cannons
         for columns in range(1, 8, 6):
-            red_cannon = Cannon((7, columns), Team.RED, board)
+            red_cannon = Cannon((7, columns), Team.RED)
 
             # Put the pieces created into chess_pieces list
             pieces_list_red.append(red_cannon)
@@ -325,7 +325,7 @@ class GameState:
 
         # Create red pawns
         for columns in range(0, GameState.BOARD_SIZE_Y, 2):
-            red_pawn = Pawn((6, columns), Team.RED, board)
+            red_pawn = Pawn((6, columns), Team.RED)
 
             # Put the pieces created into chess_pieces list
             pieces_list_red.append(red_pawn)
@@ -338,7 +338,7 @@ class GameState:
 
         # Set all admissible moves of the red pieces
         for piece in pieces_list_red:
-            piece.set_admissible_moves()
+            piece.set_admissible_moves(board)
 
         # return the initial board
         return GameState(pieces_list_red, pieces_list_black, board, Team.RED)

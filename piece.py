@@ -21,13 +21,12 @@ class Piece(ABC):
     # [END CONSTANTS]
 
     # [BEGIN INITILIZATION]
-    def __init__(self, position: tuple, team: Team, board: tuple) -> None:
+    def __init__(self, position: tuple, team: Team) -> None:
         # Create properties
         self.position = position
         self.team = team
-        self._board = board
 
-        self.admissible_moves = list()
+        self.admissible_moves = None
 
     # Properties initialization
     # .position
@@ -44,11 +43,6 @@ class Piece(ABC):
 
         self._position = new_position
 
-    # .board
-    def set_board(self, board: tuple) -> None:
-        """Setter of board property"""
-        self._board = board
-
     # .piece value
     @property
     def piece_value(self):
@@ -58,38 +52,38 @@ class Piece(ABC):
 
     # [BEGIN METHODS]
     # Instance method
-    def _get_piece_team_on_position(self, position: tuple) -> Team:
+    def _get_piece_team_on_position(self, position: tuple, board: tuple) -> Team:
         """Return the team of the piece on the position (Team.NONE, Team.RED, Team.BLACK)"""
         if self.is_position_on_board(position) is False:
             raise ValueError("The position is out of range")
 
-        return self._board[position[0]][position[1]]
+        return board[position[0]][position[1]]
 
-    def is_position_teammate(self, position: tuple):
+    def is_position_teammate(self, position: tuple, board: tuple):
         """Return True if the piece on the position is teammate piece, vice versa"""
-        return self._get_piece_team_on_position(position) is self.team
+        return self._get_piece_team_on_position(position, board) is self.team
 
-    def is_position_free(self, position: tuple):
+    def is_position_free(self, position: tuple, board: tuple):
         """Return True if there is no piece on the position, vice versa"""
-        return self._get_piece_team_on_position(position) is Team.NONE
+        return self._get_piece_team_on_position(position, board) is Team.NONE
 
-    def is_position_opponent(self, position: tuple):
+    def is_position_opponent(self, position: tuple, board: tuple):
         """Return True if the piece on the position is opponent piece, vice versa"""
-        return self._get_piece_team_on_position(position).value == -self.team.value
+        return self._get_piece_team_on_position(position, board).value == -self.team.value
 
-    def set_admissible_moves(self):
+    def set_admissible_moves(self, board: tuple):
         """This method will set a new list of admissible moves of the piece"""
-        self.admissible_moves = self.get_admissible_moves()
+        self.admissible_moves = self.get_admissible_moves(board)
 
     # Abstract method
     @abstractmethod
-    def get_admissible_moves(self) -> list:
+    def get_admissible_moves(self, board: tuple) -> list:
         """Abstract method that return the list of admissible moves of a piece.
         This method is used to initialize the piece"""
         pass
 
     @abstractmethod
-    def create_copy(self, new_board):
+    def create_copy(self):
         """This return a copy of current piece with a new attached board"""
         pass
 
@@ -133,7 +127,7 @@ class Advisor(Piece):
 
     _piece_value = 2
 
-    def get_admissible_moves(self):
+    def get_admissible_moves(self, board:tuple):
         # Movement
         admissible_moves = []
 
@@ -151,7 +145,7 @@ class Advisor(Piece):
             # Checkment
             if (
                 self.is_position_on_board(pos)
-                and not self.is_position_teammate(pos)
+                and not self.is_position_teammate(pos, board)
                 and self.is_position_in_palace(pos)
             ):
                 admissible_moves.append(pos)
@@ -159,8 +153,8 @@ class Advisor(Piece):
         # Return
         return admissible_moves
 
-    def create_copy(self, new_board):
-        return Advisor(self.position, self.team, new_board)
+    def create_copy(self):
+        return Advisor(self.position, self.team)
 
 
 class Cannon(Piece):
@@ -168,7 +162,7 @@ class Cannon(Piece):
 
     _piece_value = 4.5
 
-    def get_admissible_moves(self) -> list:
+    def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
         admissible_moves = []
@@ -184,11 +178,11 @@ class Cannon(Piece):
                 if self.is_position_on_board(new_position):
 
                     # Check if there is any piece on the new position
-                    if self.is_position_free(new_position) is False:
+                    if self.is_position_free(new_position, board) is False:
                         piece_behind += 1
 
                         # If there is an enemy piece behind the piece in new position
-                        if piece_behind == 2 and self.is_position_opponent(new_position):
+                        if piece_behind == 2 and self.is_position_opponent(new_position, board):
 
                             admissible_moves.append(new_position)
                             break
@@ -198,8 +192,8 @@ class Cannon(Piece):
 
         return admissible_moves
 
-    def create_copy(self, new_board):
-        return Cannon(self.position, self.team, new_board)
+    def create_copy(self):
+        return Cannon(self.position, self.team)
 
 
 class Chariot(Piece):
@@ -207,7 +201,7 @@ class Chariot(Piece):
 
     _piece_value = 9
 
-    def get_admissible_moves(self) -> list:
+    def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
 
@@ -223,9 +217,9 @@ class Chariot(Piece):
                 # Check if the new position is on the board
                 if self.is_position_on_board(new_position):
                     # Check if there is any piece on the new position
-                    if self.is_position_free(new_position) is False:
+                    if self.is_position_free(new_position, board) is False:
                         # Check if the piece on the new position is on the enemy team
-                        if self.is_position_opponent(new_position):
+                        if self.is_position_opponent(new_position, board):
                             admissible_moves.append(new_position)
                         break
 
@@ -233,8 +227,8 @@ class Chariot(Piece):
 
         return admissible_moves
 
-    def create_copy(self, new_board):
-        return Chariot(self.position, self.team, new_board)
+    def create_copy(self):
+        return Chariot(self.position, self.team)
 
 
 class Elephant(Piece):
@@ -250,7 +244,7 @@ class Elephant(Piece):
             return True
         return False
 
-    def get_admissible_moves(self):
+    def get_admissible_moves(self, board: tuple):
         admissible_moves = []
 
         # Possible goal positions
@@ -276,16 +270,16 @@ class Elephant(Piece):
             # Check if all the conditions below met to add admissible moves for elephant piece
             if (
                 self.is_position_on_board(new_pos)
-                and self.is_position_free(block_pos)
+                and self.is_position_free(block_pos, board)
                 and not self._cross_river(new_pos)
-                and not self.is_position_teammate(new_pos)
+                and not self.is_position_teammate(new_pos, board)
             ):
                 admissible_moves.append(new_pos)
 
         return admissible_moves
 
-    def create_copy(self, new_board):
-        return Elephant(self.position, self.team, new_board)
+    def create_copy(self):
+        return Elephant(self.position, self.team)
 
 
 class General(Piece):
@@ -293,7 +287,7 @@ class General(Piece):
 
     _piece_value = 0
 
-    def get_admissible_moves(self) -> list:
+    def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
 
@@ -308,17 +302,17 @@ class General(Piece):
             # Check if the new position is in the palace
             if self.is_position_in_palace(new_position):
                 # Check if there is any piece on the new position
-                if self.is_position_free(new_position):
+                if self.is_position_free(new_position, board):
                     admissible_moves.append(new_position)
 
                 # Check if the piece on the new position is on the enemy team
-                elif self.is_position_opponent(new_position):
+                elif self.is_position_opponent(new_position, board):
                     admissible_moves.append(new_position)
 
         return admissible_moves
 
-    def create_copy(self, new_board):
-        return General(self.position, self.team, new_board)
+    def create_copy(self):
+        return General(self.position, self.team)
 
 
 class Pawn(Piece):
@@ -344,29 +338,29 @@ class Pawn(Piece):
         return self._piece_value
 
     # Searching admissible moves for the pawn
-    def get_admissible_moves(self):
+    def get_admissible_moves(self, board: tuple) -> list:
         possible_moves = []
 
         # Movement
         new_pos = (self.position[0] - self.team.value, self.position[1])
-        if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
+        if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos, board):
             possible_moves.append(new_pos)
 
         if self.has_crossed_river is True:
             new_pos = (self.position[0], self.position[1] + 1)
-            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
+            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos, board):
                 possible_moves.append(new_pos)
 
             new_pos = (self.position[0], self.position[1] - 1)
-            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
+            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos, board):
                 possible_moves.append(new_pos)
 
         # Capture (it's the same with movement, dang it)
 
         return possible_moves
 
-    def create_copy(self, new_board):
-        return Pawn(self.position, self.team, new_board)
+    def create_copy(self):
+        return Pawn(self.position, self.team)
 
 
 class Horse(Piece):
@@ -374,7 +368,7 @@ class Horse(Piece):
 
     _piece_value = 4
 
-    def get_admissible_moves(self):
+    def get_admissible_moves(self, board: tuple) -> list:
 
         # Movement
         admissible_moves = []
@@ -396,7 +390,7 @@ class Horse(Piece):
 
             # Check the middle position
             if self.is_position_on_board(pos)\
-                    and self.is_position_free(pos):
+                    and self.is_position_free(pos, board):
 
                 # Goal position
                 pos = (self.position[0] + x_orient[cnt],
@@ -404,11 +398,11 @@ class Horse(Piece):
 
                 # Check the goal position
                 if self.is_position_on_board(pos)\
-                        and not self.is_position_teammate(pos):
+                        and not self.is_position_teammate(pos, board):
                     admissible_moves.append(pos)
 
         # Return
         return admissible_moves
 
-    def create_copy(self, new_board):
-        return Horse(self.position, self.team, new_board)
+    def create_copy(self):
+        return Horse(self.position, self.team)
