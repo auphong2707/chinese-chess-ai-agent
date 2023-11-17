@@ -41,9 +41,6 @@ class GameState:
         self._current_team = current_team
         self._all_child_gamestates = None
 
-        # Remove the checked move
-        self._remove_checked_move()
-
     # Properties initialization
     # .value
     @property
@@ -120,13 +117,6 @@ class GameState:
         else:
             return self.pieces_list_black
 
-    def _get_the_opponent_pieces_list(self):
-        """This method will return the chess pieces list of the opponent"""
-        if self._current_team is Team.RED:
-            return self.pieces_list_black
-        else:
-            return self.pieces_list_red
-
     def generate_game_state_with_move(self, old_pos, new_pos):
         """This method creates a game state with a move
         (return None if the game state is invalid)"""
@@ -199,7 +189,7 @@ class GameState:
                     return None
                 continue
 
-            #Else: Check if admissible moves of the piece containing the general position
+            # Else: Check if admissible moves of the piece containing the general position
             if current_team_general_position in piece.admissible_moves:
                 return None
 
@@ -239,84 +229,6 @@ class GameState:
                     game_states_available.append(game_state)
 
         return game_states_available
-
-    def _remove_checked_move(self):
-        """This method removes all moves that lead the current team's loss"""
-        # Get the opponent team
-        opponent = self._get_the_opponent_team()
-
-        # Get the piece list
-        pieces_list_current_team = self._get_the_current_team_pieces_list()
-        pieces_list_opponent = self._get_the_opponent_pieces_list()
-
-        # Find the current team general position
-        general_position = None
-        for piece in pieces_list_current_team:
-            if isinstance(piece, General):
-                general_position = piece.position
-                break
-
-        # This method will return False if the move made the current team be checked
-        def check_checkmate(board, general_position):
-            for piece in pieces_list_opponent:
-                # If the piece is advisor or elephant, then skip
-                if isinstance(piece, Advisor) or isinstance(piece, Elephant):
-                    continue
-
-                # If the piece is general, check the y position
-                if (
-                    isinstance(piece, General)
-                    and piece.position[1] == general_position[1]
-                ):
-                    x_min = piece.position[0] - opponent.value
-                    x_max = general_position[0] - self._current_team.value
-                    if x_min > x_max:
-                        x_min, x_max = x_max, x_min
-
-                    has_obstacle = False
-                    for x in range(x_min, x_max + 1):
-                        if board[x][general_position[1]] is not Team.NONE:
-                            has_obstacle = True
-                            break
-
-                    if has_obstacle is False:
-                        return False
-
-                    continue
-
-                # Made the copy of the piece, add the board
-                # and get the new admissible moves of that piece
-                piece_clone = deepcopy(piece)
-                piece_clone.set_board(board)
-                piece_clone.set_admissible_moves()
-
-                # Check if admissible moves of the piece containing the general position
-                if general_position in piece_clone.admissible_moves:
-                    return False
-            return True
-
-        # Iterate through all the moves
-        for piece in pieces_list_current_team:
-            # Assign current position of the piece
-            old_pos = piece.position
-
-            # Iterate over admissible position of the piece
-            new_admisible_moves = list()  # Create the new admissible moves list
-            for new_pos in piece.admissible_moves:
-                # Creating a new board by using the move
-                new_board = self._create_a_new_board(old_pos, new_pos)
-
-                # Check if the move made the current team be checked
-                if (
-                    isinstance(piece, General) and check_checkmate(new_board, new_pos)
-                ) or (
-                    not isinstance(piece, General)
-                    and check_checkmate(new_board, general_position)
-                ):
-                    new_admisible_moves.append(new_pos)
-
-            # Assign filtered adssible moves list
-            piece.admissible_moves = new_admisible_moves
 
     def get_team_win(self):
         """This method return the winning team"""
