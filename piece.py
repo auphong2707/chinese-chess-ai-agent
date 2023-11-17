@@ -88,6 +88,11 @@ class Piece(ABC):
         This method is used to initialize the piece"""
         pass
 
+    @abstractmethod
+    def create_copy(self, new_board):
+        """This return a copy of current piece with a new attached board"""
+        pass
+
     # Static method
     @staticmethod
     def is_position_on_board(position: tuple) -> bool:

@@ -134,9 +134,8 @@ class GameState:
                 continue
 
             # Create a copy of the current piece, and initialize it
-            new_piece = deepcopy(piece)
+            new_piece = piece.create_copy(new_board)
 
-            new_piece.set_board(new_board)  # Update board
             if piece.position == old_pos:  # Update position
                 new_piece.position = new_pos
             if piece.team is opponent:  # Update admissible_moves
@@ -362,10 +361,10 @@ class GameState:
 
 if __name__ == '__main__':
     queue = [GameState.generate_initial_game_state()]
-    for depth in range(1, 3):
+    for depth in range(1, 4):
         new_queue = list()
-        for game_state in queue:
-            for state, move in game_state.all_child_gamestates:
+        for game_state_ in queue:
+            for state, move_ in game_state_.all_child_gamestates:
                 new_queue.append(state)
 
         queue = new_queue

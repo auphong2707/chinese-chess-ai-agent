@@ -33,6 +33,8 @@ class Advisor(Piece):
         # Return
         return admissible_moves
 
+    def create_copy(self, new_board):
+        return Advisor(self.position, self.team, new_board)
 
 if __name__ == "__main__":
     # Test the class here Mortdog

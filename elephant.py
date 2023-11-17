@@ -51,6 +51,9 @@ class Elephant(Piece):
 
         return admissible_moves
 
+    def create_copy(self, new_board):
+        return Elephant(self.position, self.team, new_board)
+
 
 if __name__ == "__main__":
     # test the class here Mortdog

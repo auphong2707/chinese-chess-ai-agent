@@ -30,6 +30,9 @@ class General(Piece):
 
         return admissible_moves
 
+    def create_copy(self, new_board):
+        return General(self.position, self.team, new_board)
+
 
 if __name__ == "__main__":
     # Test the class here Mortdog
