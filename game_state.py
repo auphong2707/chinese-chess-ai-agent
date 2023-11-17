@@ -210,28 +210,12 @@ class GameState:
             old_pos, new_pos
         )
 
-    def generate_random_game_state(self, policy):
+    def generate_random_game_state(self):
         """This method will generate another gamestate that can be tranformed
         by current method using each move of the piece"""
 
-        # Get the current team chess chess pieces list
-        pieces_list = self._get_the_current_team_pieces_list()
-
-        # Get a random move and a random piece
-        rand_piece_index = randint(0, len(pieces_list) - 1)
-        while len(pieces_list[rand_piece_index].admissible_moves) == 0:
-            rand_piece_index = randint(0, len(pieces_list) - 1)
-
-        rand_move_index = randint(
-            0, len(pieces_list[rand_piece_index].admissible_moves) - 1
-        )
-
-        # Get the old position and new position of the chosen piece
-        old_pos = pieces_list[rand_piece_index].position
-        new_pos = pieces_list[rand_piece_index].admissible_moves[rand_move_index]
-
-        # Return the game state which has the new information
-        return self.generate_game_state_with_move(old_pos, new_pos)
+        # Return a random child game states of the current game states
+        return self.all_child_gamestates[randint(0, len(self.all_child_gamestates) - 1)]
 
     def generate_all_game_states(self):
         """This method will return the list of all states that can be accessed
