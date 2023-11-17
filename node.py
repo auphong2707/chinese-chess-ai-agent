@@ -19,6 +19,7 @@ class Node(ABC):
 
         # Node statistic
         self.game_state = game_state
+        self._is_generated_all_children = False
 
     # [END INITIALIZATION]
 
@@ -75,8 +76,11 @@ class NodeMinimax(Node):
         """This method fills up the list of children nodes"""
 
         self.list_of_children = self.get_all_children()
-
-    def _reset_statistics(self) -> None:
+        if self._is_generated_all_children:
+            return
+        self._is_generated_all_children = True
+    
+    def reset_statistics(self) -> None:
         """This method resets the minimax statistics"""
 
         self.alpha = -inf
