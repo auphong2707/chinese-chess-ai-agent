@@ -27,7 +27,7 @@ class Piece(ABC):
         self.team = team
         self._board = board
 
-        self._admissible_moves = list()
+        self.admissible_moves = list()
 
     # Properties initialization
     # .position
@@ -43,17 +43,6 @@ class Piece(ABC):
             raise ValueError("The position is out of range")
 
         self._position = new_position
-
-    # .admissible moves
-    @property
-    def admissible_moves(self) -> list:
-        """Getter of the admissible_moves property, return the list of admissible move of a piece"""
-        return self._admissible_moves
-
-    @admissible_moves.setter
-    def admissible_moves(self, other: list) -> None:
-        """Setter of the admissible move property, recieve a list type"""
-        self._admissible_moves = other
 
     # .board
     def set_board(self, board: tuple) -> None:
