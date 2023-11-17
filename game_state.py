@@ -359,3 +359,14 @@ class GameState:
         return GameState(pieces_list_red, pieces_list_black, board, Team.RED)
 
     # [END METHOD]
+
+if __name__ == '__main__':
+    queue = [GameState.generate_initial_game_state()]
+    for depth in range(1, 3):
+        new_queue = list()
+        for game_state in queue:
+            for state, move in game_state.all_child_gamestates:
+                new_queue.append(state)
+
+        queue = new_queue
+        print(depth, len(queue))
