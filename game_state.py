@@ -39,6 +39,7 @@ class GameState:
         self._win_status = None
         self._board = board
         self._current_team = current_team
+        self._all_child_gamestates = None
 
         # Remove the checked move
         self._remove_checked_move()
@@ -54,6 +55,16 @@ class GameState:
             self._value = self._get_game_state_value()
 
         return self._value
+
+    # .all_child_gamestates
+    @property
+    def all_child_gamestates(self) -> list:
+        """This is the Getter function of the list of child game states"""
+
+        if self._all_child_gamestates is None:
+            self._all_child_gamestates = self.generate_all_game_states()
+
+        return self._all_child_gamestates
     # [END INITILIZATION]
 
     # [BEGIN METHOD]
