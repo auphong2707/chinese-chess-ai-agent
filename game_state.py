@@ -249,9 +249,10 @@ class GameState:
                 new_pos = move
 
                 # Add new game state into the above list
-                game_states_available.append(
-                    self.generate_game_state_with_move(old_pos, new_pos)
-                )
+                game_state = self.generate_game_state_with_move(old_pos, new_pos)
+
+                if game_state is not None:
+                    game_states_available.append(game_state)
 
         return game_states_available
 
