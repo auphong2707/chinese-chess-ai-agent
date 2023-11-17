@@ -89,7 +89,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
             return node.minimax_value
 
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
-        return NodeMinimax._create_node(self, game_state, parent, parent_move)
+        return NodeMinimax(game_state, parent, parent_move)
 
 
 if __name__ == "main":
