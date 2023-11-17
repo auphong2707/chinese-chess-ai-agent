@@ -1,9 +1,10 @@
 # Made by Kleecon~
-
+from cmath import inf
+from abc import ABC, abstractmethod
 from game_state import GameState
 from piece import Piece
 from node import Node
-from abc import ABC, abstractmethod
+from node import NodeMinimax
 
 
 class GameTree(ABC):
@@ -49,6 +50,46 @@ class GameTree(ABC):
     def _create_node(self, game_state, parent, parent_move) -> None:
         """This method return a new node of the tree"""
         pass
+
+
+class GameTreeMinimax(GameTree, NodeMinimax):
+    """This class is responsible for the game tree minimax"""
+
+    TARGET_DEPTH = 7
+
+    def minimax(self, node: NodeMinimax, depth: int, max_turn: bool):
+        """Minimax method"""
+
+        node.reset_statistics()
+        # If the node reaches the target depth
+        if depth == self.TARGET_DEPTH:
+            node.minimax_value = node.game_state.value
+            return node.minimax_value
+
+        node.generate_all_children()
+        # Max turn
+        if max_turn is True:
+            node.minimax_value = -inf
+            for child in node.list_of_children:
+                value = self.minimax(child, depth + 1, False)
+                node.minimax_value = max(node.minimax_value, value)
+                node.alpha = max(node.alpha, node.minimax_value)
+                if node.beta <= node.alpha:
+                    break
+            return node.minimax_value
+        # Min turn
+        else:
+            node.minimax_value = inf
+            for child in node.list_of_children:
+                value = self.minimax(child, depth + 1, True)
+                node.minimax_value = min(node.minimax_value, value)
+                node.beta = min(node.beta, node.minimax_value)
+                if node.beta <= node.alpha:
+                    break
+            return node.minimax_value
+
+    def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
+        return NodeMinimax(game_state, parent, parent_move)
 
 
 if __name__ == "main":

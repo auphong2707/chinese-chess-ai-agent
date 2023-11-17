@@ -19,6 +19,7 @@ class Node(ABC):
 
         # Node statistic
         self.game_state = game_state
+        self._is_generated_all_children = False
 
     # [END INITIALIZATION]
 
@@ -63,10 +64,9 @@ class NodeMinimax(Node):
         super().__init__(game_state, parent, parent_move)
 
         # Minimax statistics
-        self._alpha = -inf
-        self._beta = inf
+        self.alpha = -inf
+        self.beta = inf
         self.minimax_value = None
-        self.depth = None
 
     # [END INITIALIZATION]
 
@@ -74,16 +74,17 @@ class NodeMinimax(Node):
     # Instance methods
     def generate_all_children(self) -> None:
         """This method fills up the list of children nodes"""
-
+        if self._is_generated_all_children:
+            return
         self.list_of_children = self.get_all_children()
-
-    def _reset_statistics(self) -> None:
+        self._is_generated_all_children = True
+    
+    def reset_statistics(self) -> None:
         """This method resets the minimax statistics"""
 
-        self._alpha = -inf
-        self._beta = inf
+        self.alpha = -inf
+        self.beta = inf
         self.minimax_value = None
-        self.depth = None
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMinimax(game_state, parent, parent_move)
