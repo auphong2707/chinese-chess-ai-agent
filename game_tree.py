@@ -65,7 +65,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
         self.count += 1
         node.reset_statistics()
         # If the node reaches the target depth or the count reaches max number
-        if depth == self.TARGET_DEPTH or self.count == self.MAX_NODE:
+        if depth == self.TARGET_DEPTH or self.count >= self.MAX_NODE:
             node.minimax_value = node.game_state.value
             return node.minimax_value
 
