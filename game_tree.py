@@ -10,12 +10,15 @@ from node import NodeMinimax
 class GameTree(ABC):
     """This class is responsible for the game tree representation"""
 
+    MAX_NODE = inf
+
     def __init__(self, team) -> None:
         # This generates the initial game tree, not a forged one
         self.team = team
         self.current_node = self._create_node(
             GameState.generate_initial_game_state(), None, None
         )
+        self.count = 0
 
     def move_to_best_child(self) -> tuple:
         """This moves the current node to its "best child" on the game tree"""
@@ -55,14 +58,14 @@ class GameTree(ABC):
 class GameTreeMinimax(GameTree, NodeMinimax):
     """This class is responsible for the game tree minimax"""
 
-    TARGET_DEPTH = 7
+    TARGET_DEPTH = 4
 
-    def minimax(self, node: NodeMinimax, depth: int, max_turn: bool):
+    def minimax(self, node: NodeMinimax, depth: int, max_turn: bool, alpha: float = -inf, beta: float = inf):
         """Minimax method"""
-
+        self.count += 1
         node.reset_statistics()
-        # If the node reaches the target depth
-        if depth == self.TARGET_DEPTH:
+        # If the node reaches the target depth or the count reaches max number
+        if depth == self.TARGET_DEPTH or self.count == self.MAX_NODE:
             node.minimax_value = node.game_state.value
             return node.minimax_value
 
@@ -71,26 +74,25 @@ class GameTreeMinimax(GameTree, NodeMinimax):
         if max_turn is True:
             node.minimax_value = -inf
             for child in node.list_of_children:
-                value = self.minimax(child, depth + 1, False)
+                value = self.minimax(child, depth + 1, False, alpha, beta)
                 node.minimax_value = max(node.minimax_value, value)
-                node.alpha = max(node.alpha, node.minimax_value)
-                if node.beta <= node.alpha:
+                alpha = max(alpha, node.minimax_value)
+                if beta <= alpha:
                     break
             return node.minimax_value
         # Min turn
         else:
             node.minimax_value = inf
             for child in node.list_of_children:
-                value = self.minimax(child, depth + 1, True)
+                value = self.minimax(child, depth + 1, True, alpha, beta)
                 node.minimax_value = min(node.minimax_value, value)
-                node.beta = min(node.beta, node.minimax_value)
-                if node.beta <= node.alpha:
+                beta = min(beta, node.minimax_value)
+                if beta <= alpha:
                     break
             return node.minimax_value
 
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
         return NodeMinimax(game_state, parent, parent_move)
-
 
 if __name__ == "main":
     # Test the class here Focalors
