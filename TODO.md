@@ -9,7 +9,8 @@ Tasks: (Note: Check the UML before you do anything)
 - [x] 1-001: Create class NodeMinimax inherited from Node. The init function inherited from Node but add 4 more variables: alpha, beta, minimax_value, depth
 - [x] 1-002: Create the *generate_all_children* method: This method fill up the *list_of_children*
 - [x] 1-003: Create the *reset_statistics* method: This method reset all the value: alpha, beta, minimax_value, depth to -inf, inf, None, None
-- [ ] 2-000: Create abstract class GameTree in game_tree.py. Add 2 methods: *move_to_best_child* and *move_to_child_node_with_move*
-- [ ] 3-000: Create GameTreeMinimax class inherited from GameTree class. Add the *minimax* method to it
+- [x] 2-000: Create abstract class GameTree in game_tree.py. Add 2 methods: *move_to_best_child* and *move_to_child_node_with_move*
+- [x] 3-000: Create GameTreeMinimax class inherited from GameTree class. Add the *minimax* method to it
+- [ ] 3-001: Fix the alpha-beta pruning, and target-depth of the GameTreeMinimax
 - [x] 4-000: Create NodeMCTS inherited from Node and initialize it. Create the *generate_all_unvisited_node* method
 - [ ] 4-001: Create *rollout*, *backpropagate*, *best_child* method in NodeMTCS
