@@ -78,7 +78,7 @@ class NodeMinimax(Node):
             return
         self.list_of_children = self.get_all_children()
         self._is_generated_all_children = True
-    
+
     def reset_statistics(self) -> None:
         """This method resets the minimax statistics"""
 
@@ -152,5 +152,24 @@ class NodeMCTS(Node):
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMCTS(game_state, parent, parent_move)
+
+    def update_stat(self, node, result):
+        self._result[result] += 1
+        self._number_of_visits += 1
+
+    def backpropagation(self, node, result):
+        if node.parent == None:
+            return
+        node.update_stat(node, result)
+        self.backpropagation(node.parent, result)
+
+    def best_child(self, root):
+        max_number_of_visits = 0
+        current_best_child = None
+        for child in root.list_of_children:
+            if child._number_of_visits > max_number_of_visits:
+                max_number_of_visits = child._number_of_visits
+                current_best_child = child
+        return current_best_child
 
     # [END METHOD]
