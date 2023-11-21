@@ -6,7 +6,7 @@ import pygame
 ORIGIN_X, ORIGIN_Y = 45, 10
 START_X, START_Y = 47, 8
 STEP_X, STEP_Y = 63, 65
-RESOURCES_PATH = 'resources/'
+RESOURCES_PATH = 'chinese-chess-ai-agent/resources/'
 # [END CONSTANTS]
 
 
