@@ -330,6 +330,7 @@ class Pawn(Piece):
         self._has_crossed_river = (
             abs(self.position[0] + 9 * (self.team.value - 1) / 2) < 5
         )
+        return self._has_crossed_river
 
     @property
     def piece_value(self):
