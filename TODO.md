@@ -14,3 +14,4 @@ Tasks: (Note: Check the UML before you do anything)
 - [x] 3-001: Fix the alpha-beta pruning and target-depth of the GameTreeMinimax
 - [x] 4-000: Create NodeMCTS inherited from Node and initialize it. Create the *generate_all_unvisited_node* method
 - [ ] 4-001: Create *rollout*, *backpropagate*, *best_child* method in NodeMTCS
+- [ ] 5-000: Create UI of the GameTree
