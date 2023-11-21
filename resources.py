@@ -1,4 +1,5 @@
 # [MODULE]
+"""Module providing the UI of the game"""
 import pygame
 # [END MODULE]
 
