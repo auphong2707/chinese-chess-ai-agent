@@ -1,4 +1,5 @@
 # Edited by: Veil, Kleecon
+"""Module providing the property of abstract class and team members"""
 from abc import ABC, abstractmethod
 from team import Team
 
@@ -9,6 +10,7 @@ class Piece(ABC):
     # [BEGIN CONSTANTS]
 
     _piece_value = None
+    _piece_type = None
 
     # Board size
     BOARD_SIZE_X = 10
@@ -28,6 +30,9 @@ class Piece(ABC):
 
         self.admissible_moves = None
 
+    def __str__(self) -> str:
+        return str(self.team) + '_' + self._piece_type
+
     # Properties initialization
     # .position
     @property
@@ -46,6 +51,7 @@ class Piece(ABC):
     # .piece value
     @property
     def piece_value(self):
+        """This method return the value of the piece"""
         return self._piece_value
 
     # [END INITILIZATION]
@@ -126,8 +132,9 @@ class Advisor(Piece):
     """Class representing an advisor"""
 
     _piece_value = 2
+    _piece_type = 'advisor'
 
-    def get_admissible_moves(self, board:tuple):
+    def get_admissible_moves(self, board: tuple):
         # Movement
         admissible_moves = []
 
@@ -161,6 +168,7 @@ class Cannon(Piece):
     """Class representing a cannon"""
 
     _piece_value = 4.5
+    _piece_type = 'cannon'
 
     def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
@@ -200,6 +208,7 @@ class Chariot(Piece):
     """Class representing a chariot"""
 
     _piece_value = 9
+    _piece_type = 'chariot'
 
     def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
@@ -235,6 +244,7 @@ class Elephant(Piece):
     """Class representing an elephant"""
 
     _piece_value = 2.5
+    _piece_type = 'elephant'
 
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
@@ -286,6 +296,7 @@ class General(Piece):
     """Class representing a general"""
 
     _piece_value = 0
+    _piece_type = 'general'
 
     def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
@@ -320,6 +331,7 @@ class Pawn(Piece):
 
     _has_crossed_river = False
     _piece_value = 1
+    _piece_type = 'pawn'
 
     @property
     def has_crossed_river(self):
@@ -367,6 +379,7 @@ class Horse(Piece):
     """Class representing a horse"""
 
     _piece_value = 4
+    _piece_type = 'horse'
 
     def get_admissible_moves(self, board: tuple) -> list:
 
