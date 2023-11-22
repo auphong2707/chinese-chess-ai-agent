@@ -58,14 +58,16 @@ class GameTree(ABC):
 class GameTreeMinimax(GameTree, NodeMinimax):
     """This class is responsible for the game tree minimax"""
 
-    TARGET_DEPTH = 4
+    def __init__(self, team, target_depth):
+        super().__init__(team)
+        self.target_depth = target_depth
 
     def minimax(self, node: NodeMinimax, depth: int, max_turn: bool, alpha: float = -inf, beta: float = inf):
         """Minimax method"""
         self.count += 1
         node.reset_statistics()
         # If the node reaches the target depth or the count reaches max number
-        if depth == self.TARGET_DEPTH or self.count >= self.MAX_NODE:
+        if depth == self.target_depth or self.count >= self.MAX_NODE:
             node.minimax_value = node.game_state.value
             return node.minimax_value
 
