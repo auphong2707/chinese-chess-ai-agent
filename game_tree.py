@@ -5,7 +5,8 @@ from game_state import GameState
 from piece import Piece
 from node import Node
 from node import NodeMinimax
-
+from time import time
+from team import Team
 
 class GameTree(ABC):
     """This class is responsible for the game tree representation"""
@@ -99,6 +100,53 @@ class GameTreeMinimax(GameTree, NodeMinimax):
 
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
         return NodeMinimax(game_state, parent, parent_move)
+
+    def process(self, move_queues):
+        """Let the bot run"""
+
+        # Count the number of turns
+        turn = 1
+
+        while True:
+            # If it is checkmated then stop the loop
+            if self.is_lost is True:
+                print("{} team is lost".format(self.team.name.lower()))
+                break
+
+            print("Turn {}:".format(turn))
+            start = time()  # Start time counter
+
+            # [RED'S TURN]
+            if self.team is Team.RED:
+                # If it is not the first turn then update the game for the bot
+                if turn != 1:
+                    self.move_to_child_node_with_move(move_queues[-1][0], move_queues[-1][1])
+                self.minimax(self.current_node, 0, True)
+                old_pos_red, new_pos_red = self.move_to_best_child()
+                move_queues.append((old_pos_red, new_pos_red))
+
+                print("Red moves:", old_pos_red, "->", new_pos_red)
+
+            # [END RED'S TURN]
+
+            # [BLACK'S TURN]
+            else:
+                self.move_to_child_node_with_move(old_pos_red, new_pos_red)
+                self.minimax(self.current_node, 0, False)
+                old_pos_black, new_pos_black = self.move_to_best_child()
+                move_queues.append((old_pos_black, new_pos_black))
+
+                print()
+                print("Black moves:", old_pos_black, "->", new_pos_black)
+
+            # [END BETH'S TURN]
+
+            # [POST PROCESS]
+            self.count = 0
+            turn += 1
+            end = time()  # End time counter
+            print(self.count)
+            print("Time: {:.2f}".format(end - start), "s")
 
 if __name__ == "main":
     # Test the class here Focalors
