@@ -154,6 +154,8 @@ class NodeMCTS(Node):
         return NodeMCTS(game_state, parent, parent_move)
 
     def update_stat(self, result):
+        """This module updates a node's stats"""
+
         self._rating += result
         self._number_of_visits += 1
 
@@ -170,18 +172,18 @@ class NodeMCTS(Node):
         """This module returns the value if a node is at it's termination"""
 
         # Outplay case
-        if node.game_state.get_team_win() == Team.RED:
+        if node.game_state.get_team_win == Team.RED:
             return 1
-        if node.game_state.get_team_win() == Team.BLACK:
+        if node.game_state.get_team_win == Team.BLACK:
             return -1
         # Draw prototype
-        if node.game_state.draw() == True:
+        if node.game_state.draw() is True:
             return 0
 
     def rollout(self, node):
         """This module performs the rollout simulation"""
 
-        while node.game_state.get_team_win() == None:
+        while node.game_state.get_team_win is None:
             # Stimualtion hasn't achieved a termination
             node = self.rollout_policy(node)
 
@@ -190,10 +192,10 @@ class NodeMCTS(Node):
     def backpropagation(self, node, result):
         """This module performs the MCTS backpropagation"""
 
-        if node.parent == None:
+        if node.parent is None:
             # I met my ultimate ancestor!
             return
-        
+
         # I still need to find my ancestor
         node.update_stat(node, result)
         self.backpropagation(node.parent, result)
@@ -210,7 +212,7 @@ class NodeMCTS(Node):
             if child._number_of_visits > max_number_of_visits:
                 max_number_of_visits = child._number_of_visits
                 current_best_child = child
-        
+
         return current_best_child
 
     # [END METHOD]
