@@ -119,17 +119,17 @@ class NodeMCTS(Node):
         super().__init__(game_state, parent, parent_move)
 
         # MCTS statistics
-        self._result = defaultdict(int)
         self._number_of_visits = 0
-        self._result[1] = 0
-        self._result[-1] = 0
+        self._rating = 0
         self.list_of_unvisited_child = list()
+        self._is_visited = False
+        self._is_fully_expanded = False
 
     # Properties initialization
     @property
     def q(self):
-        """Return the difference between wins and losses"""
-        return self._result[1] - self._result[-1]
+        """Return the node's personal rating"""
+        return self._rating
 
     @property
     def n(self):
@@ -153,23 +153,64 @@ class NodeMCTS(Node):
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMCTS(game_state, parent, parent_move)
 
-    def update_stat(self, node, result):
-        self._result[result] += 1
+    def update_stat(self, result):
+        self._rating += result
         self._number_of_visits += 1
 
+    def rollout_policy(self, node):
+        """This module returns the chosen simulation init node
+        based on the given rollout policy"""
+
+        # Random policy
+        num = len(node.list_of_children)
+        rand = randint(1, num)
+        return node.list_of_children[rand]
+
+    def terminate_value(self, node):
+        """This module returns the value if a node is at it's termination"""
+
+        # Outplay case
+        if node.game_state.get_team_win() == Team.RED:
+            return 1
+        if node.game_state.get_team_win() == Team.BLACK:
+            return -1
+        # Draw prototype
+        if node.game_state.draw() == True:
+            return 0
+
+    def rollout(self, node):
+        """This module performs the rollout simulation"""
+
+        while node.game_state.get_team_win() == None:
+            # Stimualtion hasn't achieved a termination
+            node = self.rollout_policy(node)
+
+        return self.terminate_value(node)
+
     def backpropagation(self, node, result):
+        """This module performs the MCTS backpropagation"""
+
         if node.parent == None:
+            # I met my ultimate ancestor!
             return
+        
+        # I still need to find my ancestor
         node.update_stat(node, result)
         self.backpropagation(node.parent, result)
 
     def best_child(self, root):
+        """This module returns the so-considered "best child" 
+        of the current node"""
+
         max_number_of_visits = 0
         current_best_child = None
+
+        # Traversing my sons
         for child in root.list_of_children:
             if child._number_of_visits > max_number_of_visits:
                 max_number_of_visits = child._number_of_visits
                 current_best_child = child
+        
         return current_best_child
 
     # [END METHOD]
