@@ -1,6 +1,9 @@
+"""Module providing Enum class for inheriting"""
 from enum import Enum
 
+
 class Team(Enum):
+    """This enum represents every teams in game"""
     # Red team
     RED = 1
 
@@ -10,3 +13,6 @@ class Team(Enum):
 
     # None team
     NONE = 0
+
+    def __str__(self):
+        return self.name.lower()

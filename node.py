@@ -78,7 +78,7 @@ class NodeMinimax(Node):
             return
         self.list_of_children = self.get_all_children()
         self._is_generated_all_children = True
-    
+
     def reset_statistics(self) -> None:
         """This method resets the minimax statistics"""
 
