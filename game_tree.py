@@ -48,6 +48,10 @@ class GameTree(ABC):
             new_state, None, move
         )
 
+    def is_lost(self) -> bool:
+        """This method checks if the bot had lost or not"""
+        return self.current_node.game_state._all_child_gamestates == 0
+
     # Abstract method
     @abstractmethod
     def _create_node(self, game_state, parent, parent_move) -> None:
