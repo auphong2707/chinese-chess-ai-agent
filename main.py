@@ -30,7 +30,7 @@ def bot_run():
         # [ALTHEA'S TURN]
         # Check whether Althea has been checkmated
         if althea.is_lost() is True:
-            print("Checkmate. {} wins.".format(althea.team.name))
+            print("Checkmate. {} wins.".format(beth.team.name))
             break
         old_pos, new_pos = althea.process(moves_queue)
         beth.move_to_child_node_with_move(old_pos, new_pos)
@@ -40,7 +40,7 @@ def bot_run():
         # [BETH'S TURN]
         # Check whether Beth has been checkmated
         if beth.is_lost() is True:
-            print(("Checkmate. {} wins.".format(beth.team.name)))
+            print(("Checkmate. {} wins.".format(althea.team.name)))
             break
         old_pos, new_pos = beth.process(moves_queue)
         althea.move_to_child_node_with_move(old_pos, new_pos)
