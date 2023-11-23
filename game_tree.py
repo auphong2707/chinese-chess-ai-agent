@@ -51,7 +51,7 @@ class GameTree(ABC):
 
     def is_lost(self) -> bool:
         """This method checks if the bot had lost or not"""
-        return self.current_node.game_state._all_child_gamestates == 0
+        return len(self.current_node.game_state._all_child_gamestates) == 0
 
     # Abstract method
     @abstractmethod
@@ -101,52 +101,41 @@ class GameTreeMinimax(GameTree, NodeMinimax):
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
         return NodeMinimax(game_state, parent, parent_move)
 
-    def process(self, move_queues):
+    def process(self, move_queues, turn) -> None:
         """Let the bot run"""
+        start = time()  # Start time counter
 
-        # Count the number of turns
-        turn = 1
+        # [RED'S TURN]
+        if self.team is Team.RED:
+            # If it is not the first turn then move the bot before minimaxing
+            if turn > 1:
+                self.move_to_child_node_with_move(move_queues[-1][0], move_queues[-1][1])
+            self.minimax(self.current_node, 0, True)
+            old_pos_red, new_pos_red = self.move_to_best_child()
+            move_queues.append((old_pos_red, new_pos_red))
 
-        while True:
-            # If it is checkmated then stop the loop
-            if self.is_lost is True:
-                print("{} team is lost".format(self.team.name.lower()))
-                break
+            print("Red moves:", old_pos_red, "->", new_pos_red)
 
-            print("Turn {}:".format(turn))
-            start = time()  # Start time counter
+        # [END RED'S TURN]
 
-            # [RED'S TURN]
-            if self.team is Team.RED:
-                # If it is not the first turn then update the game for the bot
-                if turn != 1:
-                    self.move_to_child_node_with_move(move_queues[-1][0], move_queues[-1][1])
-                self.minimax(self.current_node, 0, True)
-                old_pos_red, new_pos_red = self.move_to_best_child()
-                move_queues.append((old_pos_red, new_pos_red))
+        # [BLACK'S TURN]
+        else:
+            self.move_to_child_node_with_move(move_queues[-1][0], move_queues[-1][1])
+            self.minimax(self.current_node, 0, False)
+            old_pos_black, new_pos_black = self.move_to_best_child()
+            move_queues.append((old_pos_black, new_pos_black))
 
-                print("Red moves:", old_pos_red, "->", new_pos_red)
+            print()
+            print("Black moves:", old_pos_black, "->", new_pos_black)
 
-            # [END RED'S TURN]
+        # [END BLACK'S TURN]
 
-            # [BLACK'S TURN]
-            else:
-                self.move_to_child_node_with_move(old_pos_red, new_pos_red)
-                self.minimax(self.current_node, 0, False)
-                old_pos_black, new_pos_black = self.move_to_best_child()
-                move_queues.append((old_pos_black, new_pos_black))
+        print(self.count)
 
-                print()
-                print("Black moves:", old_pos_black, "->", new_pos_black)
-
-            # [END BETH'S TURN]
-
-            # [POST PROCESS]
-            self.count = 0
-            turn += 1
-            end = time()  # End time counter
-            print(self.count)
-            print("Time: {:.2f}".format(end - start), "s")
+        # [POST PROCESS]
+        self.count = 0
+        end = time()  # End time counter
+        print("Time: {:.2f}".format(end - start), "s")
 
 if __name__ == "main":
     # Test the class here Focalors

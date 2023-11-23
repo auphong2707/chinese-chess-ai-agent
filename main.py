@@ -20,57 +20,34 @@ def draw_gamestate(_screen, _game_state):
 
 
 def bot_run():
-    althea = GameTreeMinimax(Team.RED)
-    beth = GameTreeMinimax(Team.BLACK)
-
+    althea = GameTreeMinimax(Team.RED, 4)
+    beth = GameTreeMinimax(Team.BLACK, 4)
     turn = 1
-    global moves_queue
+    global moves_queues
 
-    while True:  # Chưa tìm điều kiện để dừng vòng lặp
-        # [ALTHEA'S TURN]
-        start = time()  # Start time counter
-
+    while True:
         print("Turn {}:".format(turn))
-
-        althea.minimax(althea.current_node, 0, True)
-        old_pos_althea, new_pos_althea = althea.move_to_best_child()
-        move_queues.append((old_pos_althea, new_pos_althea))
-
-        print("Red moves:", old_pos_althea, "->", new_pos_althea)
-        print(althea.count)
-
-        end = time()  # End time counter
-
-        # Print used time
-        print("{:.2f}".format(end - start), "s")
+        # [ALTHEA'S TURN]
+        # Check whether Althea has been checkmated
+        if althea.is_lost() is True:
+            print("Checkmate. {} wins.".format(althea.team.name))
+            break
+        else:
+            althea.process(move_queues, turn)
 
         # [END ALTHEA'S TURN]
 
         # [BETH'S TURN]
-        start = time()  # Start time counter
+        # Check whether Beth has been checkmated
+        if beth.is_lost() is True:
+            print(("Checkmate. {} wins.".format(beth.team.name)))
+            break
+        else:
+            beth.process(move_queues, turn)
 
-        beth.move_to_child_node_with_move(old_pos_althea, new_pos_althea)
-        beth.minimax(beth.current_node, 0, False)
-        old_pos_beth, new_pos_beth = beth.move_to_best_child()
-        move_queues.append((old_pos_beth, new_pos_beth))
-
-        print()
-        print("Black moves:", old_pos_beth, "->", new_pos_beth)
-        print(beth.count)
-
-        end = time()  # End time counter
-
-        # Print used time
-        print("{:.2f}".format(end - start), "s")
-        print()
         # [END BETH'S TURN]
 
-        # [POST PROCESS]
-        althea.move_to_child_node_with_move(old_pos_beth, new_pos_beth)
-        althea.count = 0
-        beth.count = 0
         turn += 1
-
 
 if __name__ == '__main__':
     # Initialize Pygame
