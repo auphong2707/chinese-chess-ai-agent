@@ -1,10 +1,11 @@
-from cmath import inf
+from cmath import inf, sqrt
 from collections import defaultdict
 from math import sqrt, log
 from abc import ABC, abstractmethod
 from random import randint
 from game_state import GameState
 from team import Team
+import random as r
 
 
 class Node(ABC):
@@ -118,12 +119,16 @@ class NodeMCTS(Node):
         # Reference to a node
         super().__init__(game_state, parent, parent_move)
 
+        # MCTS custom constraints
+        self.E = 1
+        self.C = sqrt(2)
+
         # MCTS statistics
         self._number_of_visits = 0
         self._rating = 0
-        self.list_of_unvisited_child = list()
-        self._is_visited = False
+        self.list_of_unvisited_children = list()
         self._is_fully_expanded = False
+        self.uct = inf
 
     # Properties initialization
     @property
@@ -139,19 +144,68 @@ class NodeMCTS(Node):
     @property
     def is_fully_expanded(self):
         """Return whether it has been fully expanded or not"""
-        return len(self.list_of_unvisited_child) == 0
+        return len(self.list_of_unvisited_children) == 0
 
     # [END INITIALIZATION]
 
     # [METHOD]
     # Instance method
-    def generate_all_unvisited_node(self):
-        """This method generates all unvisited nodes"""
-        self.list_of_unvisited_child = self.get_all_children()
-        return None
+
+    def get_all_unvisited_children(self) -> list:
+        """This module returns the list of the node's unvisited children"""
+
+        # Creating the original and comparative list
+        if len(self.list_of_children) == 0:
+            self.list_of_children = self.get_all_children()
+        tmp = unvisited_children = self.list_of_children
+
+        # Traversion
+        for child in unvisited_children:
+            if child.n != 0:
+                tmp.remove(child)
+
+        return tmp
+
+    def best_uct(self, node):
+        """This function calculates the child with best UCT index of node"""
+        from cmath import log
+
+        # Preset init
+        current_best_uct_value = -inf
+        current_result_child = []
+
+        if len(node.list_of_children) == 0:
+            # If node has no child yet
+            node.list_of_children = node.get_all_children()
+
+        for child in node.list_of_children:
+            if child.n != 0:
+                # The current child has been visited
+                child.uct = child.q/child.n + node.C*(log(node.n)/child.n)**node.E
+
+            # Comparison random choosing
+            if child.uct > current_best_uct_value:
+                current_best_uct_value = child.uct
+                current_result_child = [child]
+            elif child.uct == current_best_uct_value:
+                current_result_child.append(child)
+
+        return r.choice(current_result_child)
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMCTS(game_state, parent, parent_move)
+
+    def traverse(self, node):
+        """This module performs the MCTS initial traversion"""
+
+        if len(node.list_of_children) > 0:
+            return self.traverse(self.best_uct(node))
+        if node.n == 0:
+            node.list_of_unvisited_children = node.get_all_children()
+        else:
+            node.list_of_unvisited_children = node.get_all_unvisited_children()
+
+        return r.choice(node.list_of_unvisited_children)
 
     def update_stat(self, result):
         """This module updates a node's stats"""
@@ -172,9 +226,9 @@ class NodeMCTS(Node):
         """This module returns the value if a node is at it's termination"""
 
         # Outplay case
-        if node.game_state.get_team_win == Team.RED:
+        if node.game_state.get_team_win() == Team.RED:
             return 1
-        if node.game_state.get_team_win == Team.BLACK:
+        if node.game_state.get_team_win() == Team.BLACK:
             return -1
         # Draw prototype
         if node.game_state.draw() is True:
@@ -183,7 +237,7 @@ class NodeMCTS(Node):
     def rollout(self, node):
         """This module performs the rollout simulation"""
 
-        while node.game_state.get_team_win is None:
+        while node.game_state.get_team_win() is None:
             # Stimualtion hasn't achieved a termination
             node = self.rollout_policy(node)
 
@@ -200,19 +254,22 @@ class NodeMCTS(Node):
         node.update_stat(node, result)
         self.backpropagation(node.parent, result)
 
-    def best_child(self, root):
+    def best_move(self, root):
         """This module returns the so-considered "best child" 
         of the current node"""
 
         max_number_of_visits = 0
-        current_best_child = None
+        current_best_child = []
 
         # Traversing my sons
         for child in root.list_of_children:
             if child._number_of_visits > max_number_of_visits:
                 max_number_of_visits = child._number_of_visits
-                current_best_child = child
+                current_best_child.clear()
+                current_best_child.append(child)
+            elif child._number_of_visits == max_number_of_visits:
+                current_best_child.append(child)
 
-        return current_best_child
+        return r.choice(current_best_child)
 
     # [END METHOD]
