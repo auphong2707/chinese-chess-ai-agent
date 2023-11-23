@@ -1,4 +1,5 @@
 from time import time
+from concurrent.futures import ProcessPoolExecutor
 import threading
 import pygame
 import resources
@@ -68,7 +69,9 @@ if __name__ == '__main__':
     gamestate = GameState.generate_initial_game_state()
 
     # Main game loop
-    bot_run_thread.start()
+
+    with ProcessPoolExecutor(8) as exe:
+        bot_run_thread.start()
     done = False
     while not done:
         # Handle events
