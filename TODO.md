@@ -16,4 +16,5 @@ Tasks: (Note: Check the UML before you do anything)
 - [ ] 3-002: Change the depth target to the instance variable
 - [x] 4-000: Create NodeMCTS inherited from Node and initialize it. Create the *generate_all_unvisited_node* method
 - [ ] 4-001: Create *rollout*, *backpropagate*, *best_child* method in NodeMTCS
-- [ ] 5-000: Create UI of the GameTree
+- [x] 5-000: Create UI of the GameTree
+- [ ] 5-001: Create Main menu with 2 modes: Bot vs Bot and Human vs Bot. Add the interactive to the UI
