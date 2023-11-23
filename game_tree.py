@@ -5,7 +5,8 @@ from game_state import GameState
 from piece import Piece
 from node import Node
 from node import NodeMinimax
-
+from time import time
+from team import Team
 
 class GameTree(ABC):
     """This class is responsible for the game tree representation"""
@@ -48,6 +49,10 @@ class GameTree(ABC):
             new_state, None, move
         )
 
+    def is_lost(self) -> bool:
+        """This method checks if the bot had lost or not"""
+        return len(self.current_node.game_state.all_child_gamestates) == 0
+
     # Abstract method
     @abstractmethod
     def _create_node(self, game_state, parent, parent_move) -> None:
@@ -58,14 +63,16 @@ class GameTree(ABC):
 class GameTreeMinimax(GameTree, NodeMinimax):
     """This class is responsible for the game tree minimax"""
 
-    TARGET_DEPTH = 4
+    def __init__(self, team, target_depth):
+        super().__init__(team)
+        self.target_depth = target_depth
 
     def minimax(self, node: NodeMinimax, depth: int, max_turn: bool, alpha: float = -inf, beta: float = inf):
         """Minimax method"""
         self.count += 1
         node.reset_statistics()
         # If the node reaches the target depth or the count reaches max number
-        if depth == self.TARGET_DEPTH or self.count >= self.MAX_NODE:
+        if depth == self.target_depth or self.count >= self.MAX_NODE:
             node.minimax_value = node.game_state.value
             return node.minimax_value
 
@@ -93,6 +100,25 @@ class GameTreeMinimax(GameTree, NodeMinimax):
 
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
         return NodeMinimax(game_state, parent, parent_move)
+
+    def process(self, moves_queue) -> tuple:
+        """Let the bot run"""
+        # [START BOT'S TURN]
+
+        start = time()  # Start time counter
+        self.minimax(self.current_node, 0, self.team is Team.RED)
+        old_pos, new_pos = self.move_to_best_child()
+        moves_queue.append((old_pos, new_pos))
+
+        # [POST PROCESS]
+        print(self.count)
+        self.count = 0
+        end = time()  # End time counter
+        print("Time: {:.2f} s".format(end - start))
+        print("{} moves: {} -> {}".format(self.team.name, old_pos, new_pos))
+        return old_pos, new_pos
+
+        # [END BOT'S TURN]
 
 if __name__ == "main":
     # Test the class here Focalors
