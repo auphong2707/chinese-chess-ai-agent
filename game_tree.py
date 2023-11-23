@@ -101,41 +101,24 @@ class GameTreeMinimax(GameTree, NodeMinimax):
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
         return NodeMinimax(game_state, parent, parent_move)
 
-    def process(self, move_queues, turn) -> None:
+    def process(self, moves_queue) -> tuple:
         """Let the bot run"""
+        # [START BOT'S TURN]
+
         start = time()  # Start time counter
-
-        # [RED'S TURN]
-        if self.team is Team.RED:
-            # If it is not the first turn then move the bot before minimaxing
-            if turn > 1:
-                self.move_to_child_node_with_move(move_queues[-1][0], move_queues[-1][1])
-            self.minimax(self.current_node, 0, True)
-            old_pos_red, new_pos_red = self.move_to_best_child()
-            move_queues.append((old_pos_red, new_pos_red))
-
-            print("Red moves:", old_pos_red, "->", new_pos_red)
-
-        # [END RED'S TURN]
-
-        # [BLACK'S TURN]
-        else:
-            self.move_to_child_node_with_move(move_queues[-1][0], move_queues[-1][1])
-            self.minimax(self.current_node, 0, False)
-            old_pos_black, new_pos_black = self.move_to_best_child()
-            move_queues.append((old_pos_black, new_pos_black))
-
-            print()
-            print("Black moves:", old_pos_black, "->", new_pos_black)
-
-        # [END BLACK'S TURN]
-
-        print(self.count)
+        self.minimax(self.current_node, 0, self.team is Team.RED)
+        old_pos, new_pos = self.move_to_best_child()
+        moves_queue.append((old_pos, new_pos))
 
         # [POST PROCESS]
+        print(self.count)
         self.count = 0
         end = time()  # End time counter
-        print("Time: {:.2f}".format(end - start), "s")
+        print("Time: {:.2f} s".format(end - start))
+        print("{} moves: {} -> {}".format(self.team.name, old_pos, new_pos))
+        return old_pos, new_pos
+
+        # [END BOT'S TURN]
 
 if __name__ == "main":
     # Test the class here Focalors

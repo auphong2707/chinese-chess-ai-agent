@@ -6,7 +6,7 @@ from game_state import GameState
 from game_tree import GameTreeMinimax
 from team import Team
 
-move_queues = list()
+moves_queue = list()
 
 def draw_gamestate(_screen, _game_state):
     """This method will draw a gamestate"""
@@ -23,7 +23,6 @@ def bot_run():
     althea = GameTreeMinimax(Team.RED, 4)
     beth = GameTreeMinimax(Team.BLACK, 4)
     turn = 1
-    global moves_queues
 
     while True:
         print("Turn {}:".format(turn))
@@ -32,8 +31,8 @@ def bot_run():
         if althea.is_lost() is True:
             print("Checkmate. {} wins.".format(althea.team.name))
             break
-        else:
-            althea.process(move_queues, turn)
+        old_pos, new_pos = althea.process(moves_queue)
+        beth.move_to_child_node_with_move(old_pos, new_pos)
 
         # [END ALTHEA'S TURN]
 
@@ -42,8 +41,8 @@ def bot_run():
         if beth.is_lost() is True:
             print(("Checkmate. {} wins.".format(beth.team.name)))
             break
-        else:
-            beth.process(move_queues, turn)
+        old_pos, new_pos = beth.process(moves_queue)
+        althea.move_to_child_node_with_move(old_pos, new_pos)
 
         # [END BETH'S TURN]
 
@@ -78,8 +77,8 @@ if __name__ == '__main__':
                 done = True
         # Try update_board
         try:
-            move = move_queues[0]
-            move_queues.pop(0)
+            move = moves_queue[0]
+            moves_queue.pop(0)
             gamestate = gamestate.generate_game_state_with_move(move[0], move[1])[0]
         except IndexError:
             pass
