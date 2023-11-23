@@ -51,7 +51,7 @@ class GameTree(ABC):
 
     def is_lost(self) -> bool:
         """This method checks if the bot had lost or not"""
-        return len(self.current_node.game_state._all_child_gamestates) == 0
+        return len(self.current_node.game_state.all_child_gamestates) == 0
 
     # Abstract method
     @abstractmethod
