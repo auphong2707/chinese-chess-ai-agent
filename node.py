@@ -129,8 +129,8 @@ class NodeMCTS(Node):
         self._number_of_visits = 0
         self._rating = 0
         self.list_of_unvisited_children = list()
-        self._is_fully_expanded = False
-        self.uct = inf
+        self.list_of_visited_children = list()
+        self._uct = inf
 
     # Properties initialization
     @property
@@ -148,6 +148,11 @@ class NodeMCTS(Node):
         """Return whether it has been fully expanded or not"""
         return len(self.list_of_unvisited_children) == 0
 
+    @property
+    def upper_confidence_bound(self):
+        """Return the UCT value of the node"""
+        return self._uct
+
     # [END INITIALIZATION]
 
     # [METHOD]
@@ -156,22 +161,20 @@ class NodeMCTS(Node):
     def monte_carlo_tree_search(self, root, time_allowed):
         """This function performs the MCTS itself"""
 
-        t1 = time()
-        while time()-t1 < time_allowed:
+        starting_time = time()
+        while time()-starting_time < time_allowed:
             leaf = self.traverse(root)
-            stimulation_result = self.rollout(leaf)
-
+            stimulation_result = self.rollout(leaf,0)
             self.backpropagate(leaf, stimulation_result)
         return self.best_move(root)
 
-    def get_all_unvisited_children(self) -> list:
-        """This module returns the list of the node's unvisited children"""
+    def generate_all_unvisited_children(self):
+        """This module generates all unvisited children of the node"""
 
-        # Creating the list
-        if len(self.list_of_unvisited_children) == 0 and len(self.list_of_children) == 0:
-            self.list_of_unvisited_children = self.get_all_children()
-
-        return self.list_of_unvisited_children
+        if self._is_generated_all_children:
+            return
+        self.list_of_unvisited_children = self.get_all_children()
+        self._is_generated_all_children = True
 
     def best_uct(self, node):
         """This function calculates the child with best UCT index of node"""
@@ -182,7 +185,7 @@ class NodeMCTS(Node):
 
         if len(node.list_of_children) == 0:
             # If node has no child yet
-            node.list_of_children = node.get_all_children()
+            node.list_of_children = node.generate_all_children()
 
         for child in node.list_of_children:
             if child.n != 0:
@@ -239,14 +242,13 @@ class NodeMCTS(Node):
             return 1
         if node.game_state.get_team_win() == Team.BLACK:
             return -1
-        # Draw prototype
-        if node.game_state.draw() is True:
-            return 0
 
-    def rollout(self, node):
+        return 0
+
+    def rollout(self, node, node_count):
         """This module performs the rollout simulation"""
 
-        if node.game_state.get_team_win() is None:
+        if node.game_state.get_team_win() is Team.NONE or node_count < 120:
             # Stimualtion hasn't achieved a termination
             return self.rollout_policy(node)
 
@@ -271,12 +273,11 @@ class NodeMCTS(Node):
         current_best_child = []
 
         # Traversing my sons
-        for child in root.list_of_children:
+        for child in root.list_of_unvisited_children + root.list_of_visited_children:
             if child._number_of_visits > max_number_of_visits:
                 max_number_of_visits = child._number_of_visits
                 current_best_child.clear()
-                current_best_child.append(child)
-            elif child._number_of_visits == max_number_of_visits:
+            if child._number_of_visits == max_number_of_visits:
                 current_best_child.append(child)
 
         return r.choice(current_best_child)
