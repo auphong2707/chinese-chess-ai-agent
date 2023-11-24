@@ -4,9 +4,16 @@ from abc import ABC, abstractmethod
 from game_state import GameState
 from piece import Piece
 from node import Node
+<<<<<<< Updated upstream
 from node import NodeMinimax
 from time import time
 from team import Team
+=======
+from time import time
+from node import NodeMinimax, NodeMCTS
+from random import choice
+
+>>>>>>> Stashed changes
 
 class GameTree(ABC):
     """This class is responsible for the game tree representation"""
@@ -101,6 +108,7 @@ class GameTreeMinimax(GameTree, NodeMinimax):
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
         return NodeMinimax(game_state, parent, parent_move)
 
+<<<<<<< Updated upstream
     def process(self, moves_queue) -> tuple:
         """Let the bot run"""
         # [START BOT'S TURN]
@@ -119,6 +127,35 @@ class GameTreeMinimax(GameTree, NodeMinimax):
         return old_pos, new_pos
 
         # [END BOT'S TURN]
+=======
+class GameTreeMCTS(GameTree, NodeMCTS):
+    """This class is responsible for performance of the MCTS game tree"""
+
+    def traverse(self, node: NodeMCTS):
+        """This module performs the MCTS initial traversion"""
+
+        if len(node.list_of_children) > 0:
+            return self.traverse(self.best_uct(node))
+        if node.n == 0:
+            node.list_of_unvisited_children = node.get_all_unvisited_children()
+        chosen_node = choice(node.list_of_unvisited_children)
+
+        node.list_of_unvisited_children.remove(chosen_node)
+        node.list_of_children.append(chosen_node)
+
+        return chosen_node
+
+    def monte_carlo_tree_search(self, root, time_allowed):
+        """This function performs the MCTS itself"""
+
+        starting_time = time()
+        while time()-starting_time < time_allowed:
+            leaf = self.traverse(root)
+            stimulation_result = self.rollout(leaf,0)
+            self.backpropagate(leaf, stimulation_result)
+
+        return self.best_move(root)
+>>>>>>> Stashed changes
 
 if __name__ == "main":
     # Test the class here Focalors
