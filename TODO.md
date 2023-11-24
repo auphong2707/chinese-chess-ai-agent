@@ -16,10 +16,11 @@ Tasks:
 - [x] 2-007: Finish the get value of class GameState
 - [x] 2-008: Create *generate_game_state_with_move* method
 - [ ] 2-009: Add the *move* to the return step of *generate_game_state_with_move* method
+- [ ] 2-010: Upgrade the value
 - [x] 3-000: Create the *generate_admissible_moves* method of General
 - [x] 4-000: Create the *generate_admissible_moves* method of Advisor
 - [x] 5-000: Create the *generate_admissible_moves* method of Elephant
 - [x] 6-000: Create the *generate_admissible_moves* method of Horse
 - [x] 7-000: Create the *generate_admissible_moves* method of Chariot
 - [x] 8-000: Create the *generate_admissible_moves* method of Canon
-- [x] 9-000: Create the *generate_admissible_moves* method of Pawn
+- [x] 9-000: Create the *generate_admissible_moves* method of Pawn 
