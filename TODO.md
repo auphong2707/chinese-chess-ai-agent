@@ -18,3 +18,4 @@ Tasks: (Note: Check the UML before you do anything)
 - [ ] 4-001: Create *rollout*, *backpropagate*, *best_child* method in NodeMTCS
 - [x] 5-000: Create UI of the GameTree
 - [ ] 5-001: Create Main menu with 2 modes: Bot vs Bot and Human vs Bot. Add the interactive to the UI
+- [ ] 6-000: Create GameTreeMCTS and add all the needed method into it
