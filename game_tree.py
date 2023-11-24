@@ -4,11 +4,16 @@ from abc import ABC, abstractmethod
 from game_state import GameState
 from piece import Piece
 from node import Node
-from node import NodeMinimax
+from time import time
+from node import NodeMinimax, NodeMCTS
+from random import choice
+from team import Team
 
 
 class GameTree(ABC):
     """This class is responsible for the game tree representation"""
+
+    MAX_NODE = inf
 
     def __init__(self, team) -> None:
         # This generates the initial game tree, not a forged one
@@ -16,6 +21,7 @@ class GameTree(ABC):
         self.current_node = self._create_node(
             GameState.generate_initial_game_state(), None, None
         )
+        self.count = 0
 
     def move_to_best_child(self) -> tuple:
         """This moves the current node to its "best child" on the game tree"""
@@ -45,6 +51,10 @@ class GameTree(ABC):
             new_state, None, move
         )
 
+    def is_lost(self) -> bool:
+        """This method checks if the bot had lost or not"""
+        return len(self.current_node.game_state.all_child_gamestates) == 0
+
     # Abstract method
     @abstractmethod
     def _create_node(self, game_state, parent, parent_move) -> None:
@@ -55,14 +65,16 @@ class GameTree(ABC):
 class GameTreeMinimax(GameTree, NodeMinimax):
     """This class is responsible for the game tree minimax"""
 
-    TARGET_DEPTH = 7
+    def __init__(self, team, target_depth):
+        super().__init__(team)
+        self.target_depth = target_depth
 
-    def minimax(self, node: NodeMinimax, depth: int, max_turn: bool):
+    def minimax(self, node: NodeMinimax, depth: int, max_turn: bool, alpha: float = -inf, beta: float = inf):
         """Minimax method"""
-
+        self.count += 1
         node.reset_statistics()
-        # If the node reaches the target depth
-        if depth == self.TARGET_DEPTH:
+        # If the node reaches the target depth or the count reaches max number
+        if depth == self.target_depth or self.count >= self.MAX_NODE:
             node.minimax_value = node.game_state.value
             return node.minimax_value
 
@@ -71,26 +83,93 @@ class GameTreeMinimax(GameTree, NodeMinimax):
         if max_turn is True:
             node.minimax_value = -inf
             for child in node.list_of_children:
-                value = self.minimax(child, depth + 1, False)
+                value = self.minimax(child, depth + 1, False, alpha, beta)
                 node.minimax_value = max(node.minimax_value, value)
-                node.alpha = max(node.alpha, node.minimax_value)
-                if node.beta <= node.alpha:
+                alpha = max(alpha, node.minimax_value)
+                if beta <= alpha:
                     break
             return node.minimax_value
         # Min turn
         else:
             node.minimax_value = inf
             for child in node.list_of_children:
-                value = self.minimax(child, depth + 1, True)
+                value = self.minimax(child, depth + 1, True, alpha, beta)
                 node.minimax_value = min(node.minimax_value, value)
-                node.beta = min(node.beta, node.minimax_value)
-                if node.beta <= node.alpha:
+                beta = min(beta, node.minimax_value)
+                if beta <= alpha:
                     break
             return node.minimax_value
 
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
         return NodeMinimax(game_state, parent, parent_move)
 
+    def process(self, moves_queue) -> tuple:
+        """Let the bot run"""
+        # [START BOT'S TURN]
+
+        start = time()  # Start time counter
+        self.minimax(self.current_node, 0, self.team is Team.RED)
+        old_pos, new_pos = self.move_to_best_child()
+        moves_queue.append((old_pos, new_pos))
+
+        # [POST PROCESS]
+        print(self.count)
+        self.count = 0
+        end = time()  # End time counter
+        print("Time: {:.2f} s".format(end - start))
+        print("{} moves: {} -> {}".format(self.team.name, old_pos, new_pos))
+        return old_pos, new_pos
+
+        # [END BOT'S TURN]
+
+class GameTreeMCTS(GameTree, NodeMCTS):
+    """This class is responsible for performance of the MCTS game tree"""
+
+    TIME_ALLOWED = 2
+
+    def traverse(self, node: NodeMCTS):
+        """This module performs the MCTS initial traversion"""
+
+        if len(node.list_of_children) > 0:
+            return self.traverse(self.best_uct(node))
+        if node.n == 0:
+            node.list_of_unvisited_children = node.get_all_unvisited_children()
+        chosen_node = choice(node.list_of_unvisited_children)
+
+        node.list_of_unvisited_children.remove(chosen_node)
+        node.list_of_children.append(chosen_node)
+
+        return chosen_node
+
+    def monte_carlo_tree_search(self, root, time_allowed):
+        """This function performs the MCTS itself"""
+
+        starting_time = time()
+        while time()-starting_time < time_allowed:
+            leaf = self.traverse(root)
+            stimulation_result = self.rollout(leaf,0)
+            self.backpropagate(leaf, stimulation_result)
+
+        return self.best_move(root)
+    
+    def process(self, moves_queue) -> tuple:
+        """Let the bot run"""
+        # [START BOT'S TURN]
+
+        start = time()  # Start time counter
+        self.monte_carlo_tree_search(self.current_node, self.TIME_ALLOWED)
+        old_pos, new_pos = self.move_to_best_child()
+        moves_queue.append((old_pos, new_pos))
+
+        # [POST PROCESS]
+        print(self.count)
+        self.count = 0
+        end = time()  # End time counter
+        print("Time: {:.2f} s".format(end - start))
+        print("{} moves: {} -> {}".format(self.team.name, old_pos, new_pos))
+        return old_pos, new_pos
+
+        # [END BOT'S TURN]
 
 if __name__ == "main":
     # Test the class here Focalors
