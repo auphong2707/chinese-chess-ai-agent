@@ -145,6 +145,12 @@ class Advisor(Piece):
     _piece_value = 20
     _piece_type = 'advisor'
 
+    @property
+    def piece_value(self):
+        if len(self.admissible_moves) == 0:
+            self._piece_value = 10
+        return self.piece_value
+      
     def get_admissible_moves(self, board: tuple):
         # Movement
         admissible_moves = []
@@ -180,7 +186,13 @@ class Cannon(Piece):
 
     _piece_value = 45
     _piece_type = 'cannon'
-
+    
+    @property
+    def piece_value(self):
+        if len(self.admissible_moves) == 0:
+            self._piece_value = 35
+        return self.piece_value
+    
     def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
@@ -221,6 +233,12 @@ class Chariot(Piece):
     _piece_value = 90
     _piece_type = 'chariot'
 
+    @property
+    def piece_value(self):
+        if len(self.admissible_moves) == 0:
+            self._piece_value = 80
+        return self.piece_value
+    
     def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
@@ -257,6 +275,12 @@ class Elephant(Piece):
     _piece_value = 25
     _piece_type = 'elephant'
 
+    @property
+    def piece_value(self):
+        if len(self.admissible_moves) == 0:
+            self._piece_value = 15
+        return self.piece_value
+    
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
         if self.team is Team.RED and position[0] < 6:
@@ -346,7 +370,9 @@ class Pawn(Piece):
     @property
     def piece_value(self):
         if self.has_crossed_river is True:
-            self._piece_value = 2
+            self._piece_value = 20
+        if self.position == (5, 4) or self.position == (5, 8):
+            self._piece_value = 20
         return self._piece_value
 
     # Searching admissible moves for the pawn
@@ -383,15 +409,16 @@ class Horse(Piece):
 
     @property
     def piece_value(self):
-        if len(self.admissible_moves) == 1:
+        if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
             self._piece_type = 30
         if len(self.admissible_moves) == 2:
             self._piece_type = 35
-        if len(self.admissible_moves) == 5 or 6:
+        if len(self.admissible_moves) == 5 or len(self.admissible_moves) == 6:
             self._piece_type = 45
-        if len(self.admissible_moves) == 7 or 8:
+        if len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
             self._piece_type = 50
-        return super().piece_value
+        return self.piece_value
+    
     def get_admissible_moves(self, board: tuple) -> list:
 
         # Movement
