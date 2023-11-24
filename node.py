@@ -158,16 +158,6 @@ class NodeMCTS(Node):
     # [METHOD]
     # Instance method
 
-    def monte_carlo_tree_search(self, root, time_allowed):
-        """This function performs the MCTS itself"""
-
-        starting_time = time()
-        while time()-starting_time < time_allowed:
-            leaf = self.traverse(root)
-            stimulation_result = self.rollout(leaf,0)
-            self.backpropagate(leaf, stimulation_result)
-        return self.best_move(root)
-
     def generate_all_unvisited_children(self):
         """This module generates all unvisited children of the node"""
 
@@ -205,25 +195,22 @@ class NodeMCTS(Node):
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMCTS(game_state, parent, parent_move)
 
-    def traverse(self, node: Node):
-        """This module performs the MCTS initial traversion"""
-
-        if len(node.list_of_children) > 0:
-            return self.traverse(self.best_uct(node))
-        if node.n == 0:
-            node.list_of_unvisited_children = node.get_all_unvisited_children()
-        chosen_node = r.choice(node.list_of_unvisited_children)
-
-        node.list_of_unvisited_children.remove(chosen_node)
-        node.list_of_children.append(chosen_node)
-
-        return chosen_node
-
     def update_stat(self, result):
         """This module updates a node's stats"""
 
         self._rating += result
         self._number_of_visits += 1
+
+    def terminate_value(self, node):
+            """This module returns the value if a node is at it's termination"""
+
+            # Outplay case
+            if node.game_state.get_team_win() == Team.RED:
+                return 1
+            if node.game_state.get_team_win() == Team.BLACK:
+                return -1
+
+            return 0
 
     def rollout_policy(self, node):
         """This module returns the chosen simulation init node
@@ -233,17 +220,6 @@ class NodeMCTS(Node):
         num = len(node.list_of_children)
         rand = randint(1, num)
         return node.list_of_children[rand]
-
-    def terminate_value(self, node):
-        """This module returns the value if a node is at it's termination"""
-
-        # Outplay case
-        if node.game_state.get_team_win() == Team.RED:
-            return 1
-        if node.game_state.get_team_win() == Team.BLACK:
-            return -1
-
-        return 0
 
     def rollout(self, node, node_count):
         """This module performs the rollout simulation"""
