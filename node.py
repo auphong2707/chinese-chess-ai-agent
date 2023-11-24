@@ -136,7 +136,7 @@ class NodeMCTS(Node):
     @property
     def q(self):
         """Return the node's personal rating"""
-        return self.game_state._current_team.value*self._rating
+        return self._rating
 
     @property
     def n(self):
