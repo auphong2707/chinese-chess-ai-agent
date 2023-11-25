@@ -3,7 +3,7 @@ import time
 from cmath import inf
 from copy import deepcopy
 from random import randint
-from piece import General, Advisor, Elephant, Chariot, Cannon, Horse, Pawn
+from piece_value_moded import General, Advisor, Elephant, Chariot, Cannon, Horse, Pawn
 from team import Team
 
 
