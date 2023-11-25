@@ -65,20 +65,15 @@ class NodeMinimax(Node):
         super().__init__(game_state, parent, parent_move)
 
         # Minimax statistics
-        self.alpha = -inf
-        self.beta = inf
         self.minimax_value = None
 
     # [END INITIALIZATION]
 
     # [METHOD]
     # Instance methods
-
     def reset_statistics(self) -> None:
         """This method resets the minimax statistics"""
 
-        self.alpha = -inf
-        self.beta = inf
         self.minimax_value = None
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
@@ -89,17 +84,11 @@ class NodeMinimax(Node):
         of the current node"""
 
         # Create a list of best value node
-        best_children, best_value = list(), 0
+        best_children = list()
 
         for child in self.list_of_children:
-            evaluation_value = child.minimax_value*team.value
-            # If we found a new best value, then update it and reset the list
-            if evaluation_value > best_value:
-                best_value = evaluation_value
-                best_children.clear()
-
-            # If the node has value equal to the best value, then add it to the list
-            if evaluation_value == best_value:
+            # If the node has value equal to the current node's value, then add it to the list
+            if child.minimax_value == self.minimax_value:
                 best_children.append(child)
 
         # Return a random child among the best
