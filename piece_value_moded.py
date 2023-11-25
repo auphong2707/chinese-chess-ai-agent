@@ -364,22 +364,22 @@ class Pawn(Piece):
     @property
     def piece_value(self):
         if self.team is Team.RED:
-            if self.position == (4, 5):
+            if self.position == (3, 4):
                 self._piece_value = 30
-            elif self.position[0] == 6 or self.position[0] == 7:
+            elif self.position[0] == 5 or self.position[0] == 6:
                 self._piece_value = 20
-            elif self.position[0] == 8 or self.position[0] == 9:
-                if self.position[1] < 9 and self.position[1] > 2:
+            elif self.position[0] == 7 or self.position[0] == 8:
+                if self.position[1] < 7 and self.position[1] > 1:
                     self._piece_value = 30
                 else:
                     self._piece_value = 20
         if self.team is Team.BLACK:
-            if self.position == (7, 5):
+            if self.position == (6, 4):
                 self._piece_value = 30
-            elif self.position[0] == 4 or self.position[0] == 5:
+            elif self.position[0] == 3 or self.position[0] == 4:
                 self._piece_value = 20
-            elif self.position[0] == 2 or self.position[0] == 3:
-                if self.position[1] < 9 and self.position[1] > 2:
+            elif self.position[0] == 1 or self.position[0] == 2:
+                if self.position[1] < 7 and self.position[1] > 1:
                     self._piece_value = 30
                 else:
                     self._piece_value = 20
@@ -420,13 +420,13 @@ class Horse(Piece):
     @property
     def piece_value(self):
         if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
-            self._piece_type = 30
+            self._piece_value = 30
         if len(self.admissible_moves) == 2:
-            self._piece_type = 35
+            self._piece_value = 35
         if len(self.admissible_moves) == 5 or len(self.admissible_moves) == 6:
-            self._piece_type = 45
+            self._piece_value = 45
         if len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
-            self._piece_type = 50
+            self._piece_value = 50
         return self.piece_value
     
     def get_admissible_moves(self, board: tuple) -> list:
