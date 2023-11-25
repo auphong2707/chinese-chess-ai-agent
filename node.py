@@ -1,4 +1,4 @@
-from cmath import inf, sqrt, log
+from math import inf, sqrt, log
 from abc import ABC, abstractmethod
 from random import randint, choice
 from game_state import GameState
@@ -187,7 +187,6 @@ class NodeMCTS(Node):
 
         node_count = 0
         current_node = self
-        print(len(current_node.list_of_children))
         while current_node.game_state.get_team_win() is Team.NONE\
                 and node_count < self.MAX_NODE_COUNT:
             # Stimulation hasn't achieved a termination
