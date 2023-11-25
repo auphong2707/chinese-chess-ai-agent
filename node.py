@@ -1,12 +1,8 @@
-from cmath import inf, sqrt
-from collections import defaultdict
-from math import sqrt, log
+from cmath import inf, sqrt, log
 from abc import ABC, abstractmethod
-from random import randint
+from random import randint, choice
 from game_state import GameState
 from team import Team
-import random as r
-from time import time
 
 
 class Node(ABC):
@@ -43,11 +39,14 @@ class Node(ABC):
 
         return children
 
+    def generate_all_children(self) -> None:
+        """This method fills up the list of children nodes"""
+        if self._is_generated_all_children:
+            return
+        self.list_of_children = self.get_all_children()
+        self._is_generated_all_children = True
+
     # Abstract method
-    @abstractmethod
-    def best_move(self, team: Team):
-        """This method will return the best node to move to from the current"""
-        pass
 
     @abstractmethod
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
@@ -74,12 +73,6 @@ class NodeMinimax(Node):
 
     # [METHOD]
     # Instance methods
-    def generate_all_children(self) -> None:
-        """This method fills up the list of children nodes"""
-        if self._is_generated_all_children:
-            return
-        self.list_of_children = self.get_all_children()
-        self._is_generated_all_children = True
 
     def reset_statistics(self) -> None:
         """This method resets the minimax statistics"""
@@ -92,6 +85,9 @@ class NodeMinimax(Node):
         return NodeMinimax(game_state, parent, parent_move)
 
     def best_move(self, team: Team):
+        """This module returns the so-considered "best child" 
+        of the current node"""
+
         # Create a list of best value node
         best_children, best_value = list(), 0
 
@@ -127,9 +123,6 @@ class NodeMCTS(Node):
         # MCTS statistics
         self._number_of_visits = 0
         self._rating = 0
-        self.list_of_unvisited_children = list()
-        self.list_of_visited_children = list()
-        self.uct = inf
 
     # Properties initialization
     @property
@@ -142,50 +135,36 @@ class NodeMCTS(Node):
         """Return the number of visits of this node"""
         return self._number_of_visits
 
-    @property
-    def is_fully_expanded(self):
-        """Return whether it has been fully expanded or not"""
-        return len(self.list_of_unvisited_children) == 0
-
     # [END INITIALIZATION]
 
     # [METHOD]
     # Instance method
 
-    def generate_all_unvisited_children(self):
-        """This module generates all unvisited children of the node"""
-
-        if self._is_generated_all_children:
-            return
-        self.list_of_unvisited_children = self.get_all_children()
-        self._is_generated_all_children = True
-
-    def best_uct(self, node):
+    def best_uct(self):
         """This function calculates the child with best UCT index of node"""
 
         # Preset init
         current_best_uct_value = -inf
         current_result_child = []
 
-        if len(node.list_of_children) == 0:
-            # If node has no child yet
-            node.list_of_children = node.generate_all_children()
-
-        for child in node.list_of_children:
+        for child in self.list_of_children:
             if child.n != 0:
                 # The current child has been visited
-                child.uct = child.q/child.n\
+                uct = child.q/child.n\
                     + self.EXPLORATION_CONSTANT * \
-                    (log(node.n)/child.n)**self.EXPONENTIAL_INDEX
+                    (log(self.n)/child.n)**self.EXPONENTIAL_INDEX
+            else:
+                # The curent child has not been visited
+                uct = inf
 
             # Comparison random choosing
-            if child.uct > current_best_uct_value:
-                current_best_uct_value = child.uct
+            if uct > current_best_uct_value:
+                current_best_uct_value = uct
                 current_result_child = [child]
-            elif child.uct == current_best_uct_value:
+            elif uct == current_best_uct_value:
                 current_result_child.append(child)
 
-        return r.choice(current_result_child)
+        return choice(current_result_child)
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMCTS(game_state, parent, parent_move)
@@ -196,47 +175,50 @@ class NodeMCTS(Node):
         self._rating += result
         self._number_of_visits += 1
 
-    def terminate_value(self, node):
+    def terminate_value(self):
         """This module returns the value if a node is at it's termination"""
 
         # Outplay case
-        if node.game_state.get_team_win() == Team.RED:
+        if self.game_state.get_team_win() == Team.RED:
             return 1
-        if node.game_state.get_team_win() == Team.BLACK:
+        if self.game_state.get_team_win() == Team.BLACK:
             return -1
 
         return 0
 
-    def rollout_policy(self, node):
+    def rollout_policy(self):
         """This module returns the chosen simulation init node
         based on the given rollout policy"""
 
         # Random policy
-        num = len(node.list_of_children)
+        num = len(self.list_of_children)
         rand = randint(1, num)
-        return node.list_of_children[rand]
+        return self.list_of_children[rand]
 
-    def rollout(self, node, node_count):
+    def rollout(self):
         """This module performs the rollout simulation"""
 
-        if node.game_state.get_team_win() is Team.NONE or node_count < self.MAX_NODE_COUNT:
-            # Stimualtion hasn't achieved a termination
-            return self.rollout_policy(node)
+        node_count = 0
+        current_node = self
+        while current_node.game_state.get_team_win() is Team.NONE\
+                or node_count < self.MAX_NODE_COUNT:
+            # Stimulation hasn't achieved a termination
+            current_node = current_node.rollout_policy()
 
-        return self.terminate_value(node)
+        return current_node.terminate_value()
 
-    def backpropagate(self, node, result):
+    def backpropagate(self, result):
         """This module performs the MCTS backpropagation"""
 
-        if node.parent is None:
-            # I met my ultimate ancestor!
-            return
+        current_node = self
+        while current_node.parent is not None:
+            # I am going to meet my ultimate ancestor!
+            current_node.update_stat(result)
+            current_node = current_node.parent
 
-        # I still need to find my ancestor
-        node.update_stat(node, result)
-        self.backpropagate(node.parent, result)
+        current_node.update_stat(result)
 
-    def best_move(self, root):
+    def best_move(self):
         """This module returns the so-considered "best child" 
         of the current node"""
 
@@ -244,13 +226,13 @@ class NodeMCTS(Node):
         current_best_child = []
 
         # Traversing my sons
-        for child in root.list_of_unvisited_children + root.list_of_visited_children:
-            if child._number_of_visits > max_number_of_visits:
-                max_number_of_visits = child._number_of_visits
+        for child in self.list_of_children:
+            if child.n > max_number_of_visits:
+                max_number_of_visits = child.n
                 current_best_child.clear()
-            if child._number_of_visits == max_number_of_visits:
+            if child.n == max_number_of_visits:
                 current_best_child.append(child)
 
-        return r.choice(current_best_child)
+        return choice(current_best_child)
 
     # [END METHOD]
