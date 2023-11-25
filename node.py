@@ -124,8 +124,6 @@ class NodeMCTS(Node):
         # Reference to a node
         super().__init__(game_state, parent, parent_move)
 
-        # MCTS custom constraints
-
         # MCTS statistics
         self._number_of_visits = 0
         self._rating = 0
@@ -177,7 +175,8 @@ class NodeMCTS(Node):
             if child.n != 0:
                 # The current child has been visited
                 child.uct = child.q/child.n\
-                + self.EXPLORATION_CONSTANT*(log(node.n)/child.n)**self.EXPONENTIAL_INDEX
+                    + self.EXPLORATION_CONSTANT * \
+                    (log(node.n)/child.n)**self.EXPONENTIAL_INDEX
 
             # Comparison random choosing
             if child.uct > current_best_uct_value:
@@ -198,15 +197,15 @@ class NodeMCTS(Node):
         self._number_of_visits += 1
 
     def terminate_value(self, node):
-            """This module returns the value if a node is at it's termination"""
+        """This module returns the value if a node is at it's termination"""
 
-            # Outplay case
-            if node.game_state.get_team_win() == Team.RED:
-                return 1
-            if node.game_state.get_team_win() == Team.BLACK:
-                return -1
+        # Outplay case
+        if node.game_state.get_team_win() == Team.RED:
+            return 1
+        if node.game_state.get_team_win() == Team.BLACK:
+            return -1
 
-            return 0
+        return 0
 
     def rollout_policy(self, node):
         """This module returns the chosen simulation init node
