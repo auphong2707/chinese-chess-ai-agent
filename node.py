@@ -117,6 +117,7 @@ class NodeMCTS(Node):
 
     EXPLORATION_CONSTANT = sqrt(2)
     EXPONENTIAL_INDEX = 1
+    MAX_NODE_COUNT = 120
 
     # [INITIALIZATION]
     def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
@@ -130,7 +131,7 @@ class NodeMCTS(Node):
         self._rating = 0
         self.list_of_unvisited_children = list()
         self.list_of_visited_children = list()
-        self._uct = inf
+        self.uct = inf
 
     # Properties initialization
     @property
@@ -147,11 +148,6 @@ class NodeMCTS(Node):
     def is_fully_expanded(self):
         """Return whether it has been fully expanded or not"""
         return len(self.list_of_unvisited_children) == 0
-
-    @property
-    def upper_confidence_bound(self):
-        """Return the UCT value of the node"""
-        return self._uct
 
     # [END INITIALIZATION]
 
@@ -224,7 +220,7 @@ class NodeMCTS(Node):
     def rollout(self, node, node_count):
         """This module performs the rollout simulation"""
 
-        if node.game_state.get_team_win() is Team.NONE or node_count < 120:
+        if node.game_state.get_team_win() is Team.NONE or node_count < self.MAX_NODE_COUNT:
             # Stimualtion hasn't achieved a termination
             return self.rollout_policy(node)
 
