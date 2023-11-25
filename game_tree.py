@@ -60,7 +60,7 @@ class GameTree(ABC):
         pass
 
 
-class GameTreeMinimax(GameTree, NodeMinimax):
+class GameTreeMinimax(GameTree):
     """This class is responsible for the game tree minimax"""
 
     def __init__(self, team, target_depth):
