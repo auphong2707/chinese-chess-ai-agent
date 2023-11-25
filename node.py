@@ -64,8 +64,6 @@ class NodeMinimax(Node):
         super().__init__(game_state, parent, parent_move)
 
         # Minimax statistics
-        self.alpha = -inf
-        self.beta = inf
         self.minimax_value = None
 
     # [END INITIALIZATION]
@@ -82,8 +80,6 @@ class NodeMinimax(Node):
     def reset_statistics(self) -> None:
         """This method resets the minimax statistics"""
 
-        self.alpha = -inf
-        self.beta = inf
         self.minimax_value = None
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
