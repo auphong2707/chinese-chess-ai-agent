@@ -27,7 +27,6 @@ class Piece(ABC):
         # Create properties
         self.position = position
         self.team = team
-        self._has_crossed_river = False
 
         self.admissible_moves = None
 
@@ -57,14 +56,9 @@ class Piece(ABC):
 
     @property
     def has_crossed_river(self):
-        """Return True if the pawn is crossed the river"""
-        if self._has_crossed_river is True:
-            return True
-
-        self._has_crossed_river = (
-            abs(self.position[0] + 9 * (self.team.value - 1) / 2) < 5
-        )
-        return self._has_crossed_river
+        """Return True if the piece is crossed the river"""
+        return abs(self.position[0] + 9 * (self.team.value - 1) / 2) < 5
+        
     # [END INITILIZATION]
 
     # [BEGIN METHODS]
@@ -369,10 +363,26 @@ class Pawn(Piece):
 
     @property
     def piece_value(self):
-        if self.has_crossed_river is True:
-            self._piece_value = 20
-        if self.position == (5, 4) or self.position == (5, 8):
-            self._piece_value = 20
+        if self.team is Team.RED:
+            if self.position == (4, 5):
+                self._piece_value = 30
+            elif self.position[0] == 6 or self.position[0] == 7:
+                self._piece_value = 20
+            elif self.position[0] == 8 or self.position[0] == 9:
+                if self.position[1] < 9 and self.position[1] > 2:
+                    self._piece_value = 30
+                else:
+                    self._piece_value = 20
+        if self.team is Team.BLACK:
+            if self.position == (7, 5):
+                self._piece_value = 30
+            elif self.position[0] == 4 or self.position[0] == 5:
+                self._piece_value = 20
+            elif self.position[0] == 2 or self.position[0] == 3:
+                if self.position[1] < 9 and self.position[1] > 2:
+                    self._piece_value = 30
+                else:
+                    self._piece_value = 20
         return self._piece_value
 
     # Searching admissible moves for the pawn
