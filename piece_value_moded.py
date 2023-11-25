@@ -143,7 +143,7 @@ class Advisor(Piece):
     def piece_value(self):
         if len(self.admissible_moves) == 0:
             self._piece_value = 10
-        return self.piece_value
+        return self._piece_value
       
     def get_admissible_moves(self, board: tuple):
         # Movement
@@ -185,7 +185,7 @@ class Cannon(Piece):
     def piece_value(self):
         if len(self.admissible_moves) == 0:
             self._piece_value = 35
-        return self.piece_value
+        return self._piece_value
     
     def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
@@ -231,7 +231,7 @@ class Chariot(Piece):
     def piece_value(self):
         if len(self.admissible_moves) == 0:
             self._piece_value = 80
-        return self.piece_value
+        return self._piece_value
     
     def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
@@ -273,7 +273,7 @@ class Elephant(Piece):
     def piece_value(self):
         if len(self.admissible_moves) == 0:
             self._piece_value = 15
-        return self.piece_value
+        return self._piece_value
     
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
@@ -427,7 +427,7 @@ class Horse(Piece):
             self._piece_value = 45
         if len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
             self._piece_value = 50
-        return self.piece_value
+        return self._piece_value
     
     def get_admissible_moves(self, board: tuple) -> list:
 
