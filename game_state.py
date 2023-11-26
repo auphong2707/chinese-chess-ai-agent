@@ -70,8 +70,18 @@ class GameState:
             return -inf
 
         current_value = 0
-        for piece in self.pieces_list_current + self.pieces_list_opponent:
-            current_value = current_value + piece.piece_value*piece.team.value
+        # Iterate through all position in the board
+        for i in range(self.BOARD_SIZE_X):
+            for j in range(self.BOARD_SIZE_Y):
+                # Get the notation of the position
+                notation = self.board[i][j]
+                # If the notation is empty, then there is no piece at that position -> skip
+                if notation == "":
+                    continue
+
+                # Otherwise, create a instance of the piece and take value of the piece
+                piece = Piece.create_instance((i, j), notation)
+                current_value += piece.piece_value * piece.team.value
 
         return current_value
 
