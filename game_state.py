@@ -92,24 +92,6 @@ class GameState:
         else:
             return Team.BLACK
 
-    def _create_a_new_board(self, old_pos, new_pos):
-        """This method returns a new board after a piece moved"""
-        # Create a deepcopy of a new board
-        new_board = deepcopy(self._board)
-
-        # Transform the new board to list
-        new_board = list(map(list, new_board))
-
-        # Assign new value to the old position and new position of the moved piece
-        new_board[old_pos[0]][old_pos[1]] = Team.NONE
-        new_board[new_pos[0]][new_pos[1]] = self._current_team
-
-        # Transform the new board to tuple again
-        new_board = tuple(map(tuple, new_board))
-
-        # Return the answer
-        return new_board
-
     def generate_game_state_with_move(self, old_pos, new_pos):
         """This method creates a game state with a move
         (return None if the game state is invalid)"""
