@@ -92,89 +92,182 @@ class GameState:
         else:
             return Team.BLACK
 
-    def generate_game_state_with_move(self, old_pos, new_pos):
+    def generate_game_state_with_move(self, old_pos: tuple, new_pos: tuple):
         """This method creates a game state with a move
         (return None if the game state is invalid)"""
-        # Create a copy of current board and transform it
-        new_board = self._create_a_new_board(old_pos, new_pos)
+        # Temporary move the piece
+        old_pos_notation = self.board[old_pos[0]][old_pos[1]]
+        new_pos_notation = self.board[new_pos[0]][new_pos[1]]
+
+        self.board[old_pos[0]][old_pos[1]] = ""
+        self.board[new_pos[0]][new_pos[1]] = old_pos_notation
 
         # Get the opponent team
         opponent = self._get_the_opponent_team()
 
-        # Create new chess piece list and current team's general position
-        new_pieces_list_current, new_pieces_list_opponent = list(), list()
-        current_team_general_position = None
-
-        # Add the current team's pieces to the list
-        for piece in self.pieces_list_current:
-            # If the piece is the moved one
-            if piece.position == old_pos:
-                # Create a copy of that piece and update the statistic
-                new_piece = piece.create_copy()
-                new_piece.position = new_pos
-                new_piece.set_admissible_moves(new_board)
-
-                # Append new piece to the list
-                new_pieces_list_opponent.append(new_piece)
-
-            # Otherwise, append the reference to the list
-            else:
-                new_pieces_list_opponent.append(piece)
-
-            if isinstance(new_pieces_list_opponent[-1], General):
-                current_team_general_position = new_pieces_list_opponent[-1].position
-
-        # Add the opponent's pieces to the list
-        for piece in self.pieces_list_opponent:
-            # If the piece is eliminated then continue
-            if piece.position == new_pos:
-                continue
-
-            # Create a copy of the piece and update the statistic
-            new_piece = piece.create_copy()
-            new_piece.set_admissible_moves(new_board)
-
-            # Append new piece to the list
-            new_pieces_list_current.append(new_piece)
-
         # Check if the game state is valid
-        # Iterate for each piece in the list and detect the invalid
-        for piece in new_pieces_list_current:
-            # If the piece is advisor or elephant, then skip
-            if isinstance(piece, Advisor) or isinstance(piece, Elephant):
-                continue
+        def _is_board_valid(board: np.ndarray) -> bool:
+            """This method True if the board is valid, vice versa"""
 
-            # If the piece is general, check the y position
-            if (
-                isinstance(piece, General)
-                and piece.position[1] == current_team_general_position[1]
-            ):
-                x_min = piece.position[0] - opponent.value
-                x_max = current_team_general_position[0] - \
-                    self._current_team.value
-                if x_min > x_max:
-                    x_min, x_max = x_max, x_min
+            # Find the position of the current team's General
+            cur_general_pos = None
 
-                has_obstacle = False
-                for x in range(x_min, x_max + 1):
-                    if new_board[x][piece.position[1]] is not Team.NONE:
-                        has_obstacle = True
+            for y in range(self.BOUND_PALACE_Y[0], self.BOUND_PALACE_Y[1] + 1):
+                # Find place bound of current team
+                bound_x = None
+                if self._current_team is Team.RED:
+                    bound_x = self.BOUND_PALACE_X_RED
+                elif self._current_team is Team.BLACK:
+                    bound_x = self.BOUND_PALACE_X_BLACK
+
+                # Find the general
+                for x in range(bound_x[0], bound_x[1] + 1):
+                    if board[x][y] == "":
+                        continue
+                    if board[x][y][1] == "G":
+                        cur_general_pos = (x, y)
+
+            # Check if the general is exposed
+            x_str_dir, y_str_dir = [0, 0, -1, 1], [1, -1, 0, 0]
+
+            x_horse_offset = [2, 1, -1, -2, -2, -1, 1, 2]
+            y_horse_offset = [-1, -2, -2, -1, 1, 2, 2, 1]
+            x_orient, y_orient = [1, -1, -1, 1], [-1, -1, 1, 1]
+            # .Check the rook
+            for direction in range(4):
+                for steps in range(1, 10):
+                    # Get the position
+                    check_pos = (
+                        cur_general_pos[0] + steps * x_str_dir[direction],
+                        cur_general_pos[1] + steps * y_str_dir[direction],
+                    )
+                    # If check position is out of the board then break
+                    if Piece.is_position_on_board(check_pos) is False:
                         break
 
-                if has_obstacle is False:
-                    return None
-                continue
+                    notation = board[check_pos[0]][check_pos[1]]
+                    # If check position is empty then skip
+                    if notation == "":
+                        continue
+                    # If check position is our team then break
+                    elif Team[notation[0]] is self._current_team:
+                        break
+                    # If check position is oponent Rook then return False
+                    elif notation[1] == "R":
+                        return False
 
-            # Else: Check if admissible moves of the piece containing the general position
-            if current_team_general_position in piece.admissible_moves:
-                return None
+            # .Check the horse
+            for index in range(8):
+                check_pos = (
+                    cur_general_pos[0] + x_horse_offset[index],
+                    cur_general_pos[1] + y_horse_offset[index],
+                )
+                # If check position is out of the board then break
+                if Piece.is_position_on_board(check_pos) is False:
+                    break
+
+                notation = board[check_pos[0]][check_pos[1]]
+                # If check position is empty then skip
+                if notation == "":
+                    continue
+                # If the check_position is the opponent horse
+                if Team[notation[0]] is opponent and notation[1] == "H":
+                    mid_pos = (
+                        cur_general_pos[0] + x_orient[index // 2],
+                        cur_general_pos[1] + y_orient[index // 2],
+                    )
+                    mid_pos_notation = board[mid_pos[0]][mid_pos[1]]
+                    if mid_pos_notation == "":
+                        return False
+
+            # .Check the cannon
+            for direction in range(4):
+                piece_behind = 0
+                for steps in range(1, 10):
+                    pos = (
+                        cur_general_pos[0] + steps * x_str_dir[direction],
+                        cur_general_pos[1] + steps * y_str_dir[direction],
+                    )
+                    # If check position is out of the board then break
+                    if Piece.is_position_on_board(pos) is False:
+                        break
+                                    
+                                    
+                    notation = board[pos[0]][pos[1]]
+                    # If check position is empty then skip
+                    if notation == "":
+                        continue
+                    # If there is 1 piece behind and the pos is oponent cannon, return False
+                    if (
+                        piece_behind == 1
+                        and Team[notation[0]] is opponent
+                        and notation[1] == "C"
+                    ):
+                        return False
+                    # If the there is a piece then add 1 to piece_behind
+                    if notation != "":
+                        piece_behind += 1
+                    # If piece_behind is greater than 1, break
+                    if piece_behind > 1:
+                        break
+
+            # .Check the pawn
+            # Check left, right
+            for index in range(2):
+                check_pos = (
+                    cur_general_pos[0] + x_str_dir[index],
+                    cur_general_pos[1] + y_str_dir[index],
+                )
+                notation = board[check_pos[0]][check_pos[1]]
+                # If check position is empty then skip
+                if notation == "":
+                    continue
+                # If the piece is the opponent piece then return False
+                if Team[notation[0]] is opponent and notation[1] == "P":
+                    return False
+            # Check forward
+            forward_notation = board[cur_general_pos[0] + opponent.value][cur_general_pos[1]]
+            if (
+                forward_notation != ""
+                and Team[forward_notation[0]] is opponent
+                and forward_notation[1] == "P"
+            ):
+                return False
+
+            # .Check the general
+            for steps in range(1, 10):
+                pos = (cur_general_pos[0] + steps * opponent.value, cur_general_pos[1])
+                # If check position is out of the board then break
+                if Piece.is_position_on_board(pos) is False:
+                    break
+
+                notation = board[pos[0]][pos[1]]
+                # If the there is no piece in the position, then skip
+                if notation == "":
+                    continue
+                # If the piece is opponent's general then return False
+                elif notation[1] == "G":
+                    return False
+                # If the piece is other piece then break
+                else:
+                    break
+
+        # Conclude
+        def _return_to_old_state():
+            self.board[old_pos[0]][old_pos[1]] = old_pos_notation
+            self.board[new_pos[0]][new_pos[1]] = new_pos_notation
+
+        # .If the check is not passed, then return None
+        if _is_board_valid(self.board) is False:
+            _return_to_old_state()
+            return None
+
+        # Create a copy of moved board and return the board to the old state
+        new_board = self.board.copy()
+        _return_to_old_state()
 
         # Return the game state which has the new information
-        return GameState(
-            new_pieces_list_current, new_pieces_list_opponent, new_board, opponent
-        ), (
-            old_pos, new_pos
-        )
+        return GameState(new_board, opponent), (old_pos, new_pos)
 
     def generate_random_game_state(self):
         """This method will generate another gamestate that can be tranformed
