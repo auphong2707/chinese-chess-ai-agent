@@ -88,11 +88,6 @@ class Piece(ABC):
         This method is used to initialize the piece"""
         pass
 
-    @abstractmethod
-    def create_copy(self):
-        """This return a copy of current piece with a new attached board"""
-        pass
-
     # Static method
     @staticmethod
     def is_position_on_board(position: tuple) -> bool:
@@ -160,10 +155,6 @@ class Advisor(Piece):
         # Return
         return admissible_moves
 
-    def create_copy(self):
-        return Advisor(self.position, self.team)
-
-
 class Cannon(Piece):
     """Class representing a cannon"""
 
@@ -200,10 +191,6 @@ class Cannon(Piece):
 
         return admissible_moves
 
-    def create_copy(self):
-        return Cannon(self.position, self.team)
-
-
 class Chariot(Piece):
     """Class representing a chariot"""
 
@@ -235,10 +222,6 @@ class Chariot(Piece):
                     admissible_moves.append(new_position)
 
         return admissible_moves
-
-    def create_copy(self):
-        return Chariot(self.position, self.team)
-
 
 class Elephant(Piece):
     """Class representing an elephant"""
@@ -288,10 +271,6 @@ class Elephant(Piece):
 
         return admissible_moves
 
-    def create_copy(self):
-        return Elephant(self.position, self.team)
-
-
 class General(Piece):
     """Class representing a general"""
 
@@ -321,10 +300,6 @@ class General(Piece):
                     admissible_moves.append(new_position)
 
         return admissible_moves
-
-    def create_copy(self):
-        return General(self.position, self.team)
-
 
 class Pawn(Piece):
     """Class representing a pawn"""
@@ -372,10 +347,6 @@ class Pawn(Piece):
 
         return possible_moves
 
-    def create_copy(self):
-        return Pawn(self.position, self.team)
-
-
 class Horse(Piece):
     """Class representing a horse"""
 
@@ -417,6 +388,3 @@ class Horse(Piece):
 
         # Return
         return admissible_moves
-
-    def create_copy(self):
-        return Horse(self.position, self.team)
