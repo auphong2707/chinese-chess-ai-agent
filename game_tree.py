@@ -140,16 +140,12 @@ class GameTreeMCTS(GameTree):
         """This function performs the MCTS itself"""
 
         starting_time = time()
-        stm_cnt = 0
         while time()-starting_time < self.time_allowed:
-            stm_cnt += 1
             leaf = self.traverse(root)
             leaf.generate_all_children()
             stimulation_result = leaf.rollout()
             leaf.backpropagate(stimulation_result)
             print(time()-starting_time)
-        
-        print(stm_cnt)
 
     def process(self, moves_queue) -> tuple:
         """Let the bot run"""
