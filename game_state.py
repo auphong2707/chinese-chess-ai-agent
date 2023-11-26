@@ -24,18 +24,14 @@ class GameState:
     # [BEGIN INITILIZATION]
     def __init__(
         self,
-        pieces_list_current: list,
-        pieces_list_opponent: list,
-        board: tuple,
+        board: np.ndarray,
         current_team: Team,
     ) -> None:
         # Add the chess pieces to the list
-        self.pieces_list_current = pieces_list_current
-        self.pieces_list_opponent = pieces_list_opponent
+        self.board = board
 
         # Declare read-only properties
         self._value = None
-        self._board = board
         self._current_team = current_team
         self._all_child_gamestates = None
 
