@@ -4,7 +4,7 @@ import threading
 import pygame
 import resources
 from game_state import GameState
-from game_tree import GameTreeMinimax
+from game_tree import GameTreeMinimax, GameTreeMCTS
 from team import Team
 
 moves_queue = list()
@@ -21,8 +21,8 @@ def draw_gamestate(_screen, _game_state):
 
 
 def bot_run():
-    althea = GameTreeMinimax(Team.RED, 4)
-    beth = GameTreeMinimax(Team.BLACK, 4)
+    althea = GameTreeMCTS(Team.RED, 10)
+    beth = GameTreeMinimax(Team.BLACK, 3)
     turn = 1
 
     while True:

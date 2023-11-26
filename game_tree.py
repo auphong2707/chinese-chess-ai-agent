@@ -2,11 +2,11 @@
 from cmath import inf
 from abc import ABC, abstractmethod
 from game_state import GameState
-from piece import Piece
-from node import Node
-from node import NodeMinimax
+from node import NodeMinimax, NodeMCTS
 from time import time
 from team import Team
+from random import choice
+
 
 class GameTree(ABC):
     """This class is responsible for the game tree representation"""
@@ -119,6 +119,53 @@ class GameTreeMinimax(GameTree):
         return old_pos, new_pos
 
         # [END BOT'S TURN]
+
+
+class GameTreeMCTS(GameTree):
+    """This class is responsible for performance of the MCTS game tree"""
+
+    def __init__(self, team, time_allowed):
+        super().__init__(team)
+        self.time_allowed = time_allowed
+
+    def traverse(self, node: NodeMCTS) -> NodeMCTS:
+        """This module performs the MCTS initial traversion"""
+
+        if len(node.list_of_children) > 0:
+            return self.traverse(node.best_uct())
+        else:
+            return node
+
+    def monte_carlo_tree_search(self, root):
+        """This function performs the MCTS itself"""
+
+        starting_time = time()
+        while time()-starting_time < self.time_allowed:
+            leaf = self.traverse(root)
+            leaf.generate_all_children()
+            stimulation_result = leaf.rollout()
+            leaf.backpropagate(stimulation_result)
+            print(time()-starting_time)
+
+    def process(self, moves_queue) -> tuple:
+        """Let the bot run"""
+        # [START BOT'S TURN]
+
+        start = time()  # Start time counter
+        self.monte_carlo_tree_search(self.current_node)
+        old_pos, new_pos = self.move_to_best_child()
+        moves_queue.append((old_pos, new_pos))
+
+        # [POST PROCESS]
+        print(self.count)
+        self.count = 0
+        end = time()  # End time counter
+        print("Time: {:.2f} s".format(end - start))
+        print("{} moves: {} -> {}".format(self.team.name, old_pos, new_pos))
+        return old_pos, new_pos
+    
+    def _create_node(self, game_state, parent, parent_move) -> NodeMCTS:
+        return NodeMCTS(game_state, parent, parent_move)
 
 if __name__ == "main":
     # Test the class here Focalors

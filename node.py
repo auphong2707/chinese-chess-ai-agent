@@ -1,4 +1,4 @@
-from cmath import inf, sqrt, log
+from math import inf, sqrt, log
 from abc import ABC, abstractmethod
 from random import randint, choice
 from game_state import GameState
@@ -102,7 +102,7 @@ class NodeMCTS(Node):
 
     EXPLORATION_CONSTANT = sqrt(2)
     EXPONENTIAL_INDEX = 1
-    MAX_NODE_COUNT = 120
+    MAX_NODE_COUNT = 90
 
     # [INITIALIZATION]
     def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
@@ -180,9 +180,7 @@ class NodeMCTS(Node):
         based on the given rollout policy"""
 
         # Random policy
-        num = len(self.list_of_children)
-        rand = randint(1, num)
-        return self.list_of_children[rand]
+        return self.get_random_child()
 
     def rollout(self):
         """This module performs the rollout simulation"""
@@ -190,9 +188,10 @@ class NodeMCTS(Node):
         node_count = 0
         current_node = self
         while current_node.game_state.get_team_win() is Team.NONE\
-                or node_count < self.MAX_NODE_COUNT:
+                and node_count < self.MAX_NODE_COUNT:
             # Stimulation hasn't achieved a termination
             current_node = current_node.rollout_policy()
+            node_count += 1
 
         return current_node.terminate_value()
 
@@ -207,7 +206,7 @@ class NodeMCTS(Node):
 
         current_node.update_stat(result)
 
-    def best_move(self):
+    def best_move(self, team):
         """This module returns the so-considered "best child" 
         of the current node"""
 
@@ -224,4 +223,9 @@ class NodeMCTS(Node):
 
         return choice(current_best_child)
 
+    def get_random_child(self):
+        """Generate a random child"""
+
+        new_game_state = self.game_state.generate_random_game_state()
+        return self._create_node(new_game_state[0], self, new_game_state[1])
     # [END METHOD]
