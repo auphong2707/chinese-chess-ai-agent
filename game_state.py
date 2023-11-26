@@ -343,121 +343,21 @@ class GameState:
     @classmethod
     def generate_initial_game_state(cls):
         """This method creates the initial board"""
-
-        # Create a list of chess pieces
-        pieces_list_red, pieces_list_black = list(), list()
-
-        # Create a list to keep track of the team of pieces in chess_pieces
-        board = [
-            [Team.NONE for columns in range(GameState.BOARD_SIZE_Y)]
-            for rows in range(GameState.BOARD_SIZE_X)
-        ]
-
-        # Create pieces in the first row of black team
-        for columns in range(GameState.BOARD_SIZE_Y):
-            # Create black chariots
-            if columns == 0 or columns == 8:
-                black_piece = Chariot((0, columns), Team.BLACK)
-
-            # Create black horses
-            elif columns == 1 or columns == 7:
-                black_piece = Horse((0, columns), Team.BLACK)
-
-            # Create black elephants
-            elif columns == 2 or columns == 6:
-                black_piece = Elephant((0, columns), Team.BLACK)
-
-            # Create black advisors
-            elif columns == 3 or columns == 5:
-                black_piece = Advisor((0, columns), Team.BLACK)
-
-            # Create black general
-            else:
-                black_piece = General((0, columns), Team.BLACK)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_black.append(black_piece)
-
-            # Assign team of the pieces to its position
-            board[0][columns] = Team.BLACK
-
-        # Create black cannons
-        for columns in range(1, 8, 6):
-            black_cannon = Cannon((2, columns), Team.BLACK)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_black.append(black_cannon)
-
-            # Assign team of the pieces to its position
-            board[2][columns] = Team.BLACK
-
-        # Create black pawns
-        for columns in range(0, GameState.BOARD_SIZE_Y, 2):
-            black_pawn = Pawn((3, columns), Team.BLACK)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_black.append(black_pawn)
-
-            # Assign team of the pieces to its position
-            board[3][columns] = Team.BLACK
-
-        # Create pieces in the last row of red team
-        for columns in range(GameState.BOARD_SIZE_Y):
-            # Create red chariots
-            if columns == 0 or columns == 8:
-                red_piece = Chariot((9, columns), Team.RED)
-
-            # Create red horses
-            elif columns == 1 or columns == 7:
-                red_piece = Horse((9, columns), Team.RED)
-
-            # Create red elephants
-            elif columns == 2 or columns == 6:
-                red_piece = Elephant((9, columns), Team.RED)
-
-            # Create red advisors
-            elif columns == 3 or columns == 5:
-                red_piece = Advisor((9, columns), Team.RED)
-
-            # Create red general
-            else:
-                red_piece = General((9, columns), Team.RED)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_red.append(red_piece)
-
-            # Assign team of the pieces to its position
-            board[9][columns] = Team.RED
-
-        # Create red cannons
-        for columns in range(1, 8, 6):
-            red_cannon = Cannon((7, columns), Team.RED)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_red.append(red_cannon)
-
-            # Assign team of the pieces to its position
-            board[7][columns] = Team.RED
-
-        # Create red pawns
-        for columns in range(0, GameState.BOARD_SIZE_Y, 2):
-            red_pawn = Pawn((6, columns), Team.RED)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_red.append(red_pawn)
-
-            # Assign team of the pieces to its position
-            board[6][columns] = Team.RED
-
-        # Change type of board into tuple
-        board = tuple(map(tuple, board))
-
-        # Set all admissible moves of the red pieces
-        for piece in pieces_list_red:
-            piece.set_admissible_moves(board)
-
-        # return the initial board
-        return GameState(pieces_list_red, pieces_list_black, board, Team.RED)
+        initial_board = np.asarray(
+            [
+                ["BR", "BH", "BE", "BA", "BG", "BA", "BE", "BH", "BR"],
+                ["", "", "", "", "", "", "", "", ""],
+                ["", "BC", "", "", "", "", "", "BC", ""],
+                ["BP", "", "BP", "", "BP", "", "BP", "", "BP"],
+                ["", "", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", "", ""],
+                ["RP", "", "RP", "", "RP", "", "RP", "", "RP"],
+                ["", "RC", "", "", "", "", "", "RC", ""],
+                ["", "", "", "", "", "", "", "", ""],
+                ["RR", "RH", "RE", "RA", "RG", "RA", "RE", "RH", "RR"],
+            ]
+        )
+        return GameState(initial_board, Team.RED)
 
     # [END METHOD]
 
