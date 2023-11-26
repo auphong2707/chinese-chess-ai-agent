@@ -6,10 +6,12 @@ class Team(Enum):
     """This enum represents every teams in game"""
     # Red team
     RED = 1
+    R = 1
 
     # Black/Blue team
     BLACK = -1
     BLUE = -1
+    B = -1
 
     # None team
     NONE = 0
