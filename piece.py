@@ -62,8 +62,12 @@ class Piece(ABC):
         """Return the team of the piece on the position (Team.NONE, Team.RED, Team.BLACK)"""
         if self.is_position_on_board(position) is False:
             raise ValueError("The position is out of range")
-
-        return Team[board[position[0]][position[1]][0]]
+         
+        notation = board[position[0]][position[1]]
+        if notation == '':
+            return Team.NONE
+        else:
+            return Team[board[position[0]][position[1]][0]]
 
     def is_position_teammate(self, position: tuple, board: np.ndarray):
         """Return True if the piece on the position is teammate piece, vice versa"""
