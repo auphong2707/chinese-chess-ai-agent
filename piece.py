@@ -119,6 +119,27 @@ class Piece(ABC):
         )
 
         return result_x and result_y
+    
+    @staticmethod
+    def create_instance(position: tuple, notation: str):
+        team = Team[notation[0]]
+        piece_type = notation[1]
+        
+        match piece_type:
+            case "A":
+                return Advisor(position, team)
+            case "C":
+                return Cannon(position, team)
+            case "E":
+                return Elephant(position, team)
+            case "G":
+                return General(position, team)
+            case "H":
+                return Horse(position, team)
+            case "P":
+                return Pawn(position, team)
+            case "R":
+                return Rook(position, team)
 
     # [END METHODS]
 
