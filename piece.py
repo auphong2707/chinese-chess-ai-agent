@@ -191,11 +191,11 @@ class Cannon(Piece):
 
         return admissible_moves
 
-class Chariot(Piece):
-    """Class representing a chariot"""
+class Rook(Piece):
+    """Class representing a rook"""
 
     _piece_value = 9
-    _piece_type = 'chariot'
+    _piece_type = 'rook'
 
     def get_admissible_moves(self, board: tuple) -> list:
         x_direction = [1, -1, 0, 0]
