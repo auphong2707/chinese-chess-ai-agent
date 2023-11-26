@@ -1,5 +1,5 @@
 # Edited by: Veil, Kleecon
-"""Module providing the property of abstract class and team members"""
+import numpy as np
 from abc import ABC, abstractmethod
 from team import Team
 
@@ -58,32 +58,28 @@ class Piece(ABC):
 
     # [BEGIN METHODS]
     # Instance method
-    def _get_piece_team_on_position(self, position: tuple, board: tuple) -> Team:
+    def _get_piece_team_on_position(self, position: tuple, board: np.ndarray) -> Team:
         """Return the team of the piece on the position (Team.NONE, Team.RED, Team.BLACK)"""
         if self.is_position_on_board(position) is False:
             raise ValueError("The position is out of range")
 
-        return board[position[0]][position[1]]
+        return Team[board[position[0]][position[1]][0]]
 
-    def is_position_teammate(self, position: tuple, board: tuple):
+    def is_position_teammate(self, position: tuple, board: np.ndarray):
         """Return True if the piece on the position is teammate piece, vice versa"""
         return self._get_piece_team_on_position(position, board) is self.team
 
-    def is_position_free(self, position: tuple, board: tuple):
+    def is_position_free(self, position: tuple, board: np.ndarray):
         """Return True if there is no piece on the position, vice versa"""
         return self._get_piece_team_on_position(position, board) is Team.NONE
 
-    def is_position_opponent(self, position: tuple, board: tuple):
+    def is_position_opponent(self, position: tuple, board: np.ndarray):
         """Return True if the piece on the position is opponent piece, vice versa"""
         return self._get_piece_team_on_position(position, board).value == -self.team.value
 
-    def set_admissible_moves(self, board: tuple):
-        """This method will set a new list of admissible moves of the piece"""
-        self.admissible_moves = self.get_admissible_moves(board)
-
     # Abstract method
     @abstractmethod
-    def get_admissible_moves(self, board: tuple) -> list:
+    def get_admissible_moves(self, board: np.ndarray) -> list:
         """Abstract method that return the list of admissible moves of a piece.
         This method is used to initialize the piece"""
         pass
@@ -150,7 +146,7 @@ class Advisor(Piece):
     _piece_value = 2
     _piece_type = 'advisor'
 
-    def get_admissible_moves(self, board: tuple):
+    def get_admissible_moves(self, board: np.ndarray):
         # Movement
         admissible_moves = []
 
@@ -182,7 +178,7 @@ class Cannon(Piece):
     _piece_value = 4.5
     _piece_type = 'cannon'
 
-    def get_admissible_moves(self, board: tuple) -> list:
+    def get_admissible_moves(self, board: np.ndarray) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
         admissible_moves = []
@@ -218,7 +214,7 @@ class Rook(Piece):
     _piece_value = 9
     _piece_type = 'rook'
 
-    def get_admissible_moves(self, board: tuple) -> list:
+    def get_admissible_moves(self, board: np.ndarray) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
 
@@ -258,7 +254,7 @@ class Elephant(Piece):
             return True
         return False
 
-    def get_admissible_moves(self, board: tuple):
+    def get_admissible_moves(self, board: np.ndarray):
         admissible_moves = []
 
         # Possible goal positions
@@ -298,7 +294,7 @@ class General(Piece):
     _piece_value = 0
     _piece_type = 'general'
 
-    def get_admissible_moves(self, board: tuple) -> list:
+    def get_admissible_moves(self, board: np.ndarray) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
 
@@ -347,7 +343,7 @@ class Pawn(Piece):
         return self._piece_value
 
     # Searching admissible moves for the pawn
-    def get_admissible_moves(self, board: tuple) -> list:
+    def get_admissible_moves(self, board: np.ndarray) -> list:
         possible_moves = []
 
         # Movement
@@ -374,7 +370,7 @@ class Horse(Piece):
     _piece_value = 4
     _piece_type = 'horse'
 
-    def get_admissible_moves(self, board: tuple) -> list:
+    def get_admissible_moves(self, board: np.ndarray) -> list:
 
         # Movement
         admissible_moves = []
