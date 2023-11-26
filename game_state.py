@@ -56,6 +56,7 @@ class GameState:
             self._all_child_gamestates = self.generate_all_game_states()
 
         return self._all_child_gamestates
+
     # [END INITILIZATION]
 
     # [BEGIN METHOD]
