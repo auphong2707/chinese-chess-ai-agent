@@ -272,9 +272,34 @@ class GameState:
     def generate_random_game_state(self):
         """This method will generate another gamestate that can be tranformed
         by current method using each move of the piece"""
+        # Get all position of curretn team's piece into a list and randomly shuffle it
+        team_positions = list()
+        for i in range(self.BOARD_SIZE_X):
+            for j in range(self.BOARD_SIZE_Y):
+                notation = self.board[i][j]
 
-        # Return a random child game states of the current game states
-        return self.all_child_gamestates[randint(0, len(self.all_child_gamestates) - 1)]
+                if notation == "":
+                    continue
+
+                if Team[notation[0]] is self._current_team:
+                    team_positions.append((i, j))
+
+        shuffle(team_positions)
+
+        # Iterate through every piece in the list, generate the piece's move list and shuffle it
+        for pos in team_positions:
+            moves_list = Piece.create_instance(pos, notation).get_admissible_moves(
+                self.board
+            )
+            shuffle(moves_list)
+
+            for new_pos in moves_list:
+                new_gamestate = self.generate_game_state_with_move(pos, new_pos)
+                if new_gamestate is not None:
+                    return new_gamestate
+
+        # If the gamestate is terminal then return None
+        return None
 
     def generate_all_game_states(self):
         """This method will return the list of all states that can be accessed
