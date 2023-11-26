@@ -309,18 +309,23 @@ class GameState:
         game_states_available = list()
 
         # Iterating through all moves
-        for pieces in self.pieces_list_current:
-            for move in pieces.admissible_moves:
-                # Get the old position and new position of the chosen piece
-                old_pos = pieces.position
-                new_pos = move
+        for i in range(self.BOARD_SIZE_X):
+            for j in range(self.BOARD_SIZE_Y):
+                notation = self.board[i][j]
 
-                # Add new game state into the above list
-                game_state = self.generate_game_state_with_move(
-                    old_pos, new_pos)
+                if notation == "":
+                    continue
 
-                if game_state is not None:
-                    game_states_available.append(game_state)
+                if Team[notation[0]] is self._current_team:
+                    moves_list = Piece.create_instance(
+                        (i, j), notation
+                    ).get_admissible_moves(self.board)
+
+                    for new_pos in moves_list:
+                        game_state = self.generate_game_state_with_move((i, j), new_pos)
+
+                        if game_state is not None:
+                            game_states_available.append(game_state)
 
         return game_states_available
 
