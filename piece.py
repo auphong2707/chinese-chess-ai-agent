@@ -453,7 +453,7 @@ class General(Piece):
                     and notation[1] == "C"
                 ):
                     return False
-                # If the there is a piece then add 1 to piece_behind
+                # If there is a piece, then add 1 to piece_behind
                 if notation != "NN":
                     piece_behind += 1
                 # If piece_behind is greater than 1, break
