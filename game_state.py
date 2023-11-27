@@ -19,7 +19,7 @@ class GameState:
     # [BEGIN INITILIZATION]
     def __init__(
         self,
-        board: list,
+        board,
         current_team: Team,
     ) -> None:
         # Add the chess pieces to the list
@@ -49,6 +49,7 @@ class GameState:
 
         if self._all_child_gamestates is None:
             self._all_child_gamestates = self.generate_all_game_states()
+            self.board = tuple(map(tuple, self.board))
 
         return self._all_child_gamestates
 
