@@ -404,11 +404,13 @@ class General(Piece):
 
                 notation = board[check_pos[0]][check_pos[1]]
                 # If check position is our team then break
-                if Team[notation[0]] is current_team:
-                    break
-                # If check position is oponent Rook then return False
-                elif notation[1] == "R":
-                    return False
+                if Team[notation[0]] is not Team.NONE:
+                    # If check position is oponent Rook then return False
+                    if Team[notation[0]] is opponent and notation[1] == "R":
+                        return False
+                    # Otherwise break
+                    else:
+                        break
 
         # .Check the horse
         for index in range(8):
