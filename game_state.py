@@ -16,11 +16,6 @@ class GameState:
     BOARD_SIZE_X = 10
     BOARD_SIZE_Y = 9
 
-    # Palace bound
-    BOUND_PALACE_X_RED = tuple((7, 9))
-    BOUND_PALACE_X_BLACK = tuple((0, 2))
-    BOUND_PALACE_Y = tuple((3, 5))
-
     # [BEGIN INITILIZATION]
     def __init__(
         self,
