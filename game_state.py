@@ -234,6 +234,8 @@ class GameState:
                 # If the piece is other piece then break
                 else:
                     break
+                
+            return True
 
         # Conclude
         def _return_to_old_state():
