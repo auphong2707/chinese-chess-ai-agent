@@ -30,7 +30,7 @@ class Piece(ABC):
         self.admissible_moves = None
 
     def __str__(self) -> str:
-        return str(self.team) + '_' + self._piece_type
+        return str(self.team) + "_" + self._piece_type
 
     # Properties initialization
     # .position
@@ -61,9 +61,9 @@ class Piece(ABC):
         """Return the team of the piece on the position (Team.NONE, Team.RED, Team.BLACK)"""
         if self.is_position_on_board(position) is False:
             raise ValueError("The position is out of range")
-         
+
         notation = board[position[0]][position[1]]
-        if notation == '':
+        if notation == "":
             return Team.NONE
         else:
             return Team[board[position[0]][position[1]][0]]
@@ -118,12 +118,12 @@ class Piece(ABC):
         )
 
         return result_x and result_y
-    
+
     @staticmethod
     def create_instance(position: tuple, notation: str):
         team = Team[notation[0]]
         piece_type = notation[1]
-        
+
         match piece_type:
             case "A":
                 return Advisor(position, team)
@@ -147,7 +147,7 @@ class Advisor(Piece):
     """Class representing an advisor"""
 
     _piece_value = 2
-    _piece_type = 'advisor'
+    _piece_type = "advisor"
 
     def get_admissible_moves(self, board: list):
         # Movement
@@ -175,11 +175,12 @@ class Advisor(Piece):
         # Return
         return admissible_moves
 
+
 class Cannon(Piece):
     """Class representing a cannon"""
 
     _piece_value = 4.5
-    _piece_type = 'cannon'
+    _piece_type = "cannon"
 
     def get_admissible_moves(self, board: list) -> list:
         x_direction = [1, -1, 0, 0]
@@ -190,12 +191,13 @@ class Cannon(Piece):
             piece_behind = 0
 
             for steps in range(1, 10):
-                new_position = (self.position[0] + steps*x_direction[direction],
-                                self.position[1] + steps*y_direction[direction])
+                new_position = (
+                    self.position[0] + steps * x_direction[direction],
+                    self.position[1] + steps * y_direction[direction],
+                )
 
                 # Check if the new position is on the board
                 if self.is_position_on_board(new_position):
-
                     # Check if there is any piece on the new position
                     if self.is_position_free(new_position, board) is False:
                         piece_behind += 1
@@ -211,11 +213,12 @@ class Cannon(Piece):
 
         return admissible_moves
 
+
 class Rook(Piece):
     """Class representing a rook"""
 
     _piece_value = 9
-    _piece_type = 'rook'
+    _piece_type = "rook"
 
     def get_admissible_moves(self, board: list) -> list:
         x_direction = [1, -1, 0, 0]
@@ -243,11 +246,12 @@ class Rook(Piece):
 
         return admissible_moves
 
+
 class Elephant(Piece):
     """Class representing an elephant"""
 
     _piece_value = 2.5
-    _piece_type = 'elephant'
+    _piece_type = "elephant"
 
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
@@ -291,11 +295,12 @@ class Elephant(Piece):
 
         return admissible_moves
 
+
 class General(Piece):
     """Class representing a general"""
 
     _piece_value = 0
-    _piece_type = 'general'
+    _piece_type = "general"
 
     def get_admissible_moves(self, board: list) -> list:
         x_direction = [1, -1, 0, 0]
@@ -456,7 +461,7 @@ class Pawn(Piece):
 
     _has_crossed_river = False
     _piece_value = 1
-    _piece_type = 'pawn'
+    _piece_type = "pawn"
 
     @property
     def has_crossed_river(self):
@@ -497,12 +502,12 @@ class Pawn(Piece):
 
         return possible_moves
 
+
 class Horse(Piece):
     """Class representing a horse"""
 
     _piece_value = 4
-    _piece_type = 'horse'
-
+    _piece_type = "horse"
 
     def get_admissible_moves(self, board: list) -> list:
         # Movement
@@ -518,22 +523,24 @@ class Horse(Piece):
         q_orient = [0, -1, 0, 1]
 
         for cnt in range(maximum_move_count):
-
             # Middle position
-            pos = (self.position[0] + p_orient[cnt//2],
-                   self.position[1] + q_orient[cnt//2])
+            pos = (
+                self.position[0] + p_orient[cnt // 2],
+                self.position[1] + q_orient[cnt // 2],
+            )
 
             # Check the middle position
-            if self.is_position_on_board(pos)\
-                    and self.is_position_free(pos, board):
-
+            if self.is_position_on_board(pos) and self.is_position_free(pos, board):
                 # Goal position
-                pos = (self.position[0] + x_orient[cnt],
-                       self.position[1] + y_orient[cnt])
+                pos = (
+                    self.position[0] + x_orient[cnt],
+                    self.position[1] + y_orient[cnt],
+                )
 
                 # Check the goal position
-                if self.is_position_on_board(pos)\
-                        and not self.is_position_teammate(pos, board):
+                if self.is_position_on_board(pos) and not self.is_position_teammate(
+                    pos, board
+                ):
                     admissible_moves.append(pos)
 
         # Return
