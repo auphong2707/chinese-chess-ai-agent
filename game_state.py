@@ -1,10 +1,10 @@
 # Made by: Veil
 import time
-import numpy as np
 from cmath import inf
 from random import randint, shuffle
 from piece import General, Advisor, Elephant, Rook, Cannon, Horse, Pawn, Piece
 from team import Team
+from copy import deepcopy
 
 
 class GameState:
@@ -24,7 +24,7 @@ class GameState:
     # [BEGIN INITILIZATION]
     def __init__(
         self,
-        board: np.ndarray,
+        board: list,
         current_team: Team,
     ) -> None:
         # Add the chess pieces to the list
@@ -77,7 +77,7 @@ class GameState:
                 # Get the notation of the position
                 notation = self.board[i][j]
                 # If the notation is empty, then there is no piece at that position -> skip
-                if notation == "":
+                if notation == "NN":
                     continue
 
                 # Otherwise, create a instance of the piece and take value of the piece
@@ -100,14 +100,14 @@ class GameState:
         old_pos_notation = self.board[old_pos[0]][old_pos[1]]
         new_pos_notation = self.board[new_pos[0]][new_pos[1]]
 
-        self.board[old_pos[0]][old_pos[1]] = ""
+        self.board[old_pos[0]][old_pos[1]] = "NN"
         self.board[new_pos[0]][new_pos[1]] = old_pos_notation
 
         # Get the opponent team
         opponent = self._get_the_opponent_team()
 
         # Check if the game state is valid
-        def _is_board_valid(board: np.ndarray) -> bool:
+        def _is_board_valid(board: list) -> bool:
             """This method True if the board is valid, vice versa"""
 
             # Find the position of the current team's General
@@ -123,8 +123,6 @@ class GameState:
 
                 # Find the general
                 for x in range(bound_x[0], bound_x[1] + 1):
-                    if board[x][y] == "":
-                        continue
                     if board[x][y][1] == "G":
                         cur_general_pos = (x, y)
 
@@ -147,11 +145,8 @@ class GameState:
                         break
 
                     notation = board[check_pos[0]][check_pos[1]]
-                    # If check position is empty then skip
-                    if notation == "":
-                        continue
                     # If check position is our team then break
-                    elif Team[notation[0]] is self._current_team:
+                    if Team[notation[0]] is self._current_team:
                         break
                     # If check position is oponent Rook then return False
                     elif notation[1] == "R":
@@ -168,9 +163,6 @@ class GameState:
                     break
 
                 notation = board[check_pos[0]][check_pos[1]]
-                # If check position is empty then skip
-                if notation == "":
-                    continue
                 # If the check_position is the opponent horse
                 if Team[notation[0]] is opponent and notation[1] == "H":
                     mid_pos = (
@@ -178,7 +170,7 @@ class GameState:
                         cur_general_pos[1] + y_orient[index // 2],
                     )
                     mid_pos_notation = board[mid_pos[0]][mid_pos[1]]
-                    if mid_pos_notation == "":
+                    if mid_pos_notation == "NN":
                         return False
 
             # .Check the cannon
@@ -195,9 +187,6 @@ class GameState:
                                     
                                     
                     notation = board[pos[0]][pos[1]]
-                    # If check position is empty then skip
-                    if notation == "":
-                        continue
                     # If there is 1 piece behind and the pos is oponent cannon, return False
                     if (
                         piece_behind == 1
@@ -206,7 +195,7 @@ class GameState:
                     ):
                         return False
                     # If the there is a piece then add 1 to piece_behind
-                    if notation != "":
+                    if notation != "NN":
                         piece_behind += 1
                     # If piece_behind is greater than 1, break
                     if piece_behind > 1:
@@ -220,17 +209,13 @@ class GameState:
                     cur_general_pos[1] + y_str_dir[index],
                 )
                 notation = board[check_pos[0]][check_pos[1]]
-                # If check position is empty then skip
-                if notation == "":
-                    continue
                 # If the piece is the opponent piece then return False
                 if Team[notation[0]] is opponent and notation[1] == "P":
                     return False
             # Check forward
             forward_notation = board[cur_general_pos[0] + opponent.value][cur_general_pos[1]]
             if (
-                forward_notation != ""
-                and Team[forward_notation[0]] is opponent
+                Team[forward_notation[0]] is opponent
                 and forward_notation[1] == "P"
             ):
                 return False
@@ -243,11 +228,8 @@ class GameState:
                     break
 
                 notation = board[pos[0]][pos[1]]
-                # If the there is no piece in the position, then skip
-                if notation == "":
-                    continue
                 # If the piece is opponent's general then return False
-                elif notation[1] == "G":
+                if notation[1] == "G":
                     return False
                 # If the piece is other piece then break
                 else:
@@ -264,7 +246,7 @@ class GameState:
             return None
 
         # Create a copy of moved board and return the board to the old state
-        new_board = self.board.copy()
+        new_board = deepcopy(self.board)
         _return_to_old_state()
 
         # Return the game state which has the new information
@@ -279,7 +261,7 @@ class GameState:
             for j in range(self.BOARD_SIZE_Y):
                 notation = self.board[i][j]
 
-                if notation == "":
+                if notation == "NN":
                     continue
 
                 if Team[notation[0]] is self._current_team:
@@ -314,7 +296,7 @@ class GameState:
             for j in range(self.BOARD_SIZE_Y):
                 notation = self.board[i][j]
 
-                if notation == "":
+                if notation == "NN":
                     continue
 
                 if Team[notation[0]] is self._current_team:
@@ -344,17 +326,17 @@ class GameState:
     @classmethod
     def generate_initial_game_state(cls):
         """This method creates the initial board"""
-        initial_board = np.asarray(
+        initial_board = list(
             [
                 ["BR", "BH", "BE", "BA", "BG", "BA", "BE", "BH", "BR"],
-                ["", "", "", "", "", "", "", "", ""],
-                ["", "BC", "", "", "", "", "", "BC", ""],
-                ["BP", "", "BP", "", "BP", "", "BP", "", "BP"],
-                ["", "", "", "", "", "", "", "", ""],
-                ["", "", "", "", "", "", "", "", ""],
-                ["RP", "", "RP", "", "RP", "", "RP", "", "RP"],
-                ["", "RC", "", "", "", "", "", "RC", ""],
-                ["", "", "", "", "", "", "", "", ""],
+                ["NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN"],
+                ["NN", "BC", "NN", "NN", "NN", "NN", "NN", "BC", "NN"],
+                ["BP", "NN", "BP", "NN", "BP", "NN", "BP", "NN", "BP"],
+                ["NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN"],
+                ["NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN"],
+                ["RP", "NN", "RP", "NN", "RP", "NN", "RP", "NN", "RP"],
+                ["NN", "RC", "NN", "NN", "NN", "NN", "NN", "RC", "NN"],
+                ["NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN"],
                 ["RR", "RH", "RE", "RA", "RG", "RA", "RE", "RH", "RR"],
             ]
         )
