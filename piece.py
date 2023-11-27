@@ -1,4 +1,5 @@
 # Edited by: Veil, Kleecon
+"""Module providing the property of abstract class and team members"""
 from abc import ABC, abstractmethod
 from team import Team
 
@@ -160,6 +161,7 @@ class Advisor(Piece):
             raise ValueError("Value pack is not found")
 
     def get_admissible_moves(self, board: list):
+
         # Movement
         admissible_moves = []
 
@@ -200,6 +202,7 @@ class Cannon(Piece):
             raise ValueError("Value pack is not found")
 
     def get_admissible_moves(self, board: list) -> list:
+
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
         admissible_moves = []
@@ -244,6 +247,7 @@ class Rook(Piece):
         else:
             raise ValueError("Value pack is not found")
 
+
     def get_admissible_moves(self, board: list) -> list:
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
@@ -276,6 +280,7 @@ class Elephant(Piece):
 
     _piece_value = 25
     _piece_type = "elephant"
+
 
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
@@ -332,6 +337,7 @@ class General(Piece):
 
     _piece_value = 0
     _piece_type = "general"
+
 
     def piece_value(self, value_pack=0):
         # Default value pack
