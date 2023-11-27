@@ -15,6 +15,7 @@ class Team(Enum):
 
     # None team
     NONE = 0
+    N = 0
 
     def __str__(self):
         return self.name.lower()
