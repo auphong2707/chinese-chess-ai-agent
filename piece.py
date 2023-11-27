@@ -57,7 +57,7 @@ class Piece(ABC):
             raise ValueError("The position is out of range")
 
         notation = board[position[0]][position[1]]
-        if notation == "":
+        if notation == "NN":
             return Team.NONE
         else:
             return Team[board[position[0]][position[1]][0]]
