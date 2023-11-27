@@ -364,8 +364,9 @@ class GameState:
 
 
 if __name__ == '__main__':
+    import psutil
     queue = [GameState.generate_initial_game_state()]
-    for depth in range(1, 4):
+    for depth in range(1, 5):
         start = time.time()
 
         new_queue = list()
@@ -376,3 +377,7 @@ if __name__ == '__main__':
         queue = new_queue
         end = time.time()
         print(depth, len(queue), end - start)
+        
+    pid = psutil.Process()
+    memory_info = pid.memory_info()
+    print(f"Memory Usage: {memory_info.rss/(1024**2)} megabytes")
