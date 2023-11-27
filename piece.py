@@ -486,6 +486,8 @@ class General(Piece):
                 break
 
             notation = board[pos[0]][pos[1]]
+            if notation == "NN":
+                continue
             # If the piece is opponent's general then return False
             if notation[1] == "G":
                 return False
