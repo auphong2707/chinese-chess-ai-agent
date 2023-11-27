@@ -130,9 +130,6 @@ class GameState:
             for j in range(self.BOARD_SIZE_Y):
                 notation = self.board[i][j]
 
-                if notation == "NN":
-                    continue
-
                 if Team[notation[0]] is self._current_team:
                     team_positions.append((i, j))
 
@@ -140,6 +137,7 @@ class GameState:
 
         # Iterate through every piece in the list, generate the piece's move list and shuffle it
         for pos in team_positions:
+            notation = self.board[pos[0]][pos[1]]
             moves_list = Piece.create_instance(pos, notation).get_admissible_moves(
                 self.board
             )
