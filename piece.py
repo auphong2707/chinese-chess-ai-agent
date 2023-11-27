@@ -501,14 +501,13 @@ class General(Piece):
 class Pawn(Piece):
     """Class representing a pawn"""
 
-    _has_crossed_river = False
     _piece_value = 10
     _piece_type = "pawn"
 
     def piece_value(self, value_pack=0):
         # Default value pack
         if value_pack == 0:
-            if self.has_crossed_river is True:
+            if self.is_crossed_river() is True:
                 self._piece_value = 20
             return self._piece_value
         else:
