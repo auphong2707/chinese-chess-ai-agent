@@ -21,11 +21,13 @@ class GameState:
         self,
         board,
         current_team: Team,
+        value_pack: int = 0
     ) -> None:
         # Add the chess pieces to the list
         self.board = board
 
-        # Declare read-only properties
+        # Declare properties
+        self._value_pack = value_pack
         self._value = None
         self._current_team = current_team
         self._all_child_gamestates = None
@@ -60,10 +62,10 @@ class GameState:
     def _get_game_state_value(self):
         """Return the evaluation value of the board"""
 
-        if self.get_team_win is Team.RED:
+        if self.get_team_win() is Team.RED:
             return inf
 
-        if self.get_team_win is Team.BLACK:
+        if self.get_team_win()  is Team.BLACK:
             return -inf
 
         current_value = 0
@@ -78,7 +80,7 @@ class GameState:
 
                 # Otherwise, create a instance of the piece and take value of the piece
                 piece = Piece.create_instance((i, j), notation)
-                current_value += piece.piece_value * piece.team.value
+                current_value += piece.piece_value(self._value_pack) * piece.team.value
 
         return current_value
 
