@@ -6,6 +6,7 @@ import resources
 from game_state import GameState
 from game_tree import GameTreeMinimax, GameTreeMCTS
 from team import Team
+from piece import Piece
 
 moves_queue = list()
 
@@ -15,9 +16,15 @@ def draw_gamestate(_screen, _game_state):
     board_img, board_position = resources.get_board_sprite()
     _screen.blit(board_img, board_position)
 
-    for piece in _game_state.pieces_list_current + _game_state.pieces_list_opponent:
-        piece_img, piece_position = resources.get_piece_sprite(piece)
-        _screen.blit(piece_img, piece_position)
+    for x in range(GameState.BOARD_SIZE_X):
+        for y in range(GameState.BOARD_SIZE_Y):
+            notation = _game_state.board[x][y]
+            if notation == 'NN':
+                continue
+            
+            piece = Piece.create_instance((x, y), notation)
+            piece_img, piece_position = resources.get_piece_sprite(piece)
+            _screen.blit(piece_img, piece_position)
 
 
 def bot_run():
