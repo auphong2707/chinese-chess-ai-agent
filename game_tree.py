@@ -77,6 +77,15 @@ class GameTreeMinimax(GameTree):
             return node.minimax_value
 
         node.generate_all_children()
+        
+        if len(node.list_of_children) == 0:
+            if node.game_state._current_team is Team.RED:
+                node.minimax_value = -inf
+            else:
+                node.minimax_value = inf
+            
+            return node.minimax_value
+        
         # Max turn
         if max_turn is True:
             node.minimax_value = -inf
