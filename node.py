@@ -229,3 +229,26 @@ class NodeMCTS(Node):
         return choice(current_best_child)
 
     # [END METHOD]
+
+if __name__ == "__main__":
+    import psutil
+    queue = [NodeMinimax._create_node(
+            None, GameState.generate_initial_game_state(), None, None
+        )]
+    for depth in range(1, 5):
+        start = time.time()
+
+        new_queue = list()
+        while len(queue) > 0:
+            cur = queue.pop()
+            cur.generate_all_children()
+            for child_node in cur.list_of_children:
+                new_queue.append(child_node)
+
+        queue = new_queue
+        end = time.time()
+        print(depth, len(queue), end - start)
+    
+    pid = psutil.Process()
+    memory_info = pid.memory_info()
+    print(f"Memory Usage: {memory_info.rss/(1024**2)} megabytes")
