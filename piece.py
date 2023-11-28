@@ -420,7 +420,7 @@ class General(Piece):
             )
             # If check position is out of the board then break
             if Piece.is_position_on_board(check_pos) is False:
-                break
+                continue
 
             notation = board[check_pos[0]][check_pos[1]]
             # If the check_position is the opponent horse
