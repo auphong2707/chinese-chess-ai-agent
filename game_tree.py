@@ -38,7 +38,7 @@ class GameTree(ABC):
 
         # Traversing states in the children list to find a suitable child
         for node in self.current_node.list_of_children:
-            if new_state._board == node.game_state._board:
+            if new_state.board == node.game_state.board:
                 # Suitable child found
                 self.current_node = node
                 self.current_node.parent = None
