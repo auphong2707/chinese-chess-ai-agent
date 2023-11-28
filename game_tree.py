@@ -145,7 +145,6 @@ class GameTreeMCTS(GameTree):
             leaf.generate_all_children()
             stimulation_result = leaf.rollout()
             leaf.backpropagate(stimulation_result)
-            print(time()-starting_time)
 
     def process(self, moves_queue) -> tuple:
         """Let the bot run"""
