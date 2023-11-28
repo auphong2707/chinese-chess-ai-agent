@@ -13,7 +13,7 @@ class GameTree(ABC):
 
     MAX_NODE = inf
 
-    def __init__(self, team) -> None:
+    def __init__(self, team: Team) -> None:
         # This generates the initial game tree, not a forged one
         self.team = team
         self.current_node = self._create_node(
@@ -70,7 +70,7 @@ class GameTreeMinimax(GameTree):
     def minimax(self, node: NodeMinimax, depth: int, max_turn: bool, alpha: float = -inf, beta: float = inf):
         """Minimax method"""
         self.count += 1
-        node.reset_statistics()
+        node.minimax_value = None
         # If the node reaches the target depth or the count reaches max number
         if depth == self.target_depth or self.count >= self.MAX_NODE:
             node.minimax_value = node.game_state.value
