@@ -181,8 +181,32 @@ class GameState:
         """This method return the winning team"""
 
         # If the current game state has child game states, then return Team.NONE
-        if len(self.all_child_gamestates) > 0:
-            return Team.NONE
+        for i in range(self.BOARD_SIZE_X):
+            for j in range(self.BOARD_SIZE_Y):
+                notation = self.board[i][j]
+                if notation == "NN":
+                    continue
+                
+                if Team[notation[0]] is self._current_team:
+                    moves_list = Piece.create_instance(
+                        (i, j), notation
+                    ).get_admissible_moves(self.board)
+                    
+                    old_pos = (i, j)
+                    for new_pos in moves_list:
+                        old_pos_notation = self.board[old_pos[0]][old_pos[1]]
+                        new_pos_notation = self.board[new_pos[0]][new_pos[1]]
+
+                        self.board[old_pos[0]][old_pos[1]] = "NN"
+                        self.board[new_pos[0]][new_pos[1]] = old_pos_notation
+                        
+                        if General.is_general_exposed(self.board, self._current_team, self._get_the_opponent_team()) is True:
+                            self.board[old_pos[0]][old_pos[1]] = old_pos_notation
+                            self.board[new_pos[0]][new_pos[1]] = new_pos_notation
+                            return Team.NONE
+                        
+                        self.board[old_pos[0]][old_pos[1]] = old_pos_notation
+                        self.board[new_pos[0]][new_pos[1]] = new_pos_notation
 
         # Return the opponent if current team has no admissible move
         return self._get_the_opponent_team()
