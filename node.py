@@ -1,7 +1,7 @@
 import time
 from math import inf, sqrt, log
 from abc import ABC, abstractmethod
-from random import randint, choice
+from random import randint, choice, shuffle
 from game_state import GameState
 from team import Team
 
@@ -88,7 +88,8 @@ class NodeMinimax(Node):
                 best_children.append(child)
 
         # Return a random child among the best
-        return choice(best_children)
+        shuffle(best_children)
+        return best_children.pop()
 
     # [END METHOD]
 
@@ -149,7 +150,8 @@ class NodeMCTS(Node):
             elif uct == current_best_uct_value:
                 current_result_child.append(child)
 
-        return choice(current_result_child)
+        shuffle(current_result_child)
+        return current_result_child.pop()
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMCTS(game_state, parent, parent_move)
@@ -226,8 +228,8 @@ class NodeMCTS(Node):
             if child.n == max_number_of_visits:
                 current_best_child.append(child)
 
-        return choice(current_best_child)
-
+        shuffle(current_best_child)
+        return current_best_child.pop()
     # [END METHOD]
 
 if __name__ == "__main__":
