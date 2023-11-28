@@ -1,3 +1,4 @@
+import time
 from math import inf, sqrt, log
 from abc import ABC, abstractmethod
 from random import randint, choice
@@ -30,7 +31,7 @@ class Node(ABC):
         children = []
 
         # Create list of possible game states
-        list_of_states = current_state.generate_all_game_states()
+        list_of_states = current_state.all_child_gamestates
 
         # Create new node and append to children list
         for state, move in list_of_states:
@@ -71,11 +72,6 @@ class NodeMinimax(Node):
 
     # [METHOD]
     # Instance methods
-    def reset_statistics(self) -> None:
-        """This method resets the minimax statistics"""
-
-        self.minimax_value = None
-
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMinimax(game_state, parent, parent_move)
 
@@ -92,7 +88,7 @@ class NodeMinimax(Node):
                 best_children.append(child)
 
         # Return a random child among the best
-        return best_children[randint(0, len(best_children) - 1)]
+        return choice(best_children)
 
     # [END METHOD]
 
