@@ -164,36 +164,45 @@ class NodeMCTS(Node):
         self._rating += result
         self._number_of_visits += 1
 
-    def terminate_value(self):
+    def terminate_value(self, is_end: bool) -> float:
         """This module returns the value if a node is at it's termination"""
 
         # Outplay case
-        if self.game_state.get_team_win() == Team.RED:
-            return 1
-        if self.game_state.get_team_win() == Team.BLACK:
-            return -1
-
-        return 0
+        if is_end:
+            winning_team = self.game_state._get_the_opponent_team()
+            if winning_team is Team.RED:
+                return 1
+            if winning_team is Team.BLACK:
+                return -1
+        else:
+            return self.game_state.value
 
     def rollout_policy(self):
         """This module returns the chosen simulation init node
         based on the given rollout policy"""
 
         # Random policy
-        return self.get_random_child()
+        new_game_state = self.game_state.generate_random_game_state()
+        if new_game_state is None:
+            return None
+        else:
+            return self._create_node(new_game_state[0], self, new_game_state[1])
 
     def rollout(self):
         """This module performs the rollout simulation"""
 
         node_count = 0
         current_node = self
-        while current_node.game_state.get_team_win() is Team.NONE\
-                and node_count < self.MAX_NODE_COUNT:
-            # Stimulation hasn't achieved a termination
-            current_node = current_node.rollout_policy()
+        while node_count < self.MAX_NODE_COUNT:
+            new_node = current_node.rollout_policy()
+            # If the current node is terminal, return; otherwise, assign current to a random child node
+            if new_node is None:
+                return current_node.terminate_value(True)
+            current_node = new_node
+            
             node_count += 1
 
-        return current_node.terminate_value()
+        return current_node.terminate_value(False)
 
     def backpropagate(self, result):
         """This module performs the MCTS backpropagation"""
@@ -223,9 +232,4 @@ class NodeMCTS(Node):
 
         return choice(current_best_child)
 
-    def get_random_child(self):
-        """Generate a random child"""
-
-        new_game_state = self.game_state.generate_random_game_state()
-        return self._create_node(new_game_state[0], self, new_game_state[1])
     # [END METHOD]
