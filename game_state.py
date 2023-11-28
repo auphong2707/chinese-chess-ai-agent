@@ -78,7 +78,7 @@ class GameState:
                     continue
 
                 # Otherwise, create a instance of the piece and take value of the piece
-                piece = Piece.create_instance((i, j), notation)
+                piece = Piece.create_instance((i, j), notation, self.board)
                 current_value += piece.piece_value(self._value_pack) * piece.team.value
 
         return current_value
@@ -166,8 +166,8 @@ class GameState:
 
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation
-                    ).get_admissible_moves(self.board)
+                        (i, j), notation, self.board
+                    ).admissible_moves
 
                     for new_pos in moves_list:
                         game_state = self.generate_game_state_with_move((i, j), new_pos)
@@ -189,8 +189,8 @@ class GameState:
                 
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation
-                    ).get_admissible_moves(self.board)
+                        (i, j), notation, self.board
+                    ).admissible_moves
                     
                     old_pos = (i, j)
                     for new_pos in moves_list:
