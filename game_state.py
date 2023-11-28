@@ -19,7 +19,7 @@ class GameState:
     # [BEGIN INITILIZATION]
     def __init__(
         self,
-        board,
+        board: list,
         current_team: Team,
         value_pack: int = 0
     ) -> None:
@@ -51,7 +51,6 @@ class GameState:
 
         if self._all_child_gamestates is None:
             self._all_child_gamestates = self.generate_all_game_states()
-            self.board = tuple(map(tuple, self.board))
 
         return self._all_child_gamestates
 
@@ -115,9 +114,8 @@ class GameState:
             return None
 
         # Create a copy of moved board and return the board to the old state
-        new_board = deepcopy(self.board)
+        new_board = list(map(list, self.board))
         _return_to_old_state()
-
         # Return the game state which has the new information
         return GameState(new_board, opponent), (old_pos, new_pos)
 
@@ -226,7 +224,7 @@ if __name__ == '__main__':
         queue = new_queue
         end = time.time()
         print(depth, len(queue), end - start)
-        
+
     pid = psutil.Process()
     memory_info = pid.memory_info()
     print(f"Memory Usage: {memory_info.rss/(1024**2)} megabytes")
