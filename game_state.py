@@ -19,7 +19,7 @@ class GameState:
     # [BEGIN INITILIZATION]
     def __init__(
         self,
-        board,
+        board: list,
         current_team: Team,
         value_pack: int = 0
     ) -> None:
@@ -51,7 +51,6 @@ class GameState:
 
         if self._all_child_gamestates is None:
             self._all_child_gamestates = self.generate_all_game_states()
-            self.board = tuple(map(tuple, self.board))
 
         return self._all_child_gamestates
 
@@ -115,9 +114,8 @@ class GameState:
             return None
 
         # Create a copy of moved board and return the board to the old state
-        new_board = deepcopy(self.board)
+        new_board = list(map(list, self.board))
         _return_to_old_state()
-
         # Return the game state which has the new information
         return GameState(new_board, opponent), (old_pos, new_pos)
 
@@ -183,8 +181,32 @@ class GameState:
         """This method return the winning team"""
 
         # If the current game state has child game states, then return Team.NONE
-        if len(self.all_child_gamestates) > 0:
-            return Team.NONE
+        for i in range(self.BOARD_SIZE_X):
+            for j in range(self.BOARD_SIZE_Y):
+                notation = self.board[i][j]
+                if notation == "NN":
+                    continue
+                
+                if Team[notation[0]] is self._current_team:
+                    moves_list = Piece.create_instance(
+                        (i, j), notation
+                    ).get_admissible_moves(self.board)
+                    
+                    old_pos = (i, j)
+                    for new_pos in moves_list:
+                        old_pos_notation = self.board[old_pos[0]][old_pos[1]]
+                        new_pos_notation = self.board[new_pos[0]][new_pos[1]]
+
+                        self.board[old_pos[0]][old_pos[1]] = "NN"
+                        self.board[new_pos[0]][new_pos[1]] = old_pos_notation
+                        
+                        if General.is_general_exposed(self.board, self._current_team, self._get_the_opponent_team()) is True:
+                            self.board[old_pos[0]][old_pos[1]] = old_pos_notation
+                            self.board[new_pos[0]][new_pos[1]] = new_pos_notation
+                            return Team.NONE
+                        
+                        self.board[old_pos[0]][old_pos[1]] = old_pos_notation
+                        self.board[new_pos[0]][new_pos[1]] = new_pos_notation
 
         # Return the opponent if current team has no admissible move
         return self._get_the_opponent_team()
@@ -226,7 +248,7 @@ if __name__ == '__main__':
         queue = new_queue
         end = time.time()
         print(depth, len(queue), end - start)
-        
+
     pid = psutil.Process()
     memory_info = pid.memory_info()
     print(f"Memory Usage: {memory_info.rss/(1024**2)} megabytes")
