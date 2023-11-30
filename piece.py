@@ -263,9 +263,11 @@ class Rook(Piece):
         if value_pack == 0:
             return self._piece_value
         elif value_pack == 1:
-            change = self._control_pos_count * 0.5
-            if self._control_pos_count == 0:
+            change = 0
+            if len(self.admissible_moves) == 0:
                 change = -10
+            else:
+                change = self._control_pos_count * 0.5
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -287,12 +289,12 @@ class Rook(Piece):
                 if self.is_position_on_board(new_position):
                     # Check if there is any piece on the new position
                     if self.is_position_free(new_position) is False:
-                        self._control_pos_count = self._control_pos_count + 1
                         # Check if the piece on the new position is on the enemy team
                         if self.is_position_opponent(new_position):
                             admissible_moves.append(new_position)
                         break
-
+                    else:
+                        self._control_pos_count = self._control_pos_count + 1
                     admissible_moves.append(new_position)
 
         return admissible_moves
