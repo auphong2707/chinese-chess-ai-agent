@@ -164,9 +164,10 @@ class Advisor(Piece):
         if value_pack == 0:
             return self._piece_value
         elif value_pack == 1:
+            change = 0
             if len(self.admissible_moves) == 0:
-                self._piece_value = 10
-                return self._piece_value
+                change = -10
+                return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
@@ -208,9 +209,10 @@ class Cannon(Piece):
         if value_pack == 0:
             return self._piece_value
         elif value_pack == 1:
+            change = 0
             if len(self.admissible_moves) == 0:
-                self._piece_value = 35
-                return self._piece_value
+                change = -10
+                return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
@@ -257,9 +259,10 @@ class Rook(Piece):
         if value_pack == 0:
             return self._piece_value
         elif value_pack == 1:
+            change = 0
             if len(self.admissible_moves) == 0:
-                self._piece_value = 80
-                return self._piece_value
+                change = -10
+                return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
@@ -309,9 +312,10 @@ class Elephant(Piece):
         if value_pack == 0:
             return self._piece_value
         elif value_pack == 1:
+            change = 0
             if len(self.admissible_moves) == 0:
-                self._piece_value = 15
-                return self._piece_value
+                change = -10
+                return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
@@ -535,23 +539,28 @@ class Pawn(Piece):
                 self._piece_value = 20
             return self._piece_value
         elif value_pack == 1:
-            if self.team is Team.RED:
+            change = 0
+            if self.team is Team.BLACK:
                 if self.position == (3, 4):
-                    self._piece_value = 30
-                elif self.position[0] == 9:
-                    self._piece_value = 10
+                    change = 20
+                elif self.position[0] == 5 or self.position[0] == 6:
+                    change = 10
                 elif self.position[0] == 7 or self.position[0] == 8:
                     if self.position[1] < 7 and self.position[1] > 1:
-                        self._piece_value = 30
-            if self.team is Team.BLACK:
+                        change = 20
+                    else:
+                        change = 10
+            if self.team is Team.RED:
                 if self.position == (6, 4):
-                    self._piece_value = 30
-                elif self.position[0] == 0:
-                    self._piece_value = 10
+                    change = 20
+                elif self.position[0] == 3 or self.position[0] == 4:
+                    change = 10
                 elif self.position[0] == 1 or self.position[0] == 2:
                     if self.position[1] < 7 and self.position[1] > 1:
-                        self._piece_value = 30
-            return self._piece_value
+                        change = 20
+                    else:
+                        change = 10
+                return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
@@ -589,19 +598,20 @@ class Horse(Piece):
         if value_pack == 0:
             return self._piece_value
         elif value_pack == 1:
+            change = 0
             if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
-                self._piece_value = 30
+                change = -10
             elif len(self.admissible_moves) == 2:
-                self._piece_value = 35
+                change = -5
             elif len(self.admissible_moves) == 5 or len(self.admissible_moves) == 6:
-                self._piece_value = 45
+                change = 5
             elif len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
-                self._piece_value = 50
-            if self.team is Team.RED and self.position == (1, 4):
-                self._piece_value = 15
-            elif self.team is Team.BLACK and self.position == (8, 4):
-                self._piece_value = 15
-            return self._piece_value
+                change = 10
+            if self.team is Team.BLACK and self.position == (1, 4):
+                self._piece_value = -25
+            elif self.team is Team.RED and self.position == (8, 4):
+                self._piece_value = -25
+            return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
