@@ -1,4 +1,5 @@
 # Edited by: Veil, Kleecon
+"""Module providing the property of abstract class and team members"""
 from abc import ABC, abstractmethod
 from team import Team
 
@@ -33,6 +34,7 @@ class Piece(ABC):
     def __str__(self) -> str:
         return str(self.team) + "_" + self._piece_type
 
+
     # Properties initialization
     # .position
     @property
@@ -47,7 +49,7 @@ class Piece(ABC):
             raise ValueError("The position is out of range")
 
         self._position = new_position
-
+ 
     @property
     def admissible_moves(self) -> list:
         if self._admissible_moves is None:
@@ -305,6 +307,7 @@ class Elephant(Piece):
 
     _piece_value = 25
     _piece_type = "elephant"
+
 
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
