@@ -163,6 +163,10 @@ class Advisor(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+        elif value_pack == 1:
+            if len(self.admissible_moves) == 0:
+                self._piece_value = 10
+                return self._piece_value
         else:
             raise ValueError("Value pack is not found")
 
@@ -203,6 +207,10 @@ class Cannon(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+        elif value_pack == 1:
+            if len(self.admissible_moves) == 0:
+                self._piece_value = 35
+                return self._piece_value
         else:
             raise ValueError("Value pack is not found")
 
@@ -248,6 +256,10 @@ class Rook(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+        elif value_pack == 1:
+            if len(self.admissible_moves) == 0:
+                self._piece_value = 80
+                return self._piece_value
         else:
             raise ValueError("Value pack is not found")
 
@@ -296,6 +308,10 @@ class Elephant(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+        elif value_pack == 1:
+            if len(self.admissible_moves) == 0:
+                self._piece_value = 15
+                return self._piece_value
         else:
             raise ValueError("Value pack is not found")
 
