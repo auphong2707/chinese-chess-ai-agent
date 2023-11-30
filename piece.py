@@ -254,6 +254,10 @@ class Rook(Piece):
     _piece_value = 90
     _piece_type = "rook"
 
+    def __init__(self, position: tuple, team: Team, board: list) -> None:
+        super().__init__(position, team, board)
+        self._control_pos_count = 0
+
     def piece_value(self, value_pack=0):
         # Default value pack
         if value_pack == 0:
@@ -283,6 +287,7 @@ class Rook(Piece):
                 if self.is_position_on_board(new_position):
                     # Check if there is any piece on the new position
                     if self.is_position_free(new_position) is False:
+                        self._control_pos_count = self._control_pos_count + 1
                         # Check if the piece on the new position is on the enemy team
                         if self.is_position_opponent(new_position):
                             admissible_moves.append(new_position)
