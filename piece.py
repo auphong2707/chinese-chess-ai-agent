@@ -371,6 +371,8 @@ class General(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+        elif value_pack == 1:
+            return self._piece_value
         else:
             raise ValueError("Value pack is not found")
 
