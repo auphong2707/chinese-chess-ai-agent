@@ -78,7 +78,7 @@ class GameState:
                     continue
 
                 # Otherwise, create a instance of the piece and take value of the piece
-                piece = Piece.create_instance((i, j), notation)
+                piece = Piece.create_instance((i, j), notation, self.board)
                 current_value += piece.piece_value(self._value_pack) * piece.team.value
 
         return current_value
@@ -117,7 +117,7 @@ class GameState:
         new_board = list(map(list, self.board))
         _return_to_old_state()
         # Return the game state which has the new information
-        return GameState(new_board, opponent), (old_pos, new_pos)
+        return GameState(new_board, opponent, self._value_pack), (old_pos, new_pos)
 
     def generate_random_game_state(self):
         """This method will generate another gamestate that can be tranformed
@@ -166,8 +166,8 @@ class GameState:
 
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation
-                    ).get_admissible_moves(self.board)
+                        (i, j), notation, self.board
+                    ).admissible_moves
 
                     for new_pos in moves_list:
                         game_state = self.generate_game_state_with_move((i, j), new_pos)
@@ -189,8 +189,8 @@ class GameState:
                 
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation
-                    ).get_admissible_moves(self.board)
+                        (i, j), notation, self.board
+                    ).admissible_moves
                     
                     old_pos = (i, j)
                     for new_pos in moves_list:
@@ -213,7 +213,7 @@ class GameState:
 
     # Class method
     @classmethod
-    def generate_initial_game_state(cls):
+    def generate_initial_game_state(cls, value_pack: int=0):
         """This method creates the initial board"""
         initial_board = list(
             [
@@ -229,7 +229,7 @@ class GameState:
                 ["RR", "RH", "RE", "RA", "RG", "RA", "RE", "RH", "RR"],
             ]
         )
-        return GameState(initial_board, Team.RED)
+        return GameState(initial_board, Team.RED, value_pack)
 
     # [END METHOD]
 
