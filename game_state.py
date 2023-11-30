@@ -117,7 +117,7 @@ class GameState:
         new_board = list(map(list, self.board))
         _return_to_old_state()
         # Return the game state which has the new information
-        return GameState(new_board, opponent), (old_pos, new_pos)
+        return GameState(new_board, opponent, self._value_pack), (old_pos, new_pos)
 
     def generate_random_game_state(self):
         """This method will generate another gamestate that can be tranformed
@@ -213,7 +213,7 @@ class GameState:
 
     # Class method
     @classmethod
-    def generate_initial_game_state(cls):
+    def generate_initial_game_state(cls, value_pack: int=0):
         """This method creates the initial board"""
         initial_board = list(
             [
@@ -229,7 +229,7 @@ class GameState:
                 ["RR", "RH", "RE", "RA", "RG", "RA", "RE", "RH", "RR"],
             ]
         )
-        return GameState(initial_board, Team.RED)
+        return GameState(initial_board, Team.RED, value_pack)
 
     # [END METHOD]
 
