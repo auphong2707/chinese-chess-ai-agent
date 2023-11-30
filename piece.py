@@ -263,8 +263,8 @@ class Rook(Piece):
         if value_pack == 0:
             return self._piece_value
         elif value_pack == 1:
-            change = 0
-            if len(self.admissible_moves) == 0:
+            change = self._control_pos_count * 0.5
+            if self._control_pos_count == 0:
                 change = -10
             return self._piece_value + change
         else:
