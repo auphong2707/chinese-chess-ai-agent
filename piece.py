@@ -534,6 +534,24 @@ class Pawn(Piece):
             if self.is_crossed_river() is True:
                 self._piece_value = 20
             return self._piece_value
+        elif value_pack == 1:
+            if self.team is Team.RED:
+                if self.position == (3, 4):
+                    self._piece_value = 30
+                elif self.position[0] == 9:
+                    self._piece_value = 10
+                elif self.position[0] == 7 or self.position[0] == 8:
+                    if self.position[1] < 7 and self.position[1] > 1:
+                        self._piece_value = 30
+            if self.team is Team.BLACK:
+                if self.position == (6, 4):
+                    self._piece_value = 30
+                elif self.position[0] == 0:
+                    self._piece_value = 10
+                elif self.position[0] == 1 or self.position[0] == 2:
+                    if self.position[1] < 7 and self.position[1] > 1:
+                        self._piece_value = 30
+            return self._piece_value
         else:
             raise ValueError("Value pack is not found")
 
@@ -569,6 +587,20 @@ class Horse(Piece):
     def piece_value(self, value_pack=0):
         # Default value pack
         if value_pack == 0:
+            return self._piece_value
+        elif value_pack == 1:
+            if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
+                self._piece_value = 30
+            elif len(self.admissible_moves) == 2:
+                self._piece_value = 35
+            elif len(self.admissible_moves) == 5 or len(self.admissible_moves) == 6:
+                self._piece_value = 45
+            elif len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
+                self._piece_value = 50
+            if self.team is Team.RED and self.position == (1, 4):
+                self._piece_value = 15
+            elif self.team is Team.BLACK and self.position == (8, 4):
+                self._piece_value = 15
             return self._piece_value
         else:
             raise ValueError("Value pack is not found")
