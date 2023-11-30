@@ -13,11 +13,11 @@ class GameTree(ABC):
 
     MAX_NODE = inf
 
-    def __init__(self, team: Team) -> None:
+    def __init__(self, team: Team, value_pack: int=0) -> None:
         # This generates the initial game tree, not a forged one
         self.team = team
         self.current_node = self._create_node(
-            GameState.generate_initial_game_state(), None, None
+            GameState.generate_initial_game_state(value_pack), None, None
         )
         self.count = 0
 
@@ -63,8 +63,8 @@ class GameTree(ABC):
 class GameTreeMinimax(GameTree):
     """This class is responsible for the game tree minimax"""
 
-    def __init__(self, team, target_depth):
-        super().__init__(team)
+    def __init__(self, team, target_depth, value_pack: int=0):
+        super().__init__(team, value_pack)
         self.target_depth = target_depth
 
     def minimax(self, node: NodeMinimax, depth: int, max_turn: bool, alpha: float = -inf, beta: float = inf):
@@ -133,8 +133,8 @@ class GameTreeMinimax(GameTree):
 class GameTreeMCTS(GameTree):
     """This class is responsible for performance of the MCTS game tree"""
 
-    def __init__(self, team, time_allowed):
-        super().__init__(team)
+    def __init__(self, team, time_allowed, value_pack: int=0):
+        super().__init__(team, value_pack)
         self.time_allowed = time_allowed
 
     def traverse(self, node: NodeMCTS) -> NodeMCTS:
