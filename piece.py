@@ -560,7 +560,7 @@ class Pawn(Piece):
                         change = 20
                     else:
                         change = 10
-                return self._piece_value + change
+            return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
