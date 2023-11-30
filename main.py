@@ -24,7 +24,7 @@ def draw_gamestate(_screen, _game_state):
             if notation == "NN":
                 continue
 
-            piece = Piece.create_instance((x, y), notation)
+            piece = Piece.create_instance((x, y), notation, gamestate.board)
             piece_img, piece_position = resources.get_piece_sprite(piece)
             _screen.blit(piece_img, piece_position)
 
