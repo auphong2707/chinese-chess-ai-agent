@@ -24,7 +24,7 @@ class GameState:
         current_team: Team,
         value_pack: int = 0,
         red_num_checkmate: int = 0,
-        black_num_checkmate: int = 0
+        black_num_checkmate: int = 0,
     ) -> None:
         # Add the chess pieces to the list
         self.board = board
@@ -69,7 +69,7 @@ class GameState:
         if self.get_team_win() is Team.RED:
             return inf
 
-        if self.get_team_win()  is Team.BLACK:
+        if self.get_team_win() is Team.BLACK:
             return -inf
 
         current_value = 0
@@ -114,19 +114,26 @@ class GameState:
             self.board[new_pos[0]][new_pos[1]] = new_pos_notation
 
         # .If the check is not passed, then return None
-        if General.is_general_exposed(self.board, self._current_team, opponent) is False:
+        if (
+            General.is_general_exposed(self.board, self._current_team, opponent)
+            is False
+        ):
             _return_to_old_state()
             return None
 
-        # If the current team checks the opponent, increase the check count by 1
         new_red_num_checkmate = self._red_num_checkmate
         new_black_num_checkmate = self._black_num_checkmate
 
-        if General.is_general_exposed(self.board, opponent, self._current_team) is False:
+        # If the current team checks the opponent, increase the check count by 1
+        if (
+            General.is_general_exposed(self.board, opponent, self._current_team)
+            is False
+        ):
             if self._current_team is Team.RED:
                 new_red_num_checkmate += 1
             else:
                 new_black_num_checkmate += 1
+        # If no check happens, reset the count
         else:
             if self._current_team is Team.RED:
                 new_red_num_checkmate = 0
@@ -142,7 +149,13 @@ class GameState:
         new_board = list(map(list, self.board))
         _return_to_old_state()
         # Return the game state which has the new information
-        return GameState(new_board, opponent, self._value_pack, new_red_num_checkmate, new_black_num_checkmate), (old_pos, new_pos)
+        return GameState(
+            new_board,
+            opponent,
+            self._value_pack,
+            new_red_num_checkmate,
+            new_black_num_checkmate,
+        ), (old_pos, new_pos)
 
     def generate_random_game_state(self):
         """This method will generate another gamestate that can be tranformed
@@ -161,7 +174,9 @@ class GameState:
         # Iterate through every piece in the list, generate the piece's move list and shuffle it
         for pos in team_positions:
             notation = self.board[pos[0]][pos[1]]
-            moves_list = Piece.create_instance(pos, notation, self.board).admissible_moves
+            moves_list = Piece.create_instance(
+                pos, notation, self.board
+            ).admissible_moves
             shuffle(moves_list)
 
             for new_pos in moves_list:
@@ -209,12 +224,12 @@ class GameState:
                 notation = self.board[i][j]
                 if notation == "NN":
                     continue
-                
+
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
                         (i, j), notation, self.board
                     ).admissible_moves
-                    
+
                     old_pos = (i, j)
                     for new_pos in moves_list:
                         old_pos_notation = self.board[old_pos[0]][old_pos[1]]
@@ -222,12 +237,19 @@ class GameState:
 
                         self.board[old_pos[0]][old_pos[1]] = "NN"
                         self.board[new_pos[0]][new_pos[1]] = old_pos_notation
-                        
-                        if General.is_general_exposed(self.board, self._current_team, self._get_the_opponent_team()) is True:
+
+                        if (
+                            General.is_general_exposed(
+                                self.board,
+                                self._current_team,
+                                self._get_the_opponent_team(),
+                            )
+                            is True
+                        ):
                             self.board[old_pos[0]][old_pos[1]] = old_pos_notation
                             self.board[new_pos[0]][new_pos[1]] = new_pos_notation
                             return Team.NONE
-                        
+
                         self.board[old_pos[0]][old_pos[1]] = old_pos_notation
                         self.board[new_pos[0]][new_pos[1]] = new_pos_notation
 
@@ -236,7 +258,7 @@ class GameState:
 
     # Class method
     @classmethod
-    def generate_initial_game_state(cls, value_pack: int=0):
+    def generate_initial_game_state(cls, value_pack: int = 0):
         """This method creates the initial board"""
         initial_board = list(
             [
@@ -257,8 +279,9 @@ class GameState:
     # [END METHOD]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import psutil
+
     queue = [GameState.generate_initial_game_state()]
     for depth in range(1, 5):
         start = time.time()
