@@ -15,18 +15,23 @@ class GameState:
     # Board size
     BOARD_SIZE_X = 10
     BOARD_SIZE_Y = 9
+    MAX_CHECKMATE = 5
 
     # [BEGIN INITILIZATION]
     def __init__(
         self,
         board: list,
         current_team: Team,
-        value_pack: int = 0
+        value_pack: int = 0,
+        red_num_checkmate: int = 0,
+        black_num_checkmate: int = 0
     ) -> None:
         # Add the chess pieces to the list
         self.board = board
 
         # Declare properties
+        self._red_num_checkmate = red_num_checkmate
+        self._black_num_checkmate = black_num_checkmate
         self._value_pack = value_pack
         self._value = None
         self._current_team = current_team
@@ -113,11 +118,26 @@ class GameState:
             _return_to_old_state()
             return None
 
+        # If the current team checks the opponent, increase the check count by 1
+        new_red_num_checkmate = self._red_num_checkmate
+        new_black_num_checkmate = self._black_num_checkmate
+
+        if General.is_general_exposed(self.board, opponent, self._current_team) is False:
+            if self._current_team is Team.RED:
+                new_red_num_checkmate += 1
+            else:
+                new_black_num_checkmate += 1
+
+        # If the current team checks 4 times continuously, the next check will not be made
+        if max(new_red_num_checkmate, new_black_num_checkmate) > self.MAX_CHECKMATE:
+            _return_to_old_state()
+            return None
+
         # Create a copy of moved board and return the board to the old state
         new_board = list(map(list, self.board))
         _return_to_old_state()
         # Return the game state which has the new information
-        return GameState(new_board, opponent, self._value_pack), (old_pos, new_pos)
+        return GameState(new_board, opponent, self._value_pack, new_red_num_checkmate, new_black_num_checkmate), (old_pos, new_pos)
 
     def generate_random_game_state(self):
         """This method will generate another gamestate that can be tranformed
