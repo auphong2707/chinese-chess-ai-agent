@@ -136,9 +136,7 @@ class GameState:
         # Iterate through every piece in the list, generate the piece's move list and shuffle it
         for pos in team_positions:
             notation = self.board[pos[0]][pos[1]]
-            moves_list = Piece.create_instance(pos, notation, self.board).get_admissible_moves(
-                self.board
-            )
+            moves_list = Piece.create_instance(pos, notation, self.board).admissible_moves
             shuffle(moves_list)
 
             for new_pos in moves_list:
