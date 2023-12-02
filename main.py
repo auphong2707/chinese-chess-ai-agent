@@ -30,8 +30,8 @@ def draw_gamestate(_screen, _game_state):
 
 
 def bot_run():
-    althea = GameTreeMinimax(Team.RED, 3)
-    beth = GameTreeMinimax(Team.BLACK, 3)
+    althea = GameTreeMinimax(Team.BLACK, 4, 1)
+    beth = GameTreeMinimax(Team.RED, 3, 1)
     turn, max_turn = 1, 200
     global is_end
 
@@ -65,16 +65,17 @@ def bot_run():
 
         turn += 1
 
-    winner["Draw"] = winner.get("Draw", 0) + 1
+    winner["DRAW"] = winner.get("DRAW", 0) + 1
     is_end = True
-    print("Draw")
+    print("DRAW")
 
 
 if __name__ == "__main__":
+    start = time()
     # Initialize Pygame
     pygame.init()
     bot_run_thread = threading.Thread(target=bot_run)
-    
+
     # Set up the window
     size = (661, 660)
     screen = pygame.display.set_mode(size)
@@ -96,7 +97,7 @@ if __name__ == "__main__":
     while not done:
         if is_end is True:
             number_of_games += 1
-            if number_of_games > 50:
+            if number_of_games > 10:
                 break
 
             is_end = False
@@ -107,7 +108,7 @@ if __name__ == "__main__":
             moves_queue.clear()
             gamestate = GameState.generate_initial_game_state()
             bot_run_thread.start()
-            
+
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -133,5 +134,6 @@ if __name__ == "__main__":
 
     # Quit Pygame
     pygame.quit()
-
+    end = time()
     print(winner)
+    print("Total time: {} mins {:.2f} seconds".format((end - start) // 60, (end - start) % 60))
