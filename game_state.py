@@ -127,6 +127,11 @@ class GameState:
                 new_red_num_checkmate += 1
             else:
                 new_black_num_checkmate += 1
+        else:
+            if self._current_team is Team.RED:
+                new_red_num_checkmate = 0
+            else:
+                new_black_num_checkmate = 0
 
         # If the current team checks 4 times continuously, the next check will not be made
         if max(new_red_num_checkmate, new_black_num_checkmate) > self.MAX_CHECKMATE:
