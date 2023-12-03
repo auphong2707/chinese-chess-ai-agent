@@ -3,6 +3,8 @@ from concurrent.futures import ProcessPoolExecutor
 import threading
 import pygame
 import resources
+import sys
+from gui_utilities import Button, DropDown, InputBox
 from game_state import GameState
 from game_tree import GameTreeMinimax, GameTreeMCTS
 from team import Team
@@ -12,21 +14,17 @@ moves_queue = list()
 winner = dict()
 is_end = False
 
-def draw_gamestate(_screen, _game_state):
-    """This method will draw a gamestate"""
+pygame.init()
 
-    board_img, board_position = resources.get_board_sprite()
-    _screen.blit(board_img, board_position)
+# Set up the window
+SCREEN = pygame.display.set_mode((661, 660))
+pygame.display.set_caption("Xiangqi")
 
-    for x in range(GameState.BOARD_SIZE_X):
-        for y in range(GameState.BOARD_SIZE_Y):
-            notation = _game_state.board[x][y]
-            if notation == "NN":
-                continue
+# Set the refresh rate
+REFRESH_RATE = 30
 
-            piece = Piece.create_instance((x, y), notation, gamestate.board)
-            piece_img, piece_position = resources.get_piece_sprite(piece)
-            _screen.blit(piece_img, piece_position)
+# Create a clock object
+clock = pygame.time.Clock()
 
 
 def bot_run():
