@@ -13,6 +13,7 @@ from piece import Piece
 moves_queue = list()
 winner = dict()
 is_end = False
+force_end = False
 
 pygame.init()
 
@@ -31,9 +32,11 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
     althea = althea_type(Team.RED, althea_ap, althea_value)
     beth = beth_type(Team.BLACK, beth_ap, beth_value)
     turn, max_turn = 1, 150
-    global is_end
+    global is_end, force_end
 
     while turn <= max_turn:
+        if force_end is True:
+            return
         # [ALTHEA'S TURN]
         # Check whether Althea has been checkmated
         if althea.is_lost() is True:
@@ -48,6 +51,8 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
 
         # [END ALTHEA'S TURN]
 
+        if force_end is True:
+            return
         # [BETH'S TURN]
         # Check whether Beth has been checkmated
         if beth.is_lost() is True:
@@ -109,12 +114,11 @@ def simulation(red_type, red_value, red_another_property,
     number_of_simulations = int(number_of_simulations)
 
     # Main game loop
-    global is_end
+    global is_end, force_end
     is_end = True
-    done = False
     gamestate, bot_run_thread = None, None
     games_done_count = 0
-    while not done:
+    while True:
         if is_end is True:
             games_done_count += 1
             if games_done_count > number_of_simulations:
@@ -135,7 +139,9 @@ def simulation(red_type, red_value, red_another_property,
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                done = True
+                force_end = True
+                pygame.quit()
+                sys.exit()   
 
         # Try update_board
         try:
