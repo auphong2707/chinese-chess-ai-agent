@@ -85,33 +85,58 @@ def draw_gamestate(_screen, _game_state):
             _screen.blit(piece_img, piece_position)
 
 
+def simulation(red_type, red_value, red_another_property,
+               black_type, black_value, black_another_property,
+               number_of_simulations):
+    def str_to_type(type_str):
+        if type_str == 'Minimax':
+            return GameTreeMinimax
+        elif type_str == 'MCTS':
+            return GameTreeMCTS
 
-    # Create game_state
+    def str_to_value_pack(value_pack_str):
+        if value_pack_str == 'Default':
+            return 0
+        elif value_pack_str == 'Moded':
+            return 1
+
+    red_type, black_type = str_to_type(red_type), str_to_type(black_type)
+    red_value, black_value = str_to_value_pack(
+        red_value), str_to_value_pack(black_value)
+
+    red_another_property, black_another_property = int(
+        red_another_property), int(black_another_property)
+    number_of_simulations = int(number_of_simulations)
 
     # Main game loop
+    global is_end
     is_end = True
     done = False
     gamestate, bot_run_thread = None, None
-    number_of_games = 0
+    games_done_count = 0
     while not done:
         if is_end is True:
-            number_of_games += 1
-            if number_of_games > 50:
+            games_done_count += 1
+            if games_done_count > number_of_simulations:
                 break
 
             is_end = False
             if bot_run_thread is not None:
                 bot_run_thread.join()
-            bot_run_thread = threading.Thread(target=bot_run)
+            bot_run_thread = threading.Thread(target=bot_run, args=(
+                red_type, red_value, red_another_property,
+                black_type, black_value, black_another_property
+            ))
 
             moves_queue.clear()
             gamestate = GameState.generate_initial_game_state()
             bot_run_thread.start()
-            
+
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
+
         # Try update_board
         try:
             move = moves_queue.pop(0)
@@ -120,10 +145,10 @@ def draw_gamestate(_screen, _game_state):
             pass
 
         # Clear the screen
-        screen.fill((241, 203, 157))
+        SCREEN.fill((241, 203, 157))
 
         # Draw here
-        draw_gamestate(screen, gamestate)
+        draw_gamestate(SCREEN, gamestate)
 
         # Update the screen
         pygame.display.flip()
@@ -131,7 +156,8 @@ def draw_gamestate(_screen, _game_state):
         # Wait for the next frame
         clock.tick(REFRESH_RATE)
 
+    print(winner)
     # Quit Pygame
     pygame.quit()
+    sys.exit()
 
-    print(winner)
