@@ -43,3 +43,5 @@ def get_font(size, index):
         return pygame.font.Font(RESOURCES_PATH + "fonts/" + "Real Chinese.otf", size)
     elif index == 1:
         return pygame.font.Font(RESOURCES_PATH + "fonts/" + "Analogist.ttf", size)
+    elif index == 2:
+        return pygame.font.Font(RESOURCES_PATH + "fonts/" + "sanva font.ttf", size)

@@ -292,3 +292,53 @@ def bots_menu():
         # Wait for the next frame
         clock.tick(REFRESH_RATE)
 
+
+def main_menu():
+    pve_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(165, 250),
+                    text_input="PvE", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+
+    eve_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(495, 250),
+                        text_input="EvE", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+
+    quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(330.5, 350),
+                            text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+    
+    while True:
+        # Draw main menu
+        # .background
+        bg_img, bg_pos = resources.background()
+        SCREEN.blit(bg_img, bg_pos)
+
+        # .menu_text
+        menu_text = resources.get_font(100, 0).render("Xiangqi", True, "Black")
+        menu_rect = menu_text.get_rect(center=(330.5, 100))
+        SCREEN.blit(menu_text, menu_rect)
+
+        # .button
+        for button in [pve_button,  eve_button, quit_button]:
+            button.draw(SCREEN)
+
+        # Handle events
+        mouse_pos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if pve_button.checkForInput(mouse_pos):
+                    pass
+                if eve_button.checkForInput(mouse_pos):
+                    bots_menu()
+                if quit_button.checkForInput(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+
+        # Update the screen
+        pygame.display.flip()
+
+        # Wait for the next frame
+        clock.tick(REFRESH_RATE)
+
+
+if __name__ == "__main__":
+    main_menu()
