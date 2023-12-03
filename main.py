@@ -209,9 +209,12 @@ def bots_menu():
     start_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(330.5, 450),
                           text_input="Simulate", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
 
-    quit_button = Button(image=pygame.image.load("resources/button/quit_rect.png"), pos=(330.5, 550),
+    quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 550),
                          text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
 
+    back_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(495, 550),
+                         text_input="BACK", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+    
     while True:
         # Draw main menu
         # .background
@@ -249,7 +252,7 @@ def bots_menu():
         SCREEN.blit(text, rect)
 
         # Button
-        for button in [start_button, quit_button]:
+        for button in [start_button, quit_button, back_button]:
             button.draw(SCREEN)
 
         event_list = pygame.event.get()
@@ -278,6 +281,9 @@ def bots_menu():
                     if (
                         red_type.main == "Type" or black_type.main == "Type"
                         or red_value.main == "Pack" or red_value.main == "Pack"
+                        or not num_box.text.isnumeric()
+                        or not red_another_property.text.isnumeric()
+                        or not black_another_property.text.isnumeric()
                     ):
                         continue
                     simulation(
@@ -288,6 +294,8 @@ def bots_menu():
                 if quit_button.checkForInput(mouse_pos):
                     pygame.quit()
                     sys.exit()
+                if back_button.checkForInput(mouse_pos):
+                    main_menu()
 
             for input_box in [num_box, black_another_property, red_another_property]:
                 input_box.handle_event(event)
