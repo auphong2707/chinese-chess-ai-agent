@@ -27,6 +27,81 @@ REFRESH_RATE = 30
 # Create a clock object
 clock = pygame.time.Clock()
 
+def result(red_type, black_type):
+    quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 550),
+                         text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+
+    back_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(495, 550),
+                         text_input="BACK", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+    
+    while True:
+        # Draw main menu
+        # .background
+        bg_img, bg_pos = resources.background()
+        SCREEN.blit(bg_img, bg_pos)
+
+        # Text
+        text = resources.get_font(70, 0).render(
+            "Result", True, "Black")
+        rect = text.get_rect(center=(330.5, 60))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render("Black", True, "Black")
+        rect = text.get_rect(center=(145, 185))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(12, 2).render(black_type, True, "Black")
+        rect = text.get_rect(center=(145, 220))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render(str(winner.get("BLACK", 0)), True, "Black")
+        rect = text.get_rect(center=(145, 280))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(12, 2).render(red_type, True, "#AB001B")
+        rect = text.get_rect(center=(515, 220))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render("Red", True, "#AB001B")
+        rect = text.get_rect(center=(515, 185))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render(str(winner.get("RED", 0)), True, "#AB001B")
+        rect = text.get_rect(center=(515, 280))
+        SCREEN.blit(text, rect)
+        
+        
+        text = resources.get_font(60, 0).render("Draw", True, "#56000E")
+        rect = text.get_rect(center=(330.5, 185))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render(str(winner.get("Draw", 0)), True, "#56000E")
+        rect = text.get_rect(center=(330.5, 280))
+        SCREEN.blit(text, rect)
+        
+        # Button
+        for button in [quit_button, back_button]:
+            button.draw(SCREEN)
+        
+        # Handle event
+        mouse_pos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if quit_button.checkForInput(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+                if back_button.checkForInput(mouse_pos):
+                    bots_menu()
+        
+        # Update the screen
+        pygame.display.flip()
+
+        # Wait for the next frame
+        clock.tick(REFRESH_RATE)
+    
 
 def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
     althea = althea_type(Team.RED, althea_ap, althea_value)
@@ -93,6 +168,18 @@ def draw_gamestate(_screen, _game_state):
 def simulation(red_type, red_value, red_another_property,
                black_type, black_value, black_another_property,
                number_of_simulations):
+    def get_bot_full_type(bot_type, bot_property, bot_value):
+        res = bot_type + ' '
+        
+        if bot_type == 'Minimax':
+            res += 'Depth ' + bot_property + ' '
+        elif bot_type == 'MCTS':
+            res += 'Time allowed ' + bot_property + 's '
+        
+        res += 'Value ' + bot_value    
+            
+        return res
+    
     def str_to_type(type_str):
         if type_str == 'Minimax':
             return GameTreeMinimax
@@ -104,7 +191,10 @@ def simulation(red_type, red_value, red_another_property,
             return 0
         elif value_pack_str == 'Moded':
             return 1
-
+    
+    red_full_type = get_bot_full_type(red_type, red_another_property, red_value)
+    black_full_type = get_bot_full_type(black_type, black_another_property, black_value)
+    
     red_type, black_type = str_to_type(red_type), str_to_type(black_type)
     red_value, black_value = str_to_value_pack(
         red_value), str_to_value_pack(black_value)
@@ -164,8 +254,7 @@ def simulation(red_type, red_value, red_another_property,
 
     print(winner)
     # Quit Pygame
-    pygame.quit()
-    sys.exit()
+    result(red_full_type, black_full_type)
 
 
 def bots_menu():
