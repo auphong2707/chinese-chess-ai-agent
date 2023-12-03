@@ -94,6 +94,7 @@ def result(red_type, black_type):
                     pygame.quit()
                     sys.exit()
                 if back_button.checkForInput(mouse_pos):
+                    winner = dict()
                     bots_menu()
         
         # Update the screen
