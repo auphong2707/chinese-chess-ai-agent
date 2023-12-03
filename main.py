@@ -143,9 +143,9 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
 
         turn += 1
 
-    winner["Draw"] = winner.get("Draw", 0) + 1
+    winner["DRAW"] = winner.get("DRAW", 0) + 1
     is_end = True
-    print("Draw")
+    print("DRAW")
 
 
 def draw_gamestate(_screen, _game_state):
