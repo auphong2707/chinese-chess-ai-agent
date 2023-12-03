@@ -27,10 +27,10 @@ REFRESH_RATE = 30
 clock = pygame.time.Clock()
 
 
-def bot_run():
-    althea = GameTreeMinimax(Team.RED, 3)
-    beth = GameTreeMinimax(Team.BLACK, 3)
-    turn, max_turn = 1, 200
+def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
+    althea = althea_type(Team.RED, althea_ap, althea_value)
+    beth = beth_type(Team.BLACK, beth_ap, beth_value)
+    turn, max_turn = 1, 150
     global is_end
 
     while turn <= max_turn:
