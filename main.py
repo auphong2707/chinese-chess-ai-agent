@@ -75,7 +75,7 @@ def result(red_type, black_type):
         rect = text.get_rect(center=(330.5, 185))
         SCREEN.blit(text, rect)
         
-        text = resources.get_font(60, 0).render(str(winner.get("Draw", 0)), True, "#56000E")
+        text = resources.get_font(60, 0).render(str(winner.get("DRAW", 0)), True, "#56000E")
         rect = text.get_rect(center=(330.5, 280))
         SCREEN.blit(text, rect)
         
