@@ -68,21 +68,23 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
     print("Draw")
 
 
-if __name__ == "__main__":
-    # Initialize Pygame
-    pygame.init()
-    bot_run_thread = threading.Thread(target=bot_run)
-    
-    # Set up the window
-    size = (661, 660)
-    screen = pygame.display.set_mode(size)
-    pygame.display.set_caption("Xiangqi")
+def draw_gamestate(_screen, _game_state):
+    """This method will draw a gamestate"""
 
-    # Set the refresh rate
-    REFRESH_RATE = 30
+    board_img, board_position = resources.board_sprite()
+    _screen.blit(board_img, board_position)
 
-    # Create a clock object
-    clock = pygame.time.Clock()
+    for x in range(GameState.BOARD_SIZE_X):
+        for y in range(GameState.BOARD_SIZE_Y):
+            notation = _game_state.board[x][y]
+            if notation == "NN":
+                continue
+
+            piece = Piece.create_instance((x, y), notation, _game_state.board)
+            piece_img, piece_position = resources.piece_sprite(piece)
+            _screen.blit(piece_img, piece_position)
+
+
 
     # Create game_state
 
