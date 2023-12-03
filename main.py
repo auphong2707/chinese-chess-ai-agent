@@ -3,6 +3,8 @@ from concurrent.futures import ProcessPoolExecutor
 import threading
 import pygame
 import resources
+import sys
+from gui_utilities import Button, DropDown, InputBox
 from game_state import GameState
 from game_tree import GameTreeMinimax, GameTreeMCTS
 from team import Team
@@ -11,31 +13,105 @@ from piece import Piece
 moves_queue = list()
 winner = dict()
 is_end = False
+force_end = False
 
-def draw_gamestate(_screen, _game_state):
-    """This method will draw a gamestate"""
+pygame.init()
 
-    board_img, board_position = resources.get_board_sprite()
-    _screen.blit(board_img, board_position)
+# Set up the window
+SCREEN = pygame.display.set_mode((661, 660))
+pygame.display.set_caption("Xiangqi")
 
-    for x in range(GameState.BOARD_SIZE_X):
-        for y in range(GameState.BOARD_SIZE_Y):
-            notation = _game_state.board[x][y]
-            if notation == "NN":
-                continue
+# Set the refresh rate
+REFRESH_RATE = 30
 
-            piece = Piece.create_instance((x, y), notation, gamestate.board)
-            piece_img, piece_position = resources.get_piece_sprite(piece)
-            _screen.blit(piece_img, piece_position)
+# Create a clock object
+clock = pygame.time.Clock()
 
+def result(red_type, black_type):
+    quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 550),
+                         text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
 
-def bot_run():
-    althea = GameTreeMinimax(Team.BLACK, 4, 1)
-    beth = GameTreeMinimax(Team.RED, 3, 1)
-    turn, max_turn = 1, 200
-    global is_end
+    back_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(495, 550),
+                         text_input="BACK", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+    
+    while True:
+        # Draw main menu
+        # .background
+        bg_img, bg_pos = resources.background()
+        SCREEN.blit(bg_img, bg_pos)
+
+        # Text
+        text = resources.get_font(70, 0).render(
+            "Result", True, "Black")
+        rect = text.get_rect(center=(330.5, 60))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render("Black", True, "Black")
+        rect = text.get_rect(center=(145, 185))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(12, 2).render(black_type, True, "Black")
+        rect = text.get_rect(center=(145, 220))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render(str(winner.get("BLACK", 0)), True, "Black")
+        rect = text.get_rect(center=(145, 280))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(12, 2).render(red_type, True, "#AB001B")
+        rect = text.get_rect(center=(515, 220))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render("Red", True, "#AB001B")
+        rect = text.get_rect(center=(515, 185))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render(str(winner.get("RED", 0)), True, "#AB001B")
+        rect = text.get_rect(center=(515, 280))
+        SCREEN.blit(text, rect)
+        
+        
+        text = resources.get_font(60, 0).render("Draw", True, "#56000E")
+        rect = text.get_rect(center=(330.5, 185))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(60, 0).render(str(winner.get("Draw", 0)), True, "#56000E")
+        rect = text.get_rect(center=(330.5, 280))
+        SCREEN.blit(text, rect)
+        
+        # Button
+        for button in [quit_button, back_button]:
+            button.draw(SCREEN)
+        
+        # Handle event
+        mouse_pos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if quit_button.checkForInput(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+                if back_button.checkForInput(mouse_pos):
+                    bots_menu()
+        
+        # Update the screen
+        pygame.display.flip()
+
+        # Wait for the next frame
+        clock.tick(REFRESH_RATE)
+    
+
+def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
+    althea = althea_type(Team.RED, althea_ap, althea_value)
+    beth = beth_type(Team.BLACK, beth_ap, beth_value)
+    turn, max_turn = 1, 150
+    global is_end, force_end
 
     while turn <= max_turn:
+        if force_end is True:
+            return
         # [ALTHEA'S TURN]
         # Check whether Althea has been checkmated
         if althea.is_lost() is True:
@@ -50,6 +126,8 @@ def bot_run():
 
         # [END ALTHEA'S TURN]
 
+        if force_end is True:
+            return
         # [BETH'S TURN]
         # Check whether Beth has been checkmated
         if beth.is_lost() is True:
@@ -70,40 +148,79 @@ def bot_run():
     print("DRAW")
 
 
-if __name__ == "__main__":
-    start = time()
-    # Initialize Pygame
-    pygame.init()
-    bot_run_thread = threading.Thread(target=bot_run)
+def draw_gamestate(_screen, _game_state):
+    """This method will draw a gamestate"""
 
-    # Set up the window
-    size = (661, 660)
-    screen = pygame.display.set_mode(size)
-    pygame.display.set_caption("Xiangqi")
+    board_img, board_position = resources.board_sprite()
+    _screen.blit(board_img, board_position)
 
-    # Set the refresh rate
-    REFRESH_RATE = 30
+    for x in range(GameState.BOARD_SIZE_X):
+        for y in range(GameState.BOARD_SIZE_Y):
+            notation = _game_state.board[x][y]
+            if notation == "NN":
+                continue
 
-    # Create a clock object
-    clock = pygame.time.Clock()
+            piece = Piece.create_instance((x, y), notation, _game_state.board)
+            piece_img, piece_position = resources.piece_sprite(piece)
+            _screen.blit(piece_img, piece_position)
 
-    # Create game_state
+
+def simulation(red_type, red_value, red_another_property,
+               black_type, black_value, black_another_property,
+               number_of_simulations):
+    def get_bot_full_type(bot_type, bot_property, bot_value):
+        res = bot_type + ' '
+        
+        if bot_type == 'Minimax':
+            res += 'Depth ' + bot_property + ' '
+        elif bot_type == 'MCTS':
+            res += 'Time allowed ' + bot_property + 's '
+        
+        res += 'Value ' + bot_value    
+            
+        return res
+    
+    def str_to_type(type_str):
+        if type_str == 'Minimax':
+            return GameTreeMinimax
+        elif type_str == 'MCTS':
+            return GameTreeMCTS
+
+    def str_to_value_pack(value_pack_str):
+        if value_pack_str == 'Default':
+            return 0
+        elif value_pack_str == 'Moded':
+            return 1
+    
+    red_full_type = get_bot_full_type(red_type, red_another_property, red_value)
+    black_full_type = get_bot_full_type(black_type, black_another_property, black_value)
+    
+    red_type, black_type = str_to_type(red_type), str_to_type(black_type)
+    red_value, black_value = str_to_value_pack(
+        red_value), str_to_value_pack(black_value)
+
+    red_another_property, black_another_property = int(
+        red_another_property), int(black_another_property)
+    number_of_simulations = int(number_of_simulations)
 
     # Main game loop
+    global is_end, force_end
     is_end = True
-    done = False
     gamestate, bot_run_thread = None, None
-    number_of_games = 0
-    while not done:
+    games_done_count = 0
+    while True:
         if is_end is True:
-            number_of_games += 1
-            if number_of_games > 10:
+            games_done_count += 1
+            if games_done_count > number_of_simulations:
                 break
 
             is_end = False
             if bot_run_thread is not None:
                 bot_run_thread.join()
-            bot_run_thread = threading.Thread(target=bot_run)
+            bot_run_thread = threading.Thread(target=bot_run, args=(
+                red_type, red_value, red_another_property,
+                black_type, black_value, black_another_property
+            ))
 
             moves_queue.clear()
             gamestate = GameState.generate_initial_game_state()
@@ -112,7 +229,10 @@ if __name__ == "__main__":
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                done = True
+                force_end = True
+                pygame.quit()
+                sys.exit()   
+
         # Try update_board
         try:
             move = moves_queue.pop(0)
@@ -121,10 +241,10 @@ if __name__ == "__main__":
             pass
 
         # Clear the screen
-        screen.fill((241, 203, 157))
+        SCREEN.fill((241, 203, 157))
 
         # Draw here
-        draw_gamestate(screen, gamestate)
+        draw_gamestate(SCREEN, gamestate)
 
         # Update the screen
         pygame.display.flip()
@@ -132,8 +252,196 @@ if __name__ == "__main__":
         # Wait for the next frame
         clock.tick(REFRESH_RATE)
 
-    # Quit Pygame
-    pygame.quit()
-    end = time()
     print(winner)
-    print("Total time: {} mins {:.2f} seconds".format((end - start) // 60, (end - start) % 60))
+    # Quit Pygame
+    result(red_full_type, black_full_type)
+
+
+def bots_menu():
+    black_type = DropDown(
+        ["#000000", "#202020"],
+        ["#404040", "#606060"],
+        20, 290, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Type", ["Minimax", "MCTS"])
+
+    black_value = DropDown(
+        ["#000000", "#202020"],
+        ["#404040", "#606060"],
+        180, 290, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Pack", ["Default", "Moded"])
+
+    red_type = DropDown(
+        ["#DC1C13", "#EA4C46"],
+        ["#F07470", "#F1959B"],
+        350, 290, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Type", ["Minimax", "MCTS"])
+
+    red_value = DropDown(
+        ["#DC1C13", "#EA4C46"],
+        ["#F07470", "#F1959B"],
+        510, 290, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Pack", ["Default", "Moded"]
+    )
+
+    num_box = InputBox(330, 125, 40, 40, pygame.font.SysFont(
+        None, 35), "Black", "Red", "Number of simulations")
+
+    black_another_property = InputBox(165, 230, 40, 30, pygame.font.SysFont(
+        None, 25), "Black", "Red", "Depth/Time allowed")
+    red_another_property = InputBox(495, 230, 40, 30, pygame.font.SysFont(
+        None, 25), "Red", "Black", "Depth/Time allowed")
+
+    start_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(330.5, 450),
+                          text_input="Simulate", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+
+    quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 550),
+                         text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+
+    back_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(495, 550),
+                         text_input="BACK", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+    
+    while True:
+        # Draw main menu
+        # .background
+        bg_img, bg_pos = resources.background()
+        SCREEN.blit(bg_img, bg_pos)
+
+        # Text
+        menu_text = resources.get_font(70, 0).render(
+            "Bots select", True, "Black")
+        menu_rect = menu_text.get_rect(center=(330.5, 60))
+        SCREEN.blit(menu_text, menu_rect)
+
+        text = resources.get_font(60, 0).render("Black", True, "Black")
+        rect = text.get_rect(center=(165, 185))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Bot type", True, "Black")
+        rect = text.get_rect(center=(70, 270))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Value pack", True, "Black")
+        rect = text.get_rect(center=(230, 270))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(60, 0).render("Red", True, "#AB001B")
+        rect = text.get_rect(center=(495, 185))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Bot type", True, "#AB001B")
+        rect = text.get_rect(center=(400, 270))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Value pack", True, "#AB001B")
+        rect = text.get_rect(center=(560, 270))
+        SCREEN.blit(text, rect)
+
+        # Button
+        for button in [start_button, quit_button, back_button]:
+            button.draw(SCREEN)
+
+        event_list = pygame.event.get()
+        # List
+        for lst in [black_type, black_value, red_type, red_value]:
+            selected_option = lst.update(event_list)
+            if selected_option >= 0:
+                lst.main = lst.options[selected_option]
+
+            lst.draw(SCREEN)
+
+        # Input box
+        for input_box in [num_box, black_another_property, red_another_property]:
+            input_box.update()
+            input_box.draw(SCREEN)
+
+        # Handle events
+        mouse_pos = pygame.mouse.get_pos()
+        for event in event_list:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if start_button.checkForInput(mouse_pos):
+                    if (
+                        red_type.main == "Type" or black_type.main == "Type"
+                        or red_value.main == "Pack" or red_value.main == "Pack"
+                        or not num_box.text.isnumeric()
+                        or not red_another_property.text.isnumeric()
+                        or not black_another_property.text.isnumeric()
+                    ):
+                        continue
+                    simulation(
+                        red_type.main, red_value.main, red_another_property.text,
+                        black_type.main, black_value.main, black_another_property.text,
+                        num_box.text
+                    )
+                if quit_button.checkForInput(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+                if back_button.checkForInput(mouse_pos):
+                    main_menu()
+
+            for input_box in [num_box, black_another_property, red_another_property]:
+                input_box.handle_event(event)
+
+         # Update the screen
+        pygame.display.flip()
+
+        # Wait for the next frame
+        clock.tick(REFRESH_RATE)
+
+
+def main_menu():
+    pve_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(165, 250),
+                    text_input="PvE", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+
+    eve_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(495, 250),
+                        text_input="EvE", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+
+    quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(330.5, 350),
+                            text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+    
+    while True:
+        # Draw main menu
+        # .background
+        bg_img, bg_pos = resources.background()
+        SCREEN.blit(bg_img, bg_pos)
+
+        # .menu_text
+        menu_text = resources.get_font(100, 0).render("Xiangqi", True, "Black")
+        menu_rect = menu_text.get_rect(center=(330.5, 100))
+        SCREEN.blit(menu_text, menu_rect)
+
+        # .button
+        for button in [pve_button,  eve_button, quit_button]:
+            button.draw(SCREEN)
+
+        # Handle events
+        mouse_pos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if pve_button.checkForInput(mouse_pos):
+                    pass
+                if eve_button.checkForInput(mouse_pos):
+                    bots_menu()
+                if quit_button.checkForInput(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+
+        # Update the screen
+        pygame.display.flip()
+
+        # Wait for the next frame
+        clock.tick(REFRESH_RATE)
+
+
+if __name__ == "__main__":
+    main_menu()
