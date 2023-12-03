@@ -161,3 +161,134 @@ def simulation(red_type, red_value, red_another_property,
     pygame.quit()
     sys.exit()
 
+
+def bots_menu():
+    black_type = DropDown(
+        ["#000000", "#202020"],
+        ["#404040", "#606060"],
+        20, 290, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Type", ["Minimax", "MCTS"])
+
+    black_value = DropDown(
+        ["#000000", "#202020"],
+        ["#404040", "#606060"],
+        180, 290, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Pack", ["Default", "Moded"])
+
+    red_type = DropDown(
+        ["#DC1C13", "#EA4C46"],
+        ["#F07470", "#F1959B"],
+        350, 290, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Type", ["Minimax", "MCTS"])
+
+    red_value = DropDown(
+        ["#DC1C13", "#EA4C46"],
+        ["#F07470", "#F1959B"],
+        510, 290, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Pack", ["Default", "Moded"]
+    )
+
+    num_box = InputBox(330, 125, 40, 40, pygame.font.SysFont(
+        None, 35), "Black", "Red", "Number of simulations")
+
+    black_another_property = InputBox(165, 230, 40, 30, pygame.font.SysFont(
+        None, 25), "Black", "Red", "Depth/Time allowed")
+    red_another_property = InputBox(495, 230, 40, 30, pygame.font.SysFont(
+        None, 25), "Red", "Black", "Depth/Time allowed")
+
+    start_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(330.5, 450),
+                          text_input="Simulate", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+
+    quit_button = Button(image=pygame.image.load("resources/button/quit_rect.png"), pos=(330.5, 550),
+                         text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+
+    while True:
+        # Draw main menu
+        # .background
+        bg_img, bg_pos = resources.background()
+        SCREEN.blit(bg_img, bg_pos)
+
+        # Text
+        menu_text = resources.get_font(70, 0).render(
+            "Bots select", True, "Black")
+        menu_rect = menu_text.get_rect(center=(330.5, 60))
+        SCREEN.blit(menu_text, menu_rect)
+
+        text = resources.get_font(60, 0).render("Black", True, "Black")
+        rect = text.get_rect(center=(165, 185))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Bot type", True, "Black")
+        rect = text.get_rect(center=(70, 270))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Value pack", True, "Black")
+        rect = text.get_rect(center=(230, 270))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(60, 0).render("Red", True, "#AB001B")
+        rect = text.get_rect(center=(495, 185))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Bot type", True, "#AB001B")
+        rect = text.get_rect(center=(400, 270))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Value pack", True, "#AB001B")
+        rect = text.get_rect(center=(560, 270))
+        SCREEN.blit(text, rect)
+
+        # Button
+        for button in [start_button, quit_button]:
+            button.draw(SCREEN)
+
+        event_list = pygame.event.get()
+        # List
+        for lst in [black_type, black_value, red_type, red_value]:
+            selected_option = lst.update(event_list)
+            if selected_option >= 0:
+                lst.main = lst.options[selected_option]
+
+            lst.draw(SCREEN)
+
+        # Input box
+        for input_box in [num_box, black_another_property, red_another_property]:
+            input_box.update()
+            input_box.draw(SCREEN)
+
+        # Handle events
+        mouse_pos = pygame.mouse.get_pos()
+        for event in event_list:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if start_button.checkForInput(mouse_pos):
+                    if (
+                        red_type.main == "Type" or black_type.main == "Type"
+                        or red_value.main == "Pack" or red_value.main == "Pack"
+                    ):
+                        continue
+                    simulation(
+                        red_type.main, red_value.main, red_another_property.text,
+                        black_type.main, black_value.main, black_another_property.text,
+                        num_box.text
+                    )
+                if quit_button.checkForInput(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+
+            for input_box in [num_box, black_another_property, red_another_property]:
+                input_box.handle_event(event)
+
+         # Update the screen
+        pygame.display.flip()
+
+        # Wait for the next frame
+        clock.tick(REFRESH_RATE)
+
