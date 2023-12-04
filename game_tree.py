@@ -89,6 +89,7 @@ class GameTreeMinimax(GameTree):
         # Max turn
         if max_turn is True:
             node.minimax_value = -inf
+            node.list_of_children.sort(key=lambda node:node.game_state.value, reverse=True)
             for child in node.list_of_children:
                 value = self.minimax(child, depth + 1, False, alpha, beta)
                 node.minimax_value = max(node.minimax_value, value)
@@ -99,6 +100,7 @@ class GameTreeMinimax(GameTree):
         # Min turn
         else:
             node.minimax_value = inf
+            node.list_of_children.sort(key=lambda node:node.game_state.value, reverse=False)
             for child in node.list_of_children:
                 value = self.minimax(child, depth + 1, True, alpha, beta)
                 node.minimax_value = min(node.minimax_value, value)
