@@ -1,5 +1,5 @@
 # Made by Kleecon~
-from cmath import inf
+from math import inf
 from abc import ABC, abstractmethod
 from game_state import GameState
 from node import NodeMinimax, NodeMCTS
@@ -92,7 +92,7 @@ class GameTreeMinimax(GameTree):
             for child in node.list_of_children:
                 value = self.minimax(child, depth + 1, False, alpha, beta)
                 node.minimax_value = max(node.minimax_value, value)
-                alpha = max(alpha, node.minimax_value)
+                alpha = max(alpha, value)
                 if beta <= alpha:
                     break
             return node.minimax_value
@@ -102,7 +102,7 @@ class GameTreeMinimax(GameTree):
             for child in node.list_of_children:
                 value = self.minimax(child, depth + 1, True, alpha, beta)
                 node.minimax_value = min(node.minimax_value, value)
-                beta = min(beta, node.minimax_value)
+                beta = min(beta, value)
                 if beta <= alpha:
                     break
             return node.minimax_value
