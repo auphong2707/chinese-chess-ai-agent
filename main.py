@@ -14,12 +14,12 @@ moves_queue = list()
 winner = dict()
 is_end = False
 force_end = False
-
 pygame.init()
 
 # Set up the window
 SCREEN = pygame.display.set_mode((661, 660))
 pygame.display.set_caption("Xiangqi")
+pygame.display.set_icon(resources.icon())
 
 # Set the refresh rate
 REFRESH_RATE = 30
@@ -27,7 +27,8 @@ REFRESH_RATE = 30
 # Create a clock object
 clock = pygame.time.Clock()
 
-def result(red_type, black_type):
+
+def result_bots(red_type, black_type):
     global winner
     
     quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 550),
@@ -151,21 +152,21 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
     print("DRAW")
 
 
-def draw_gamestate(_screen, _game_state):
+def draw_gamestate(game_state):
     """This method will draw a gamestate"""
 
     board_img, board_position = resources.board_sprite()
-    _screen.blit(board_img, board_position)
+    SCREEN.blit(board_img, board_position)
 
     for x in range(GameState.BOARD_SIZE_X):
         for y in range(GameState.BOARD_SIZE_Y):
-            notation = _game_state.board[x][y]
+            notation = game_state.board[x][y]
             if notation == "NN":
                 continue
 
-            piece = Piece.create_instance((x, y), notation, _game_state.board)
+            piece = Piece.create_instance((x, y), notation, game_state.board)
             piece_img, piece_position = resources.piece_sprite(piece)
-            _screen.blit(piece_img, piece_position)
+            SCREEN.blit(piece_img, piece_position)
 
 
 def simulation(red_type, red_value, red_another_property,
@@ -247,7 +248,7 @@ def simulation(red_type, red_value, red_another_property,
         SCREEN.fill((241, 203, 157))
 
         # Draw here
-        draw_gamestate(SCREEN, gamestate)
+        draw_gamestate(gamestate)
 
         # Update the screen
         pygame.display.flip()
@@ -257,7 +258,7 @@ def simulation(red_type, red_value, red_another_property,
 
     print(winner)
     # Quit Pygame
-    result(red_full_type, black_full_type)
+    result_bots(red_full_type, black_full_type)
 
 
 def bots_menu():
