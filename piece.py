@@ -308,9 +308,9 @@ class Elephant(Piece):
 
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
-        if self.team is Team.RED and position[0] < 6:
+        if self.team is Team.RED and position[0] < 5:
             return True
-        if self.team is Team.BLACK and position[0] > 5:
+        if self.team is Team.BLACK and position[0] > 4:
             return True
         return False
 
