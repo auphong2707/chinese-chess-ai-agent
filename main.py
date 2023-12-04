@@ -285,6 +285,7 @@ def simulation(red_type, red_value, red_another_property,
     number_of_simulations = int(number_of_simulations)
 
     # Main game loop
+    start = time()
     global is_end, force_end
     is_end = True
     gamestate, bot_run_thread = None, None
@@ -334,6 +335,9 @@ def simulation(red_type, red_value, red_another_property,
         clock.tick(REFRESH_RATE)
 
     print(winner)
+    end = time()
+    print("Total time: {} s".format(end - start))
+    print()
     # Quit Pygame
     result_bots(red_full_type, black_full_type)
 
