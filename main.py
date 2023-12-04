@@ -28,6 +28,8 @@ REFRESH_RATE = 30
 clock = pygame.time.Clock()
 
 def result(red_type, black_type):
+    global winner
+    
     quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 550),
                          text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
 
@@ -108,7 +110,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
     althea = althea_type(Team.RED, althea_ap, althea_value)
     beth = beth_type(Team.BLACK, beth_ap, beth_value)
     turn, max_turn = 1, 150
-    global is_end, force_end
+    global is_end, force_end, winner
 
     while turn <= max_turn:
         if force_end is True:
