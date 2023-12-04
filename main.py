@@ -27,6 +27,79 @@ REFRESH_RATE = 30
 # Create a clock object
 clock = pygame.time.Clock()
 
+def pve_screen():
+    bot = GameTreeMinimax(Team.BLACK, 3, 1)
+    is_bot_process = False
+    position_chosen = None
+    player_turn, player_gamestate  = True, GameState.generate_initial_game_state()
+    while True:
+        # Handle event
+        events_list = pygame.event.get()
+        for event in events_list:
+            if event.type == pygame.QUIT:
+                force_end = True
+                pygame.quit()
+                sys.exit()
+                
+        if player_turn:
+            for event in events_list:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    
+                    click_pos = resources.get_piece_position(mouse_pos)
+                    print(mouse_pos, click_pos)
+                    if position_chosen is None:
+                        if click_pos is None:
+                            continue
+                        if player_gamestate.board[click_pos[0]][click_pos[1]][0] == "R":
+                            position_chosen = click_pos
+                    else:
+                        if click_pos is None or click_pos == position_chosen:
+                            position_chosen = None
+                            continue
+                        
+                        piece = Piece.create_instance(
+                            position_chosen,
+                            player_gamestate.board[position_chosen[0]][position_chosen[1]],
+                            player_gamestate.board
+                        )
+                        
+                        if click_pos in piece.admissible_moves:
+                            new_gamestate = player_gamestate.generate_game_state_with_move(position_chosen, click_pos)
+                            if new_gamestate is not None:
+                                player_gamestate = new_gamestate[0]
+                                bot.move_to_child_node_with_move(position_chosen, click_pos)
+                                position_chosen = None
+                                player_turn = False
+
+        else:
+            if is_bot_process is False:
+                bot_thread = threading.Thread(target=bot.process, args=(moves_queue,))
+                bot_thread.start()
+                is_bot_process = True
+                
+            try:
+                old_pos, new_pos = moves_queue.pop(0)
+                player_gamestate = player_gamestate.generate_game_state_with_move(old_pos, new_pos)[0]
+                player_turn = True
+                bot_thread.join()
+                is_bot_process = False
+            except IndexError:
+                pass
+            
+        # Draw
+        SCREEN.fill(((241, 203, 157)))
+        draw_gamestate(player_gamestate)
+        if position_chosen is not None:
+            chosen_ring_img, draw_pos = resources.chosen_ring_sprite(position_chosen)
+            SCREEN.blit(chosen_ring_img, draw_pos)
+        
+        # Update the screen
+        pygame.display.flip()
+
+        # Wait for the next frame
+        clock.tick(REFRESH_RATE)
+    
 
 def result_bots(red_type, black_type):
     global winner
@@ -433,7 +506,7 @@ def main_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pve_button.checkForInput(mouse_pos):
-                    pass
+                    pve_screen()
                 if eve_button.checkForInput(mouse_pos):
                     bots_menu()
                 if quit_button.checkForInput(mouse_pos):
