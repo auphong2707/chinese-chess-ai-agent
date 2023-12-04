@@ -7,6 +7,7 @@ import pygame
 ORIGIN_X, ORIGIN_Y = 45, 10
 START_X, START_Y = 47, 8
 STEP_X, STEP_Y = 63, 65
+PIECE_SIZE = 60
 RESOURCES_PATH = 'resources/'
 # [END CONSTANTS]
 
@@ -21,6 +22,24 @@ def piece_sprite(piece):
 
     return piece_img, (position_x, position_y)
 
+def chosen_ring_sprite(pos):
+    chosen_ring_img = pygame.image.load(RESOURCES_PATH + 'chosen_ring.png')
+    
+    position_x = START_X + pos[1]*STEP_X
+    position_y = START_Y + pos[0]*STEP_Y
+    
+    return chosen_ring_img, (position_x, position_y)
+
+def get_piece_position(pos):
+    position_x = (pos[1] - START_Y)//STEP_Y
+    position_y = (pos[0] - START_X)//STEP_X
+    
+    if (
+        position_x not in range(0, 10) 
+        or position_y not in range(0, 9)
+    ):
+        return None
+    return position_x, position_y
 
 def board_sprite():
     """This method will return the board sprite
@@ -37,6 +56,7 @@ def background():
 def icon():
     icon_img = pygame.image.load(RESOURCES_PATH + 'xiangqi_icon.png')
     return icon_img
+
 
 def get_font(size, index):
     if index == 0:
