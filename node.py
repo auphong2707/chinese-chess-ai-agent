@@ -173,7 +173,7 @@ class NodeMCTS(Node):
             if winning_team is Team.BLACK:
                 return -1
         else:
-            return self.game_state.value / 200
+            return self.game_state.value / 500
 
     def rollout_policy(self):
         """This module returns the chosen simulation init node
