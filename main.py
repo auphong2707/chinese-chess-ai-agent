@@ -27,11 +27,12 @@ REFRESH_RATE = 30
 # Create a clock object
 clock = pygame.time.Clock()
 
+
 def pve_screen():
-    bot = GameTreeMinimax(Team.BLACK, 3, 1)
+    bot = GameTreeMinimax(Team.BLACK, 4, 1)
     is_bot_process = False
     position_chosen = None
-    player_turn, player_gamestate  = True, GameState.generate_initial_game_state()
+    player_turn, player_gamestate = True, GameState.generate_initial_game_state()
     while True:
         # Handle event
         events_list = pygame.event.get()
@@ -40,12 +41,12 @@ def pve_screen():
                 force_end = True
                 pygame.quit()
                 sys.exit()
-                
+
         if player_turn:
             for event in events_list:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    
+
                     click_pos = resources.get_piece_position(mouse_pos)
                     print(mouse_pos, click_pos)
                     if position_chosen is None:
@@ -57,59 +58,65 @@ def pve_screen():
                         if click_pos is None or click_pos == position_chosen:
                             position_chosen = None
                             continue
-                        
+
                         piece = Piece.create_instance(
                             position_chosen,
-                            player_gamestate.board[position_chosen[0]][position_chosen[1]],
+                            player_gamestate.board[position_chosen[0]
+                                                   ][position_chosen[1]],
                             player_gamestate.board
                         )
-                        
+
                         if click_pos in piece.admissible_moves:
-                            new_gamestate = player_gamestate.generate_game_state_with_move(position_chosen, click_pos)
+                            new_gamestate = player_gamestate.generate_game_state_with_move(
+                                position_chosen, click_pos)
                             if new_gamestate is not None:
                                 player_gamestate = new_gamestate[0]
-                                bot.move_to_child_node_with_move(position_chosen, click_pos)
+                                bot.move_to_child_node_with_move(
+                                    position_chosen, click_pos)
                                 position_chosen = None
                                 player_turn = False
 
         else:
             if is_bot_process is False:
-                bot_thread = threading.Thread(target=bot.process, args=(moves_queue,))
+                bot_thread = threading.Thread(
+                    target=bot.process, args=(moves_queue,))
                 bot_thread.start()
                 is_bot_process = True
-                
+
             try:
                 old_pos, new_pos = moves_queue.pop(0)
-                player_gamestate = player_gamestate.generate_game_state_with_move(old_pos, new_pos)[0]
+                player_gamestate = player_gamestate.generate_game_state_with_move(old_pos, new_pos)[
+                    0]
                 player_turn = True
                 bot_thread.join()
                 is_bot_process = False
             except IndexError:
                 pass
-            
+
         # Draw
         SCREEN.fill(((241, 203, 157)))
         draw_gamestate(player_gamestate)
         if position_chosen is not None:
-            chosen_ring_img, draw_pos = resources.chosen_ring_sprite(position_chosen)
+            chosen_ring_img, draw_pos = resources.chosen_ring_sprite(
+                position_chosen)
             SCREEN.blit(chosen_ring_img, draw_pos)
-        
+
         # Update the screen
         pygame.display.flip()
 
         # Wait for the next frame
         clock.tick(REFRESH_RATE)
-    
+
 
 def result_bots(red_type, black_type):
     global winner
-    
+
     quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 550),
-                         text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+                        text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
 
     back_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(495, 550),
-                         text_input="BACK", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
-    
+                        text_input="BACK", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+
     while True:
         # Draw main menu
         # .background
@@ -121,44 +128,46 @@ def result_bots(red_type, black_type):
             "Result", True, "Black")
         rect = text.get_rect(center=(330.5, 60))
         SCREEN.blit(text, rect)
-        
+
         text = resources.get_font(60, 0).render("Black", True, "Black")
         rect = text.get_rect(center=(145, 185))
         SCREEN.blit(text, rect)
-        
+
         text = resources.get_font(12, 2).render(black_type, True, "Black")
         rect = text.get_rect(center=(145, 220))
         SCREEN.blit(text, rect)
-        
-        text = resources.get_font(60, 0).render(str(winner.get("BLACK", 0)), True, "Black")
+
+        text = resources.get_font(60, 0).render(
+            str(winner.get("BLACK", 0)), True, "Black")
         rect = text.get_rect(center=(145, 280))
         SCREEN.blit(text, rect)
-        
+
         text = resources.get_font(12, 2).render(red_type, True, "#AB001B")
         rect = text.get_rect(center=(515, 220))
         SCREEN.blit(text, rect)
-        
+
         text = resources.get_font(60, 0).render("Red", True, "#AB001B")
         rect = text.get_rect(center=(515, 185))
         SCREEN.blit(text, rect)
-        
-        text = resources.get_font(60, 0).render(str(winner.get("RED", 0)), True, "#AB001B")
+
+        text = resources.get_font(60, 0).render(
+            str(winner.get("RED", 0)), True, "#AB001B")
         rect = text.get_rect(center=(515, 280))
         SCREEN.blit(text, rect)
-        
-        
+
         text = resources.get_font(60, 0).render("Draw", True, "#56000E")
         rect = text.get_rect(center=(330.5, 185))
         SCREEN.blit(text, rect)
-        
-        text = resources.get_font(60, 0).render(str(winner.get("DRAW", 0)), True, "#56000E")
+
+        text = resources.get_font(60, 0).render(
+            str(winner.get("DRAW", 0)), True, "#56000E")
         rect = text.get_rect(center=(330.5, 280))
         SCREEN.blit(text, rect)
-        
+
         # Button
         for button in [quit_button, back_button]:
             button.draw(SCREEN)
-        
+
         # Handle event
         mouse_pos = pygame.mouse.get_pos()
         for event in pygame.event.get():
@@ -172,13 +181,13 @@ def result_bots(red_type, black_type):
                 if back_button.checkForInput(mouse_pos):
                     winner = dict()
                     bots_menu()
-        
+
         # Update the screen
         pygame.display.flip()
 
         # Wait for the next frame
         clock.tick(REFRESH_RATE)
-    
+
 
 def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
     althea = althea_type(Team.RED, althea_ap, althea_value)
@@ -247,16 +256,16 @@ def simulation(red_type, red_value, red_another_property,
                number_of_simulations):
     def get_bot_full_type(bot_type, bot_property, bot_value):
         res = bot_type + ' '
-        
+
         if bot_type == 'Minimax':
             res += 'Depth ' + bot_property + ' '
         elif bot_type == 'MCTS':
             res += 'Time allowed ' + bot_property + 's '
-        
-        res += 'Value ' + bot_value    
-            
+
+        res += 'Value ' + bot_value
+
         return res
-    
+
     def str_to_type(type_str):
         if type_str == 'Minimax':
             return GameTreeMinimax
@@ -268,10 +277,12 @@ def simulation(red_type, red_value, red_another_property,
             return 0
         elif value_pack_str == 'Moded':
             return 1
-    
-    red_full_type = get_bot_full_type(red_type, red_another_property, red_value)
-    black_full_type = get_bot_full_type(black_type, black_another_property, black_value)
-    
+
+    red_full_type = get_bot_full_type(
+        red_type, red_another_property, red_value)
+    black_full_type = get_bot_full_type(
+        black_type, black_another_property, black_value)
+
     red_type, black_type = str_to_type(red_type), str_to_type(black_type)
     red_value, black_value = str_to_value_pack(
         red_value), str_to_value_pack(black_value)
@@ -309,12 +320,13 @@ def simulation(red_type, red_value, red_another_property,
             if event.type == pygame.QUIT:
                 force_end = True
                 pygame.quit()
-                sys.exit()   
+                sys.exit()
 
         # Try update_board
         try:
             move = moves_queue.pop(0)
-            gamestate = gamestate.generate_game_state_with_move(move[0], move[1])[0]
+            gamestate = gamestate.generate_game_state_with_move(move[0], move[1])[
+                0]
         except IndexError:
             pass
 
@@ -384,7 +396,7 @@ def bots_menu():
 
     back_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(495, 550),
                          text_input="BACK", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
-    
+
     while True:
         # Draw main menu
         # .background
@@ -479,14 +491,14 @@ def bots_menu():
 
 def main_menu():
     pve_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(165, 250),
-                    text_input="PvE", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+                        text_input="PvE", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
 
     eve_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(495, 250),
                         text_input="EvE", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
 
     quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(330.5, 350),
-                            text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
-    
+                         text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+
     while True:
         # Draw main menu
         # .background
