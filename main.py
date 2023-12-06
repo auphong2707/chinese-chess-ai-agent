@@ -523,7 +523,6 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pve_button.checkForInput(mouse_pos):
                     pve_screen()
-                    pve_screen()
                 if eve_button.checkForInput(mouse_pos):
                     bots_menu()
                 if quit_button.checkForInput(mouse_pos):
