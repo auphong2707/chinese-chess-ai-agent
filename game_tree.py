@@ -23,7 +23,7 @@ class GameTree(ABC):
 
     def move_to_best_child(self) -> tuple:
         """This moves the current node to its "best child" on the game tree"""
-        self.current_node = self.current_node.best_move(self.team)
+        self.current_node = self.current_node.best_move()
         self.current_node.parent = None
 
         return self.current_node.parent_move
@@ -67,48 +67,6 @@ class GameTreeMinimax(GameTree):
         super().__init__(team, value_pack)
         self.target_depth = target_depth
 
-    def minimax(self, node: NodeMinimax, depth: int, max_turn: bool, alpha: float = -inf, beta: float = inf):
-        """Minimax method"""
-        self.count += 1
-        node.minimax_value = None
-        # If the node reaches the target depth or the count reaches max number
-        if depth == self.target_depth or self.count >= self.MAX_NODE:
-            node.minimax_value = node.game_state.value
-            return node.minimax_value
-
-        node.generate_all_children()
-        
-        if len(node.list_of_children) == 0:
-            if node.game_state._current_team is Team.RED:
-                node.minimax_value = -inf
-            else:
-                node.minimax_value = inf
-            
-            return node.minimax_value
-        
-        # Max turn
-        if max_turn is True:
-            node.minimax_value = -inf
-            node.list_of_children.sort(key=lambda node:node.game_state.value, reverse=True)
-            for child in node.list_of_children:
-                value = self.minimax(child, depth + 1, False, alpha, beta)
-                node.minimax_value = max(node.minimax_value, value)
-                alpha = max(alpha, value)
-                if beta <= alpha:
-                    break
-            return node.minimax_value
-        # Min turn
-        else:
-            node.minimax_value = inf
-            node.list_of_children.sort(key=lambda node:node.game_state.value, reverse=False)
-            for child in node.list_of_children:
-                value = self.minimax(child, depth + 1, True, alpha, beta)
-                node.minimax_value = min(node.minimax_value, value)
-                beta = min(beta, value)
-                if beta <= alpha:
-                    break
-            return node.minimax_value
-
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
         return NodeMinimax(game_state, parent, parent_move)
 
@@ -117,7 +75,7 @@ class GameTreeMinimax(GameTree):
         # [START BOT'S TURN]
 
         start = time()  # Start time counter
-        self.minimax(self.current_node, 0, self.team is Team.RED)
+        self.current_node.minimax(self.target_depth, self.team is Team.RED)
         old_pos, new_pos = self.move_to_best_child()
         moves_queue.append((old_pos, new_pos))
 

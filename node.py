@@ -59,23 +59,77 @@ class Node(ABC):
 
 class NodeMinimax(Node):
     """This class represents a "minimax's node" in game tree"""
-
+    
     # [INITIALIZATION]
     def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
         # Reference to a node
         super().__init__(game_state, parent, parent_move)
-
         # Minimax statistics
+        self._is_children_sorted = False
         self.minimax_value = None
-
     # [END INITIALIZATION]
-
+    
     # [METHOD]
     # Instance methods
+    def minimax(self, depth: int, max_turn: bool, alpha: float = -inf, beta: float = inf):
+        """Minimax method"""
+        
+        self.minimax_value = None
+        # If the node reaches the target depth or the count reaches max number
+        if depth == 0:
+            self.minimax_value = self.game_state.value
+            return self.minimax_value
+
+        self.generate_all_children()
+        
+        if len(self.list_of_children) == 0:
+            if self.game_state._current_team is Team.RED:
+                self.minimax_value = -inf
+            else:
+                self.minimax_value = inf
+                
+            return self.minimax_value
+        
+        # Max turn
+        if max_turn is True:
+            best_value = -inf
+            
+            # Sort the list of children
+            if self._is_children_sorted is False:
+                self.list_of_children.sort(key=lambda node:node.game_state.value, reverse=True)
+                self._is_children_sorted = True
+                
+            # Go to the deeper depth
+            for child in self.list_of_children:
+                value = child.minimax(depth - 1, False, alpha, beta)
+                best_value = max(best_value, value)
+                alpha = max(alpha, best_value)
+                if beta <= alpha:
+                    break
+            self.minimax_value = best_value
+            return best_value
+        # Min turn
+        else:
+            best_value = inf
+
+            # Sort the list of children
+            if self._is_children_sorted is False:
+                self.list_of_children.sort(key=lambda node:node.game_state.value, reverse=False)
+                self._is_children_sorted = True
+                
+            for child in self.list_of_children:
+                value = child.minimax(depth - 1, True, alpha, beta)
+                best_value = min(best_value, value)
+                beta = min(beta, best_value)
+                if beta <= alpha:
+                    break
+            self.minimax_value = best_value
+            return best_value
+    
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMinimax(game_state, parent, parent_move)
 
-    def best_move(self, team: Team):
+    def best_move(self):
         """This module returns the so-considered "best child" 
         of the current node"""
 
@@ -88,8 +142,7 @@ class NodeMinimax(Node):
                 best_children.append(child)
 
         # Return a random child among the best
-        shuffle(best_children)
-        return best_children.pop()
+        return choice(best_children)
 
     # [END METHOD]
 
