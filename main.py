@@ -6,7 +6,7 @@ import resources
 import sys
 from gui_utilities import Button, DropDown, InputBox
 from game_state import GameState
-from game_tree import GameTreeMinimax, GameTreeMCTS
+from game_tree import GameTreeMinimax, GameTreeMCTS, GameTreeDynamicMinimax
 from team import Team
 from piece import Piece
 
@@ -261,6 +261,8 @@ def simulation(red_type, red_value, red_another_property,
             res += 'Depth ' + bot_property + ' '
         elif bot_type == 'MCTS':
             res += 'Time allowed ' + bot_property + 's '
+        elif bot_type == 'DyMinimax':
+            res += 'Depth ' + bot_property + ' '
 
         res += 'Value ' + bot_value
 
@@ -271,6 +273,8 @@ def simulation(red_type, red_value, red_another_property,
             return GameTreeMinimax
         elif type_str == 'MCTS':
             return GameTreeMCTS
+        elif type_str == 'DyMinimax':
+            return GameTreeDynamicMinimax
 
     def str_to_value_pack(value_pack_str):
         if value_pack_str == 'Default':
@@ -356,7 +360,7 @@ def bots_menu():
         ["#404040", "#606060"],
         20, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Type", ["Minimax", "MCTS"])
+        "Type", ["Minimax", "MCTS", "DyMinimax"])
 
     black_value = DropDown(
         ["#000000", "#202020"],
@@ -370,7 +374,7 @@ def bots_menu():
         ["#F07470", "#F1959B"],
         350, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Type", ["Minimax", "MCTS"])
+        "Type", ["Minimax", "MCTS", "DyMinimax"])
 
     red_value = DropDown(
         ["#DC1C13", "#EA4C46"],

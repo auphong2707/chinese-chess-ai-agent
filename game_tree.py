@@ -134,6 +134,33 @@ class GameTreeMCTS(GameTree):
     
     def _create_node(self, game_state, parent, parent_move) -> NodeMCTS:
         return NodeMCTS(game_state, parent, parent_move)
+    
+class GameTreeDynamicMinimax(GameTreeMinimax):
+    def process(self, moves_queue) -> tuple:
+        """Let the bot run"""
+        # [START BOT'S TURN]
+        ADVANTAGE_CONSTANT = 25
+
+        start = time()  # Start time counter
+        print(self.current_node.game_state.value * self.team.value)
+        if len(self.current_node.game_state.all_child_gamestates) <= 10:
+            self.current_node.minimax(self.target_depth + 2, self.team is Team.RED)
+        elif self.current_node.game_state.value * self.team.value >= ADVANTAGE_CONSTANT:
+            self.current_node.minimax(self.target_depth + 1, self.team is Team.RED)
+        else:
+            self.current_node.minimax(self.target_depth, self.team is Team.RED)
+        old_pos, new_pos = self.move_to_best_child()
+        moves_queue.append((old_pos, new_pos))
+
+        # [POST PROCESS]
+        print(self.count)
+        self.count = 0
+        end = time()  # End time counter
+        print("Time: {:.2f} s".format(end - start))
+        print("{} moves: {} -> {}".format(self.team.name, old_pos, new_pos))
+        return old_pos, new_pos
+
+        # [END BOT'S TURN]
 
 if __name__ == "main":
     # Test the class here Focalors
