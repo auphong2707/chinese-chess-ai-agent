@@ -25,6 +25,7 @@ class GameState:
         value_pack: int = 0,
         red_num_checkmate: int = 0,
         black_num_checkmate: int = 0,
+        number_of_pieces: int = 32,
     ) -> None:
         # Add the chess pieces to the list
         self.board = board
@@ -36,6 +37,7 @@ class GameState:
         self._value = None
         self._current_team = current_team
         self._all_child_gamestates = None
+        self._number_of_pieces = number_of_pieces
 
     # Properties initialization
     # .value
@@ -148,6 +150,12 @@ class GameState:
         # Create a copy of moved board and return the board to the old state
         new_board = list(map(list, self.board))
         _return_to_old_state()
+        
+        # Calculate the number of pieces of the gamestate
+        new_number_of_pieces = self._number_of_pieces
+        if self.board[new_pos[0]][new_pos[1]] != "NN":
+            new_number_of_pieces -= 1
+        
         # Return the game state which has the new information
         return GameState(
             new_board,
@@ -155,6 +163,7 @@ class GameState:
             self._value_pack,
             new_red_num_checkmate,
             new_black_num_checkmate,
+            new_number_of_pieces,
         ), (old_pos, new_pos)
 
     def generate_random_game_state(self):
