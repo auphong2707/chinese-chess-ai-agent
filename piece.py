@@ -609,17 +609,17 @@ class Horse(Piece):
         elif value_pack == 1:
             change = 0
             if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
-                change = -10
+                change += -10
             elif len(self.admissible_moves) == 2:
-                change = -5
+                change += -5
             elif len(self.admissible_moves) == 5 or len(self.admissible_moves) == 6:
-                change = 5
+                change += 5
             elif len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
-                change = 10
+                change += 10
             if self.team is Team.BLACK and self.position == (1, 4):
-                self._piece_value = -25
+                change += -25
             elif self.team is Team.RED and self.position == (8, 4):
-                self._piece_value = -25
+                change += -25
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
