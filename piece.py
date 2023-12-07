@@ -22,13 +22,14 @@ class Piece(ABC):
     # [END CONSTANTS]
 
     # [BEGIN INITILIZATION]
-    def __init__(self, position: tuple, team: Team, board: list) -> None:
+    def __init__(self, position: tuple, team: Team, board: list, number_of_pieces: int) -> None:
         # Create properties
         self.position = position
         self.team = team
 
         self._admissible_moves = None
         self.board = board
+        self.number_of_pieces = number_of_pieces
 
     def __str__(self) -> str:
         return str(self.team) + "_" + self._piece_type
@@ -130,25 +131,25 @@ class Piece(ABC):
         return result_x and result_y
 
     @staticmethod
-    def create_instance(position: tuple, notation: str, board: list):
+    def create_instance(position: tuple, notation: str, board: list, number_of_pieces: int):
         team = Team[notation[0]]
         piece_type = notation[1]
 
         match piece_type:
             case "A":
-                return Advisor(position, team, board)
+                return Advisor(position, team, board, number_of_pieces)
             case "C":
-                return Cannon(position, team, board)
+                return Cannon(position, team, board, number_of_pieces)
             case "E":
-                return Elephant(position, team, board)
+                return Elephant(position, team, board, number_of_pieces)
             case "G":
-                return General(position, team, board)
+                return General(position, team, board, number_of_pieces)
             case "H":
-                return Horse(position, team, board)
+                return Horse(position, team, board, number_of_pieces)
             case "P":
-                return Pawn(position, team, board)
+                return Pawn(position, team, board, number_of_pieces)
             case "R":
-                return Rook(position, team, board)
+                return Rook(position, team, board, number_of_pieces)
 
     # [END METHODS]
 
@@ -167,6 +168,24 @@ class Advisor(Piece):
             change = 0
             if len(self.admissible_moves) == 0:
                 change = -10
+            return self._piece_value + change
+        elif value_pack == 2:
+            change = 0
+            x_orient = [1, 1, -1, -1]
+            y_orient = [1, -1, -1, 1]
+            for cnt in range(4):
+            # Possible position setting
+                pos = (self.position[0] + x_orient[cnt],
+                    self.position[1] + y_orient[cnt])
+
+                # Checkment
+                if (
+                    self.is_position_on_board(pos)
+                    and self.is_position_in_palace(pos)
+                ):
+                    if self.board[pos[0]][pos[1]][1] == 'A':
+                        change = 5
+
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -213,6 +232,12 @@ class Cannon(Piece):
             if len(self.admissible_moves) == 0:
                 change = -10
             return self._piece_value + change
+        elif value_pack == 2:
+            change = 0
+            if len(self.admissible_moves) == 0:
+                change += -10
+            change += 2 * (self.number_of_pieces - 24)
+            return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
@@ -254,8 +279,8 @@ class Rook(Piece):
     _piece_value = 90
     _piece_type = "rook"
 
-    def __init__(self, position: tuple, team: Team, board: list) -> None:
-        super().__init__(position, team, board)
+    def __init__(self, position: tuple, team: Team, board: list, number_of_pieces: int) -> None:
+        super().__init__(position, team, board, number_of_pieces)
         self._control_pos_count = 0
 
     def piece_value(self, value_pack=0):
@@ -268,6 +293,14 @@ class Rook(Piece):
                 change = -10
             else:
                 change = self._control_pos_count * 0.5
+            return self._piece_value + change
+        elif value_pack == 2:
+            change = 0
+            if len(self.admissible_moves) == 0:
+                change += -10
+            else:
+                change += self._control_pos_count * 0.5
+            change += (32 - self.number_of_pieces) * 0.75
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -323,6 +356,34 @@ class Elephant(Piece):
             if len(self.admissible_moves) == 0:
                 change = -10
             return self._piece_value + change
+        elif value_pack == 2:
+            change = 0
+            x_direction = [2, 2, -2, -2]
+            y_direction = [2, -2, 2, -2]
+            
+            x_block = [1, 1, -1, -1]
+            y_block = [1, -1, 1, -1]
+            
+            for direction in range(4):
+                new_pos = (
+                    self.position[0] + x_direction[direction],
+                    self.position[1] + y_direction[direction],
+                )
+                block_pos = (
+                    self.position[0] + x_block[direction],
+                    self.position[1] + y_block[direction],
+                )
+
+                # Check if all the conditions below met to add admissible moves for elephant piece
+                if (
+                    self.is_position_on_board(new_pos)
+                    and self.is_position_free(block_pos)
+                    and not self._cross_river(new_pos)
+                ):
+                    if self.board[new_pos[0]][new_pos[1]][1] == 'E':
+                        change = 5
+                        break
+            return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
@@ -373,6 +434,16 @@ class General(Piece):
             return self._piece_value
         elif value_pack == 1:
             return self._piece_value
+        elif value_pack == 2:
+            opponent = Team.NONE
+            if self.team is Team.RED:
+                opponent = Team.BLACK
+            else:
+                opponent = Team.RED
+            change = 0
+            if General.is_general_exposed(self.board, self.team, opponent):
+                change = -5
+            return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
@@ -570,6 +641,30 @@ class Pawn(Piece):
                     else:
                         change = 10
             return self._piece_value + change
+        elif value_pack == 2:
+            change = 0
+            if self.team is Team.BLACK:
+                if self.position == (3, 4):
+                    change += 20 - (32 - self.number_of_pieces) * 3
+                elif self.position[0] == 5 or self.position[0] == 6:
+                    change += 10
+                elif self.position[0] == 7 or self.position[0] == 8:
+                    if self.position[1] < 7 and self.position[1] > 1:
+                        change += 20
+                    else:
+                        change += 10
+            if self.team is Team.RED:
+                if self.position == (6, 4):
+                    change += 20 - (32 - self.number_of_pieces) * 3
+                elif self.position[0] == 3 or self.position[0] == 4:
+                    change += 10
+                elif self.position[0] == 1 or self.position[0] == 2:
+                    if self.position[1] < 7 and self.position[1] > 1:
+                        change += 20
+                    else:
+                        change += 10
+            change += (32 - self.number_of_pieces) * 1.5
+            return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
 
@@ -620,6 +715,22 @@ class Horse(Piece):
                 change += -25
             elif self.team is Team.RED and self.position == (8, 4):
                 change += -25
+            return self._piece_value + change
+        elif value_pack == 2:
+            change = 0
+            if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
+                change += -10
+            elif len(self.admissible_moves) == 2:
+                change += -5
+            elif len(self.admissible_moves) == 5 or len(self.admissible_moves) == 6:
+                change += 5
+            elif len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
+                change += 10
+            if self.team is Team.BLACK and self.position == (1, 4):
+                change += -25
+            elif self.team is Team.RED and self.position == (8, 4):
+                change += -25
+            change += (32 - self.number_of_pieces) * 1.5
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")

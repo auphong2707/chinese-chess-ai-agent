@@ -29,6 +29,7 @@ class GameState:
     ) -> None:
         # Add the chess pieces to the list
         self.board = board
+        self.number_of_pieces = number_of_pieces
 
         # Declare properties
         self._red_num_checkmate = red_num_checkmate
@@ -37,7 +38,6 @@ class GameState:
         self._value = None
         self._current_team = current_team
         self._all_child_gamestates = None
-        self._number_of_pieces = number_of_pieces
 
     # Properties initialization
     # .value
@@ -85,7 +85,7 @@ class GameState:
                     continue
 
                 # Otherwise, create a instance of the piece and take value of the piece
-                piece = Piece.create_instance((i, j), notation, self.board)
+                piece = Piece.create_instance((i, j), notation, self.board, self.number_of_pieces)
                 current_value += piece.piece_value(self._value_pack) * piece.team.value
 
         return current_value
@@ -152,7 +152,7 @@ class GameState:
         _return_to_old_state()
         
         # Calculate the number of pieces of the gamestate
-        new_number_of_pieces = self._number_of_pieces
+        new_number_of_pieces = self.number_of_pieces
         if self.board[new_pos[0]][new_pos[1]] != "NN":
             new_number_of_pieces -= 1
         
@@ -184,7 +184,7 @@ class GameState:
         for pos in team_positions:
             notation = self.board[pos[0]][pos[1]]
             moves_list = Piece.create_instance(
-                pos, notation, self.board
+                pos, notation, self.board, self.number_of_pieces
             ).admissible_moves
             shuffle(moves_list)
 
@@ -213,7 +213,7 @@ class GameState:
 
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation, self.board
+                        (i, j), notation, self.board, self.number_of_pieces
                     ).admissible_moves
 
                     for new_pos in moves_list:
@@ -236,7 +236,7 @@ class GameState:
 
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation, self.board
+                        (i, j), notation, self.board, self.number_of_pieces
                     ).admissible_moves
 
                     old_pos = (i, j)
@@ -291,14 +291,15 @@ class GameState:
 if __name__ == "__main__":
     import psutil
 
-    queue = [GameState.generate_initial_game_state()]
-    for depth in range(1, 5):
+    queue = [GameState.generate_initial_game_state(1)]
+    for depth in range(1, 3):
         start = time.time()
 
         new_queue = list()
         for game_state_ in queue:
             for state, move_ in game_state_.all_child_gamestates:
                 new_queue.append(state)
+                print(state.value)
 
         queue = new_queue
         end = time.time()
