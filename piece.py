@@ -1,4 +1,5 @@
 # Edited by: Veil, Kleecon
+"""Module providing the property of abstract class and team members"""
 from abc import ABC, abstractmethod
 from team import Team
 
@@ -34,6 +35,7 @@ class Piece(ABC):
     def __str__(self) -> str:
         return str(self.team) + "_" + self._piece_type
 
+
     # Properties initialization
     # .position
     @property
@@ -48,7 +50,7 @@ class Piece(ABC):
             raise ValueError("The position is out of range")
 
         self._position = new_position
-
+ 
     @property
     def admissible_moves(self) -> list:
         if self._admissible_moves is None:
@@ -339,6 +341,7 @@ class Elephant(Piece):
     _piece_value = 25
     _piece_type = "elephant"
 
+
     def _cross_river(self, position: tuple):
         """Return True if the piece cross river, vice versa"""
         if self.team is Team.RED and position[0] < 5:
@@ -441,8 +444,8 @@ class General(Piece):
             else:
                 opponent = Team.RED
             change = 0
-            if General.is_general_exposed(self.board, self.team, opponent):
-                change = -5
+            if len(self.admissible_moves) == 0:
+                change = -10
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -645,25 +648,23 @@ class Pawn(Piece):
             change = 0
             if self.team is Team.BLACK:
                 if self.position == (3, 4):
-                    change += 20 - (32 - self.number_of_pieces) * 3
-                elif self.position[0] == 5 or self.position[0] == 6:
+                    change += 20 - (32 - self.number_of_pieces)
+                elif self.position[0] in range(7, 9) and self.position[1] in range(2, 7):
+                    change += 20
+                elif self.position[0] in range(6, 9) and self.position[1] in range(1, 8):
+                    change += 15
+                elif self.is_crossed_river():
                     change += 10
-                elif self.position[0] == 7 or self.position[0] == 8:
-                    if self.position[1] < 7 and self.position[1] > 1:
-                        change += 20
-                    else:
-                        change += 10
             if self.team is Team.RED:
                 if self.position == (6, 4):
-                    change += 20 - (32 - self.number_of_pieces) * 3
-                elif self.position[0] == 3 or self.position[0] == 4:
+                    change += 20 - (32 - self.number_of_pieces)
+                elif self.position[0] in range(1, 3) and self.position[1] in range(2, 7):
+                    change += 20
+                elif self.position[0] in range(1, 4) and self.position[1] in range(1, 8):
+                    change += 15
+                elif self.is_crossed_river():
                     change += 10
-                elif self.position[0] == 1 or self.position[0] == 2:
-                    if self.position[1] < 7 and self.position[1] > 1:
-                        change += 20
-                    else:
-                        change += 10
-            change += (32 - self.number_of_pieces) * 1.5
+            change += (32 - self.number_of_pieces) * 0.5
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -726,11 +727,11 @@ class Horse(Piece):
                 change += 5
             elif len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
                 change += 10
-            if self.team is Team.BLACK and self.position == (1, 4):
-                change += -25
-            elif self.team is Team.RED and self.position == (8, 4):
-                change += -25
-            change += (32 - self.number_of_pieces) * 1.5
+
+            if self.number_of_pieces <= 16 and self.is_crossed_river():
+                change += 5
+
+            change += (32 - self.number_of_pieces) * 1.25
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
