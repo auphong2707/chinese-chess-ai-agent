@@ -671,7 +671,10 @@ class Pawn(Piece):
                 elif self.position[0] in range(6, 9) and self.position[1] in range(1, 8):
                     change += 15
                 elif self.is_crossed_river():
-                    change += 10
+                    if Piece.is_position_in_palace(self.position):
+                        change += 15
+                    else:
+                        change += 10
             if self.team is Team.RED:
                 if self.position == (6, 4):
                     change += 20 - (32 - self.number_of_pieces)
@@ -680,7 +683,10 @@ class Pawn(Piece):
                 elif self.position[0] in range(1, 4) and self.position[1] in range(1, 8):
                     change += 15
                 elif self.is_crossed_river():
-                    change += 10
+                    if Piece.is_position_in_palace(self.position):
+                        change += 15
+                    else:
+                        change += 10
             change += (16 - self.number_of_team_pieces) * 2
             return self._piece_value + change
         else:
