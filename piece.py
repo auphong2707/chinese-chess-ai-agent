@@ -23,7 +23,13 @@ class Piece(ABC):
     # [END CONSTANTS]
 
     # [BEGIN INITILIZATION]
-    def __init__(self, position: tuple, team: Team, board: list, number_of_pieces: int) -> None:
+    def __init__(
+        self, position: tuple,
+        team: Team,
+        board: list,
+        number_of_pieces: int,
+        nummber_of_team_pieces: int,
+        ) -> None:
         # Create properties
         self.position = position
         self.team = team
@@ -31,6 +37,7 @@ class Piece(ABC):
         self._admissible_moves = None
         self.board = board
         self.number_of_pieces = number_of_pieces
+        self.number_of_team_pieces = nummber_of_team_pieces
 
     def __str__(self) -> str:
         return str(self.team) + "_" + self._piece_type
@@ -133,25 +140,25 @@ class Piece(ABC):
         return result_x and result_y
 
     @staticmethod
-    def create_instance(position: tuple, notation: str, board: list, number_of_pieces: int):
+    def create_instance(position: tuple, notation: str, board: list, number_of_pieces: int, number_of_team_pieces: int):
         team = Team[notation[0]]
         piece_type = notation[1]
 
         match piece_type:
             case "A":
-                return Advisor(position, team, board, number_of_pieces)
+                return Advisor(position, team, board, number_of_pieces, number_of_team_pieces)
             case "C":
-                return Cannon(position, team, board, number_of_pieces)
+                return Cannon(position, team, board, number_of_pieces, number_of_team_pieces)
             case "E":
-                return Elephant(position, team, board, number_of_pieces)
+                return Elephant(position, team, board, number_of_pieces, number_of_team_pieces)
             case "G":
-                return General(position, team, board, number_of_pieces)
+                return General(position, team, board, number_of_pieces, number_of_team_pieces)
             case "H":
-                return Horse(position, team, board, number_of_pieces)
+                return Horse(position, team, board, number_of_pieces, number_of_team_pieces)
             case "P":
-                return Pawn(position, team, board, number_of_pieces)
+                return Pawn(position, team, board, number_of_pieces, number_of_team_pieces)
             case "R":
-                return Rook(position, team, board, number_of_pieces)
+                return Rook(position, team, board, number_of_pieces, number_of_team_pieces)
 
     # [END METHODS]
 
@@ -238,7 +245,7 @@ class Cannon(Piece):
             change = 0
             if len(self.admissible_moves) == 0:
                 change += -10
-            change += 2 * (self.number_of_pieces - 24)
+            change += (self.number_of_pieces - 24) * 1.5
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -281,8 +288,15 @@ class Rook(Piece):
     _piece_value = 90
     _piece_type = "rook"
 
-    def __init__(self, position: tuple, team: Team, board: list, number_of_pieces: int) -> None:
-        super().__init__(position, team, board, number_of_pieces)
+    def __init__(
+        self,
+        position: tuple,
+        team: Team,
+        board: list,
+        number_of_pieces: int,
+        number_of_team_pieces: int
+        ) -> None:
+        super().__init__(position, team, board, number_of_pieces, number_of_team_pieces)
         self._control_pos_count = 0
 
     def piece_value(self, value_pack=0):
@@ -302,7 +316,7 @@ class Rook(Piece):
                 change += -10
             else:
                 change += self._control_pos_count * 0.5
-            change += (32 - self.number_of_pieces) * 0.75
+            change += (16 - self.number_of_team_pieces) * 0.25
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -445,7 +459,10 @@ class General(Piece):
                 opponent = Team.RED
             change = 0
             if len(self.admissible_moves) == 0:
-                change = -10
+                change += -10
+            if General.is_general_exposed(self.board, self.team, opponent) is True:
+                change += -15    
+            
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -664,7 +681,7 @@ class Pawn(Piece):
                     change += 15
                 elif self.is_crossed_river():
                     change += 10
-            change += (32 - self.number_of_pieces) * 0.5
+            change += (16 - self.number_of_team_pieces) * 2
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -732,6 +749,7 @@ class Horse(Piece):
                 change += 5
 
             change += (32 - self.number_of_pieces) * 1.25
+            change += (16 - self.number_of_team_pieces) * 0.25
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
