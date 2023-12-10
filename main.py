@@ -63,7 +63,8 @@ def pve_screen():
                             position_chosen,
                             player_gamestate.board[position_chosen[0]
                                                    ][position_chosen[1]],
-                            player_gamestate.board
+                            player_gamestate.board,
+                            None, None
                         )
 
                         if click_pos in piece.admissible_moves:
@@ -246,7 +247,7 @@ def draw_gamestate(game_state):
             if notation == "NN":
                 continue
 
-            piece = Piece.create_instance((x, y), notation, game_state.board)
+            piece = Piece.create_instance((x, y), notation, game_state.board, None, None)
             piece_img, piece_position = resources.piece_sprite(piece)
             SCREEN.blit(piece_img, piece_position)
 
@@ -273,10 +274,7 @@ def simulation(red_type, red_value, red_another_property,
             return GameTreeMCTS
 
     def str_to_value_pack(value_pack_str):
-        if value_pack_str == 'Default':
-            return 0
-        elif value_pack_str == 'Moded':
-            return 1
+        return int(value_pack_str)
 
     red_full_type = get_bot_full_type(
         red_type, red_another_property, red_value)
@@ -363,7 +361,7 @@ def bots_menu():
         ["#404040", "#606060"],
         180, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Pack", ["Default", "Moded"])
+        "Pack", ["0", "1", "2"])
 
     red_type = DropDown(
         ["#DC1C13", "#EA4C46"],
@@ -377,7 +375,7 @@ def bots_menu():
         ["#F07470", "#F1959B"],
         510, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Pack", ["Default", "Moded"]
+        "Pack", ["0", "1", "2"]
     )
 
     num_box = InputBox(330, 125, 40, 40, pygame.font.SysFont(
