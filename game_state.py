@@ -25,9 +25,13 @@ class GameState:
         value_pack: int = 0,
         red_num_checkmate: int = 0,
         black_num_checkmate: int = 0,
+        number_of_red_pieces: int = 16,
+        number_of_black_pieces: int = 16,
     ) -> None:
         # Add the chess pieces to the list
         self.board = board
+        self.number_of_red_pieces = number_of_red_pieces
+        self.number_of_black_pieces = number_of_black_pieces
 
         # Declare properties
         self._red_num_checkmate = red_num_checkmate
@@ -83,7 +87,11 @@ class GameState:
                     continue
 
                 # Otherwise, create a instance of the piece and take value of the piece
-                piece = Piece.create_instance((i, j), notation, self.board)
+                piece = Piece.create_instance(
+                    (i, j), notation, self.board,
+                    self.number_of_black_pieces + self.number_of_red_pieces,
+                    self._get_number_of_team_pieces(),
+                )
                 current_value += piece.piece_value(self._value_pack) * piece.team.value
 
         return current_value
@@ -94,6 +102,12 @@ class GameState:
             return Team.RED
         else:
             return Team.BLACK
+        
+    def _get_number_of_team_pieces(self):
+        if self._current_team is Team.BLACK:
+            return self.number_of_black_pieces
+        else:
+            return self.number_of_red_pieces
 
     def generate_game_state_with_move(self, old_pos: tuple, new_pos: tuple):
         """This method creates a game state with a move
@@ -148,6 +162,16 @@ class GameState:
         # Create a copy of moved board and return the board to the old state
         new_board = list(map(list, self.board))
         _return_to_old_state()
+        
+        # Calculate the number of pieces of the gamestate
+        new_number_of_red_pieces = self.number_of_red_pieces
+        new_number_of_black_pieces = self.number_of_black_pieces
+        if self.board[new_pos[0]][new_pos[1]] != "NN":
+            if self._current_team is Team.RED:
+                new_number_of_black_pieces -= 1
+            else:
+                new_number_of_red_pieces -= 1
+        
         # Return the game state which has the new information
         return GameState(
             new_board,
@@ -155,6 +179,8 @@ class GameState:
             self._value_pack,
             new_red_num_checkmate,
             new_black_num_checkmate,
+            new_number_of_red_pieces,
+            new_number_of_black_pieces,
         ), (old_pos, new_pos)
 
     def generate_random_game_state(self):
@@ -175,7 +201,9 @@ class GameState:
         for pos in team_positions:
             notation = self.board[pos[0]][pos[1]]
             moves_list = Piece.create_instance(
-                pos, notation, self.board
+                pos, notation, self.board,
+                self.number_of_black_pieces + self.number_of_red_pieces,
+                self._get_number_of_team_pieces(),
             ).admissible_moves
             shuffle(moves_list)
 
@@ -204,7 +232,9 @@ class GameState:
 
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation, self.board
+                        (i, j), notation, self.board,
+                        self.number_of_black_pieces + self.number_of_red_pieces,
+                        self._get_number_of_team_pieces(),
                     ).admissible_moves
 
                     for new_pos in moves_list:
@@ -227,7 +257,9 @@ class GameState:
 
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation, self.board
+                        (i, j), notation, self.board,
+                        self.number_of_black_pieces + self.number_of_red_pieces,
+                        self._get_number_of_team_pieces(),
                     ).admissible_moves
 
                     old_pos = (i, j)
@@ -282,14 +314,15 @@ class GameState:
 if __name__ == "__main__":
     import psutil
 
-    queue = [GameState.generate_initial_game_state()]
-    for depth in range(1, 5):
+    queue = [GameState.generate_initial_game_state(1)]
+    for depth in range(1, 4):
         start = time.time()
 
         new_queue = list()
         for game_state_ in queue:
             for state, move_ in game_state_.all_child_gamestates:
                 new_queue.append(state)
+                print(state.number_of_red_pieces, state.number_of_black_pieces)
 
         queue = new_queue
         end = time.time()
