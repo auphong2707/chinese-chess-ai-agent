@@ -194,7 +194,7 @@ class NodeMCTS(Node):
         for child in self.list_of_children:
             if child.n != 0:
                 # The current child has been visited
-                uct = child.q/child.n\
+                uct = child.q/child.n * self.worst_child\
                     + self.EXPLORATION_CONSTANT * \
                     (log(self.n)/child.n)**self.EXPONENTIAL_INDEX
             else:
