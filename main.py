@@ -61,8 +61,7 @@ def pve_screen():
 
                         piece = Piece.create_instance(
                             position_chosen,
-                            player_gamestate.board[position_chosen[0]
-                                                   ][position_chosen[1]],
+                            player_gamestate.board[position_chosen[0]][position_chosen[1]],
                             player_gamestate.board,
                             None, None
                         )

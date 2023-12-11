@@ -162,6 +162,11 @@ class NodeMCTS(Node):
         # MCTS statistics
         self._number_of_visits = 0
         self._rating = 0
+        self.worst_child = None
+
+        # Other statistics
+        self.is_children_sorted = False
+        self.rollout_index = -1
 
     # Properties initialization
     @property
@@ -214,6 +219,10 @@ class NodeMCTS(Node):
 
         self._rating += result
         self._number_of_visits += 1
+        if self.worst_child is None:
+            self.worst_child = result
+        else:
+            self.worst_child = min(self.worst_child, result)
 
     def terminate_value(self, is_end: bool) -> float:
         """This module returns the value if a node is at it's termination"""
@@ -228,24 +237,61 @@ class NodeMCTS(Node):
         else:
             return self.game_state.value / 500
 
-    def rollout_policy(self):
+    def rollout_policy(self, value_pack):
         """This module returns the chosen simulation init node
         based on the given rollout policy"""
 
         # Random policy
-        new_game_state = self.game_state.generate_random_game_state()
-        if new_game_state is None:
-            return None
-        else:
-            return self._create_node(new_game_state[0], self, new_game_state[1])
+        if value_pack == "RANDOM":
+            new_game_state = self.game_state.generate_random_game_state()
+            if new_game_state is None:
+                return None
+            else:
+                return self._create_node(new_game_state[0], self, new_game_state[1])
+        
+        # MCTSVariant1: Highest random pick
+        if value_pack == "VAR1":
+            potential_game_state = None
+            potential_game_value = -inf
+            all_states = self.game_state.all_child_gamestates
 
-    def rollout(self):
+            if len(all_states) == 0:
+                return None
+            
+            for _ in range(5):
+                cur = choice(all_states)
+                if cur[0].value > potential_game_value:
+                    potential_game_state = cur
+                    potential_game_value = cur[0].value
+
+            return self._create_node(potential_game_state[0], self, potential_game_state[1])
+
+        # MCTSVariant2: Sorted selection
+        if value_pack == "VAR2":
+            if len(self.game_state.all_child_gamestates) == 0:
+                return None
+            
+            if self.is_children_sorted is False:
+                self.game_state.all_child_gamestates.sort(
+                    key = lambda child: child[0].value, reverse = True
+                )
+                self.is_children_sorted = True
+
+            self.rollout_index = min(self.rollout_index+1,
+                len(self.game_state.all_child_gamestates)-1)
+            
+            return self._create_node(
+                self.game_state.all_child_gamestates[self.rollout_index][0], self,
+                self.game_state.all_child_gamestates[self.rollout_index][1]
+            )
+
+    def rollout(self, rollout_policy):
         """This module performs the rollout simulation"""
 
         node_count = 0
         current_node = self
         while node_count < self.MAX_NODE_COUNT:
-            new_node = current_node.rollout_policy()
+            new_node = current_node.rollout_policy(rollout_policy)
             # If the current node is terminal, return; otherwise, assign current to a random child node
             if new_node is None:
                 return current_node.terminate_value(True)
@@ -266,7 +312,7 @@ class NodeMCTS(Node):
 
         current_node.update_stat(result)
 
-    def best_move(self, team):
+    def best_move(self):
         """This module returns the so-considered "best child" 
         of the current node"""
 
