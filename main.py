@@ -6,7 +6,7 @@ import resources
 import sys
 from gui_utilities import Button, DropDown, InputBox
 from game_state import GameState
-from game_tree import GameTreeMinimax, GameTreeMCTS, GameTreeDynamicMinimax
+from game_tree import GameTreeMinimax, GameTreeMCTS, GameTreeDynamicMinimax, GameTreeDeepeningMinimax
 from team import Team
 from piece import Piece
 
@@ -29,7 +29,7 @@ clock = pygame.time.Clock()
 
 
 def pve_screen():
-    bot = GameTreeMinimax(Team.BLACK, 4, 1)
+    bot = GameTreeDeepeningMinimax(Team.BLACK, 5, 2)
     is_bot_process = False
     position_chosen = None
     player_turn, player_gamestate = True, GameState.generate_initial_game_state()
@@ -193,7 +193,7 @@ def result_bots(red_type, black_type):
 def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
     althea = althea_type(Team.RED, althea_ap, althea_value)
     beth = beth_type(Team.BLACK, beth_ap, beth_value)
-    turn, max_turn = 1, 150
+    turn, max_turn = 1, 80
     global is_end, force_end, winner
 
     while turn <= max_turn:
@@ -258,12 +258,14 @@ def simulation(red_type, red_value, red_another_property,
     def get_bot_full_type(bot_type, bot_property, bot_value):
         res = bot_type + ' '
 
-        if bot_type == 'Minimax':
+        if (
+            bot_type == 'Minimax' 
+            or bot_type == 'DyMinimax' 
+            or bot_type == 'DeMinimax'
+        ):
             res += 'Depth ' + bot_property + ' '
         elif bot_type == 'MCTS':
             res += 'Time allowed ' + bot_property + 's '
-        elif bot_type == 'DyMinimax':
-            res += 'Depth ' + bot_property + ' '
 
         res += 'Value ' + bot_value
 
@@ -276,6 +278,8 @@ def simulation(red_type, red_value, red_another_property,
             return GameTreeMCTS
         elif type_str == 'DyMinimax':
             return GameTreeDynamicMinimax
+        elif type_str == 'DeMinimax':
+            return GameTreeDeepeningMinimax
 
     def str_to_value_pack(value_pack_str):
         return int(value_pack_str)
@@ -358,7 +362,7 @@ def bots_menu():
         ["#404040", "#606060"],
         20, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Type", ["Minimax", "MCTS", "DyMinimax"])
+        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax"])
 
     black_value = DropDown(
         ["#000000", "#202020"],
@@ -372,7 +376,7 @@ def bots_menu():
         ["#F07470", "#F1959B"],
         350, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Type", ["Minimax", "MCTS", "DyMinimax"])
+        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax"])
 
     red_value = DropDown(
         ["#DC1C13", "#EA4C46"],
