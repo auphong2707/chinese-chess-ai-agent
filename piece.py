@@ -245,7 +245,8 @@ class Cannon(Piece):
             change = 0
             if len(self.admissible_moves) == 0:
                 change += -10
-            change += (self.number_of_pieces - 24) * 1.5
+            change += (self.number_of_pieces - 16) * 1.25
+            change += (16 - self.number_of_team_pieces) * 0.25
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
