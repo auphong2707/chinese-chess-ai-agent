@@ -143,7 +143,6 @@ class Piece(ABC):
     def create_instance(position: tuple, notation: str, board: list, number_of_pieces: int, number_of_team_pieces: int):
         team = Team[notation[0]]
         piece_type = notation[1]
-
         match piece_type:
             case "A":
                 return Advisor(position, team, board, number_of_pieces, number_of_team_pieces)
@@ -179,7 +178,7 @@ class Advisor(Piece):
                 change = -10
             return self._piece_value + change
         elif value_pack == 2:
-            change = 0
+            change = 5
             x_orient = [1, 1, -1, -1]
             y_orient = [1, -1, -1, 1]
             for cnt in range(4):
@@ -193,7 +192,7 @@ class Advisor(Piece):
                     and self.is_position_in_palace(pos)
                 ):
                     if self.board[pos[0]][pos[1]][1] == 'A':
-                        change = 5
+                        change += 5
 
             return self._piece_value + change
         else:
@@ -318,6 +317,7 @@ class Rook(Piece):
             else:
                 change += self._control_pos_count * 0.5
             change += (16 - self.number_of_team_pieces) * 0.25
+            change += (32 - self.number_of_pieces) * int(self.is_crossed_river())
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -375,7 +375,7 @@ class Elephant(Piece):
                 change = -10
             return self._piece_value + change
         elif value_pack == 2:
-            change = 0
+            change = 5
             x_direction = [2, 2, -2, -2]
             y_direction = [2, -2, 2, -2]
             
@@ -399,7 +399,7 @@ class Elephant(Piece):
                     and not self._cross_river(new_pos)
                 ):
                     if self.board[new_pos[0]][new_pos[1]][1] == 'E':
-                        change = 5
+                        change += 5
                         break
             return self._piece_value + change
         else:
@@ -752,11 +752,15 @@ class Horse(Piece):
             elif len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
                 change += 10
 
-            if self.number_of_pieces <= 16 and self.is_crossed_river():
-                change += 5
-
-            change += (32 - self.number_of_pieces) * 1.25
-            change += (16 - self.number_of_team_pieces) * 0.25
+            change += (16 - self.number_of_pieces) * 1.25
+            
+            palace_pos = None
+            if self.team is Team.RED:
+                palace_pos = (1, 4)
+            else:
+                palace_pos = (9, 4)
+            change += (32 - self.number_of_pieces) * 0.1 * (10 - (abs(palace_pos[0] - self.position[0]) - abs(palace_pos[1] - self.position[1])))
+            
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
