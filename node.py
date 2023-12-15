@@ -264,6 +264,8 @@ class NodeMCTS(Node):
                     potential_game_state = cur
                     potential_game_value = cur[0].value
 
+            if potential_game_state == None:
+                return None
             return self._create_node(potential_game_state[0], self, potential_game_state[1])
 
         # MCTSVariant2: Sorted selection
