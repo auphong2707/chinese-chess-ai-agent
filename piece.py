@@ -178,7 +178,7 @@ class Advisor(Piece):
                 change = -10
             return self._piece_value + change
         elif value_pack == 2:
-            change = 5
+            change = 0
             x_orient = [1, 1, -1, -1]
             y_orient = [1, -1, -1, 1]
             for cnt in range(4):
@@ -244,7 +244,7 @@ class Cannon(Piece):
             change = 0
             if len(self.admissible_moves) == 0:
                 change += -10
-            change += (self.number_of_pieces - 16) * 1.25
+            change += (self.number_of_pieces - 20) * 1.25
             change += (16 - self.number_of_team_pieces) * 0.25
             return self._piece_value + change
         else:
@@ -375,7 +375,7 @@ class Elephant(Piece):
                 change = -10
             return self._piece_value + change
         elif value_pack == 2:
-            change = 5
+            change = 0
             x_direction = [2, 2, -2, -2]
             y_direction = [2, -2, 2, -2]
             
@@ -461,7 +461,7 @@ class General(Piece):
             change = 0
             if len(self.admissible_moves) == 0:
                 change += -10
-            if General.is_general_exposed(self.board, self.team, opponent) is True:
+            if General.is_general_exposed(self.board, self.team, opponent) is False:
                 change += -15    
             
             return self._piece_value + change
@@ -666,7 +666,7 @@ class Pawn(Piece):
             change = 0
             if self.team is Team.BLACK:
                 if self.position == (3, 4):
-                    change += 20 - (32 - self.number_of_pieces)
+                    change += 20 - (32 - self.number_of_pieces) * 2
                 elif self.position[0] in range(7, 9) and self.position[1] in range(2, 7):
                     change += 20
                 elif self.position[0] in range(6, 9) and self.position[1] in range(1, 8):
@@ -678,7 +678,7 @@ class Pawn(Piece):
                         change += 10
             if self.team is Team.RED:
                 if self.position == (6, 4):
-                    change += 20 - (32 - self.number_of_pieces)
+                    change += 20 - (32 - self.number_of_pieces) * 2
                 elif self.position[0] in range(1, 3) and self.position[1] in range(2, 7):
                     change += 20
                 elif self.position[0] in range(1, 4) and self.position[1] in range(1, 8):
@@ -744,22 +744,22 @@ class Horse(Piece):
         elif value_pack == 2:
             change = 0
             if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
-                change += -10
-            elif len(self.admissible_moves) == 2:
                 change += -5
+            elif len(self.admissible_moves) == 2:
+                change += -2.5
             elif len(self.admissible_moves) == 5 or len(self.admissible_moves) == 6:
-                change += 5
+                change += 2.5
             elif len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
-                change += 10
+                change += 5
 
-            change += (16 - self.number_of_pieces) * 1.25
+            change += (22 - self.number_of_pieces) * 1.25
             
             palace_pos = None
             if self.team is Team.RED:
                 palace_pos = (1, 4)
             else:
                 palace_pos = (9, 4)
-            change += (32 - self.number_of_pieces) * 0.1 * (10 - (abs(palace_pos[0] - self.position[0]) - abs(palace_pos[1] - self.position[1])))
+            change += (32 - self.number_of_pieces) * 0.2 * (5 - (abs(palace_pos[0] - self.position[0]) + abs(palace_pos[1] - self.position[1])))
             
             return self._piece_value + change
         else:
