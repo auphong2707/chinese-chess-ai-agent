@@ -29,7 +29,7 @@ clock = pygame.time.Clock()
 
 
 def pve_screen():
-    bot = GameTreeMinimax(Team.BLACK, 4, 1)
+    bot = GameTreeMCTS(Team.BLACK, 20, 2, "RANDOM")
     is_bot_process = False
     position_chosen = None
     player_turn, player_gamestate = True, GameState.generate_initial_game_state()
@@ -192,7 +192,9 @@ def result_bots(red_type, black_type):
 def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
     althea = althea_type(Team.RED, althea_ap, althea_value)
     beth = beth_type(Team.BLACK, beth_ap, beth_value)
-    turn, max_turn = 1, 150
+    althea = GameTreeMCTS(Team.RED, 1, 2, "RANDOM")
+    beth = GameTreeMCTS(Team.BLACK, 20, 2, "RANDOM")
+    turn, max_turn = 1, 80
     global is_end, force_end, winner
 
     while turn <= max_turn:

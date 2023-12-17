@@ -93,7 +93,7 @@ class GameTreeMinimax(GameTree):
 class GameTreeMCTS(GameTree):
     """This class is responsible for performance of the MCTS game tree"""
 
-    def __init__(self, team, time_allowed, value_pack: int=0, rollout_policy = "VAR2"):
+    def __init__(self, team, time_allowed, value_pack: int=2, rollout_policy = "RANDOM"):
         super().__init__(team, value_pack)
         self.time_allowed = time_allowed
         self.rollout_policy = rollout_policy
