@@ -193,9 +193,10 @@ def result_bots(red_type, black_type):
 def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
     althea = althea_type(Team.RED, althea_ap, althea_value)
     beth = beth_type(Team.BLACK, beth_ap, beth_value)
-    turn, max_turn = 1, 80
+    turn, max_turn = 1, 150
     global is_end, force_end, winner
 
+    move_history = list()
     while turn <= max_turn:
         if force_end is True:
             return
@@ -210,6 +211,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
         print("Turn: {}".format(turn))
         old_pos, new_pos = althea.process(moves_queue)
         beth.move_to_child_node_with_move(old_pos, new_pos)
+        move_history.append((old_pos, new_pos))
 
         # [END ALTHEA'S TURN]
 
@@ -225,9 +227,13 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
             return
         old_pos, new_pos = beth.process(moves_queue)
         althea.move_to_child_node_with_move(old_pos, new_pos)
+        move_history
 
         # [END BETH'S TURN]
-
+        
+        if move_history[-8:].count(move_history[-1]) == 4:
+            break
+        
         turn += 1
 
     winner["DRAW"] = winner.get("DRAW", 0) + 1
