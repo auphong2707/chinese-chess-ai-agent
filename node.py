@@ -150,9 +150,9 @@ class NodeMinimax(Node):
 class NodeMCTS(Node):
     """This class represents a "Monte-Carlo tree search's node" in game tree"""
 
-    EXPLORATION_CONSTANT = sqrt(14)-2
+    EXPLORATION_CONSTANT = sqrt(2)
     EXPONENTIAL_INDEX = 1
-    MAX_NODE_COUNT = 2
+    MAX_NODE_COUNT = 90
 
     # [INITIALIZATION]
     def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
@@ -172,17 +172,12 @@ class NodeMCTS(Node):
     @property
     def q(self):
         """Return the node's personal rating"""
-        return -self.game_state._current_team.value * self._rating
+        return self.game_state._current_team.value * self._rating
 
     @property
     def n(self):
         """Return the number of visits of this node"""
         return self._number_of_visits
-    
-    @property
-    def e(self):
-        """Return the current exploration constant"""
-        return self.EXPLORATION_CONSTANT + self.n * 0.01
 
     # [END INITIALIZATION]
 
@@ -240,7 +235,7 @@ class NodeMCTS(Node):
             if winning_team is Team.BLACK:
                 return -1
         else:
-            return self.game_state.value / 1000
+            return self.game_state.value / 500
 
     def rollout_policy(self, value_pack):
         """This module returns the chosen simulation init node
@@ -323,7 +318,7 @@ class NodeMCTS(Node):
         """This module returns the so-considered "best child" 
         of the current node"""
 
-        max_number_of_visits = -inf
+        max_number_of_visits = 0
         current_best_child = []
 
         # Traversing my sons
@@ -333,11 +328,7 @@ class NodeMCTS(Node):
                 current_best_child.clear()
             if child.n == max_number_of_visits:
                 current_best_child.append(child)
-            print(child.parent_move, child.q, child.n, child.game_state.value, child._rating, sep = ' ')
-            for gchild in child.list_of_children:
-                print(child.parent_move, gchild.parent_move, gchild.q, gchild.n, gchild.game_state.value, gchild._rating, sep = ' ')
 
-        print(self.q, self.n, self.q/self.n, sep = ' ')
         shuffle(current_best_child)
         return current_best_child.pop()
     # [END METHOD]
