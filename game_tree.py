@@ -166,7 +166,7 @@ class GameTreeDeepeningMinimax(GameTreeMinimax):
     def process(self, moves_queue) -> tuple:
         """Let the bot run"""
         # [START BOT'S TURN]
-        DEPTH_VALUE_CONSTANT = [0, 1, 2, 3, 16, 12]
+        DEPTH_VALUE_CONSTANT = [0, 0, 0, -3, 4, 9]
 
         start = time()  # Start time counter
         # Find list of best moves
