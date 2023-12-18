@@ -150,9 +150,9 @@ class NodeMinimax(Node):
 class NodeMCTS(Node):
     """This class represents a "Monte-Carlo tree search's node" in game tree"""
 
-    EXPLORATION_CONSTANT = sqrt(14)-2
+    EXPLORATION_CONSTANT = sqrt(2)
     EXPONENTIAL_INDEX = 1
-    MAX_NODE_COUNT = 2
+    MAX_NODE_COUNT = 6
 
     # [INITIALIZATION]
     def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
@@ -167,6 +167,7 @@ class NodeMCTS(Node):
         # Other statistics
         self.is_children_sorted = False
         self.rollout_index = -1
+        self.num = 0
 
     # Properties initialization
     @property
@@ -182,7 +183,7 @@ class NodeMCTS(Node):
     @property
     def e(self):
         """Return the current exploration constant"""
-        return self.EXPLORATION_CONSTANT + self.n * 0.01
+        return self.EXPLORATION_CONSTANT + self.n * 0.001
 
     # [END INITIALIZATION]
 
@@ -199,8 +200,8 @@ class NodeMCTS(Node):
         for child in self.list_of_children:
             if child.n != 0:
                 # The current child has been visited
-                uct = child.q/child.n * self.worst_child\
-                    + self.EXPLORATION_CONSTANT * \
+                uct = child.q/child.n + child.worst_child * 7 * self.game_state._current_team.value\
+                    + self.e * \
                     (log(self.n)/child.n)**self.EXPONENTIAL_INDEX
             else:
                 # The curent child has not been visited
@@ -214,7 +215,18 @@ class NodeMCTS(Node):
                 current_result_child.append(child)
 
         shuffle(current_result_child)
-        return current_result_child.pop()
+        res =  current_result_child.pop()
+        '''if res.n == 0:
+            uct = inf
+        else:
+            uct = res.q/res.n + res.EXPLORATION_CONSTANT * (log(self.n)/res.n) * self.e
+        if res.parent_move == ((2, 1), (9, 1)):
+            sel = "!@#$%^&*()"
+        else:
+            sel = ''
+        if self.parent_move == ((7, 7), (7, 4)):
+            print(res.parent_move, uct, sel, sep = ' ')'''
+        return res
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMCTS(game_state, parent, parent_move)
@@ -227,7 +239,10 @@ class NodeMCTS(Node):
         if self.worst_child is None:
             self.worst_child = result
         else:
-            self.worst_child = min(self.worst_child, result)
+            if self.game_state._current_team is Team.RED:
+                self.worst_child = min(self.worst_child, result)
+            else:
+                self.worst_child = max(self.worst_child, result)
 
     def terminate_value(self, is_end: bool) -> float:
         """This module returns the value if a node is at it's termination"""
@@ -240,13 +255,17 @@ class NodeMCTS(Node):
             if winning_team is Team.BLACK:
                 return -1
         else:
+            if self.game_state.value == inf:
+                return 1
+            elif self.game_state.value == -inf:
+                return -1
             return self.game_state.value / 1000
 
     def rollout_policy(self, value_pack):
         """This module returns the chosen simulation init node
         based on the given rollout policy"""
 
-        # Random policy
+        # Random policy'''
         if value_pack == "RANDOM":
             new_game_state = self.game_state.generate_random_game_state()
             if new_game_state is None:
@@ -327,15 +346,23 @@ class NodeMCTS(Node):
         current_best_child = []
 
         # Traversing my sons
-        for child in self.list_of_children:
-            if child.n > max_number_of_visits:
-                max_number_of_visits = child.n
-                current_best_child.clear()
-            if child.n == max_number_of_visits:
-                current_best_child.append(child)
-            print(child.parent_move, child.q, child.n, child.game_state.value, child._rating, sep = ' ')
-            for gchild in child.list_of_children:
-                print(child.parent_move, gchild.parent_move, gchild.q, gchild.n, gchild.game_state.value, gchild._rating, sep = ' ')
+        with open("output.txt", 'w') as file:
+            for child in self.list_of_children:
+                if child.n > max_number_of_visits:
+                    max_number_of_visits = child.n
+                    current_best_child.clear()
+                if child.n == max_number_of_visits:
+                    current_best_child.append(child)
+
+                output = [child.parent_move, ' ', child.q, ' ', child.n, ' ', child.game_state.value, ' ',
+                    child._rating, ' ', child.worst_child, '\n']
+                for _ in output:
+                    file.write(str(_))
+                for gchild in child.list_of_children:
+                    output = [child.parent_move, ' ', gchild.parent_move, ' ', gchild.q, ' ', gchild.n, ' ', 
+                               gchild.game_state.value, ' ', gchild._rating, '\n']
+                    for _ in output:
+                        file.write(str(_))
 
         print(self.q, self.n, self.q/self.n, sep = ' ')
         shuffle(current_best_child)

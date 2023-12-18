@@ -109,8 +109,10 @@ class GameTreeMCTS(GameTree):
     def monte_carlo_tree_search(self, root):
         """This function performs the MCTS itself"""
 
+        root.num = 0
         starting_time = time()
         while time()-starting_time < self.time_allowed:
+            root.num += 1
             leaf = self.traverse(root)
             leaf.generate_all_children()
             stimulation_result = leaf.rollout(self.rollout_policy)
