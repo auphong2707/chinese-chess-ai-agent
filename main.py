@@ -4,6 +4,7 @@ import threading
 import pygame
 import resources
 import sys
+import gc
 from gui_utilities import Button, DropDown, InputBox
 from game_state import GameState
 from game_tree import GameTreeMinimax, GameTreeMCTS, GameTreeDynamicMinimax, GameTreeDeepeningMinimax
@@ -212,7 +213,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
         old_pos, new_pos = althea.process(moves_queue)
         beth.move_to_child_node_with_move(old_pos, new_pos)
         move_history.append((old_pos, new_pos))
-
+        gc.collect()
         # [END ALTHEA'S TURN]
 
         if force_end is True:
@@ -227,11 +228,10 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
             return
         old_pos, new_pos = beth.process(moves_queue)
         althea.move_to_child_node_with_move(old_pos, new_pos)
-        move_history
-
+        gc.collect()
         # [END BETH'S TURN]
         
-        if move_history[-8:].count(move_history[-1]) == 4:
+        if len(move_history) > 2 and move_history[-8:].count(move_history[-1]) == 4:
             break
         
         turn += 1
@@ -241,7 +241,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
     print("DRAW")
 
 
-def draw_gamestate(game_state):
+def draw_gamestate(game_state: GameState):
     """This method will draw a gamestate"""
 
     board_img, board_position = resources.board_sprite()
@@ -313,6 +313,7 @@ def simulation(red_type, red_value, red_another_property,
         if is_end is True:
             games_done_count += 1
             if games_done_count > number_of_simulations:
+                bot_run_thread.join()
                 break
 
             is_end = False
@@ -337,8 +338,7 @@ def simulation(red_type, red_value, red_another_property,
         # Try update_board
         try:
             move = moves_queue.pop(0)
-            gamestate = gamestate.generate_game_state_with_move(move[0], move[1])[
-                0]
+            gamestate = gamestate.generate_game_state_with_move(move[0], move[1])[0]
         except IndexError:
             pass
 
