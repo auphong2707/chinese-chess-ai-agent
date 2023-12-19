@@ -152,7 +152,7 @@ class NodeMCTS(Node):
 
     EXPLORATION_CONSTANT = sqrt(2)
     EXPONENTIAL_INDEX = 1
-    MAX_NODE_COUNT = 6
+    MAX_NODE_COUNT = 5
 
     # [INITIALIZATION]
     def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
@@ -183,7 +183,7 @@ class NodeMCTS(Node):
     @property
     def e(self):
         """Return the current exploration constant"""
-        return self.EXPLORATION_CONSTANT + self.n * 0.001
+        return self.EXPLORATION_CONSTANT #+ self.n * 0.001
 
     # [END INITIALIZATION]
 
@@ -200,9 +200,9 @@ class NodeMCTS(Node):
         for child in self.list_of_children:
             if child.n != 0:
                 # The current child has been visited
-                uct = child.q/child.n + child.worst_child * 7 * self.game_state._current_team.value\
+                uct = child.q/child.n \
                     + self.e * \
-                    (log(self.n)/child.n)**self.EXPONENTIAL_INDEX
+                    (log(self.n)/child.n**2)**self.EXPONENTIAL_INDEX
             else:
                 # The curent child has not been visited
                 uct = inf
@@ -348,22 +348,21 @@ class NodeMCTS(Node):
         # Traversing my sons
         with open("output.txt", 'w') as file:
             for child in self.list_of_children:
-                if child.n > max_number_of_visits:
-                    max_number_of_visits = child.n
+                val = child.n + child.q/child.n * 21000
+                if val > max_number_of_visits:
+                    max_number_of_visits = val
                     current_best_child.clear()
-                if child.n == max_number_of_visits:
+                if val == max_number_of_visits:
                     current_best_child.append(child)
-
                 output = [child.parent_move, ' ', child.q, ' ', child.n, ' ', child.game_state.value, ' ',
                     child._rating, ' ', child.worst_child, '\n']
                 for _ in output:
                     file.write(str(_))
-                for gchild in child.list_of_children:
+                '''for gchild in child.list_of_children:
                     output = [child.parent_move, ' ', gchild.parent_move, ' ', gchild.q, ' ', gchild.n, ' ', 
                                gchild.game_state.value, ' ', gchild._rating, '\n']
                     for _ in output:
-                        file.write(str(_))
-
+                        file.write(str(_))'''
         print(self.q, self.n, self.q/self.n, sep = ' ')
         shuffle(current_best_child)
         return current_best_child.pop()
