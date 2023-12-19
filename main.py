@@ -4,9 +4,10 @@ import threading
 import pygame
 import resources
 import sys
+import gc
 from gui_utilities import Button, DropDown, InputBox
 from game_state import GameState
-from game_tree import GameTreeMinimax, GameTreeMCTS
+from game_tree import GameTreeMinimax, GameTreeMCTS, GameTreeDynamicMinimax, GameTreeDeepeningMinimax
 from team import Team
 from piece import Piece
 
@@ -197,6 +198,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
     turn, max_turn = 1, 80
     global is_end, force_end, winner
 
+    move_history = list()
     while turn <= max_turn:
         if force_end is True:
             return
@@ -211,7 +213,8 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
         print("Turn: {}".format(turn))
         old_pos, new_pos = althea.process(moves_queue)
         beth.move_to_child_node_with_move(old_pos, new_pos)
-
+        move_history.append((old_pos, new_pos))
+        gc.collect()
         # [END ALTHEA'S TURN]
 
         if force_end is True:
@@ -226,9 +229,12 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
             return
         old_pos, new_pos = beth.process(moves_queue)
         althea.move_to_child_node_with_move(old_pos, new_pos)
-
+        gc.collect()
         # [END BETH'S TURN]
-
+        
+        if len(move_history) > 2 and move_history[-8:].count(move_history[-1]) == 4:
+            break
+        
         turn += 1
 
     winner["DRAW"] = winner.get("DRAW", 0) + 1
@@ -236,7 +242,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
     print("DRAW")
 
 
-def draw_gamestate(game_state):
+def draw_gamestate(game_state: GameState):
     """This method will draw a gamestate"""
 
     board_img, board_position = resources.board_sprite()
@@ -259,7 +265,11 @@ def simulation(red_type, red_value, red_another_property,
     def get_bot_full_type(bot_type, bot_property, bot_value):
         res = bot_type + ' '
 
-        if bot_type == 'Minimax':
+        if (
+            bot_type == 'Minimax' 
+            or bot_type == 'DyMinimax' 
+            or bot_type == 'DeMinimax'
+        ):
             res += 'Depth ' + bot_property + ' '
         elif bot_type == 'MCTS':
             res += 'Time allowed ' + bot_property + 's '
@@ -273,6 +283,10 @@ def simulation(red_type, red_value, red_another_property,
             return GameTreeMinimax
         elif type_str == 'MCTS':
             return GameTreeMCTS
+        elif type_str == 'DyMinimax':
+            return GameTreeDynamicMinimax
+        elif type_str == 'DeMinimax':
+            return GameTreeDeepeningMinimax
 
     def str_to_value_pack(value_pack_str):
         return int(value_pack_str)
@@ -300,6 +314,7 @@ def simulation(red_type, red_value, red_another_property,
         if is_end is True:
             games_done_count += 1
             if games_done_count > number_of_simulations:
+                bot_run_thread.join()
                 break
 
             is_end = False
@@ -324,8 +339,7 @@ def simulation(red_type, red_value, red_another_property,
         # Try update_board
         try:
             move = moves_queue.pop(0)
-            gamestate = gamestate.generate_game_state_with_move(move[0], move[1])[
-                0]
+            gamestate = gamestate.generate_game_state_with_move(move[0], move[1])[0]
         except IndexError:
             pass
 
@@ -355,7 +369,7 @@ def bots_menu():
         ["#404040", "#606060"],
         20, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Type", ["Minimax", "MCTS"])
+        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax"])
 
     black_value = DropDown(
         ["#000000", "#202020"],
@@ -369,7 +383,7 @@ def bots_menu():
         ["#F07470", "#F1959B"],
         350, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Type", ["Minimax", "MCTS"])
+        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax"])
 
     red_value = DropDown(
         ["#DC1C13", "#EA4C46"],

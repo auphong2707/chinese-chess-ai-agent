@@ -143,7 +143,6 @@ class Piece(ABC):
     def create_instance(position: tuple, notation: str, board: list, number_of_pieces: int, number_of_team_pieces: int):
         team = Team[notation[0]]
         piece_type = notation[1]
-
         match piece_type:
             case "A":
                 return Advisor(position, team, board, number_of_pieces, number_of_team_pieces)
@@ -193,7 +192,7 @@ class Advisor(Piece):
                     and self.is_position_in_palace(pos)
                 ):
                     if self.board[pos[0]][pos[1]][1] == 'A':
-                        change = 5
+                        change += 5
 
             return self._piece_value + change
         else:
@@ -245,7 +244,8 @@ class Cannon(Piece):
             change = 0
             if len(self.admissible_moves) == 0:
                 change += -10
-            change += (self.number_of_pieces - 24) * 1.5
+            change += (self.number_of_pieces - 16) * 0.75
+            change += (16 - self.number_of_team_pieces) * 0.25
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -317,6 +317,7 @@ class Rook(Piece):
             else:
                 change += self._control_pos_count * 0.5
             change += (16 - self.number_of_team_pieces) * 0.25
+            change += (32 - self.number_of_pieces) * int(self.is_crossed_river())
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
@@ -398,7 +399,7 @@ class Elephant(Piece):
                     and not self._cross_river(new_pos)
                 ):
                     if self.board[new_pos[0]][new_pos[1]][1] == 'E':
-                        change = 5
+                        change += 5
                         break
             return self._piece_value + change
         else:
@@ -460,8 +461,8 @@ class General(Piece):
             change = 0
             if len(self.admissible_moves) == 0:
                 change += -10
-            if General.is_general_exposed(self.board, self.team, opponent) is True:
-                change += -15    
+            if General.is_general_exposed(self.board, self.team, opponent) is False:
+                change += -15
             
             return self._piece_value + change
         else:
@@ -665,26 +666,26 @@ class Pawn(Piece):
             change = 0
             if self.team is Team.BLACK:
                 if self.position == (3, 4):
-                    change += 20 - (32 - self.number_of_pieces)
+                    change += 20 - (32 - self.number_of_pieces) * 2
                 elif self.position[0] in range(7, 9) and self.position[1] in range(2, 7):
                     change += 20
                 elif self.position[0] in range(6, 9) and self.position[1] in range(1, 8):
                     change += 15
                 elif self.is_crossed_river():
-                    if Piece.is_position_in_palace(self.position):
-                        change += 15
+                    if self.position[0] == 9:
+                        change += 0
                     else:
                         change += 10
             if self.team is Team.RED:
                 if self.position == (6, 4):
-                    change += 20 - (32 - self.number_of_pieces)
+                    change += 20 - (32 - self.number_of_pieces) * 2
                 elif self.position[0] in range(1, 3) and self.position[1] in range(2, 7):
                     change += 20
                 elif self.position[0] in range(1, 4) and self.position[1] in range(1, 8):
                     change += 15
                 elif self.is_crossed_river():
-                    if Piece.is_position_in_palace(self.position):
-                        change += 15
+                    if self.position[0] == 0:
+                        change += 0
                     else:
                         change += 10
             change += (16 - self.number_of_team_pieces) * 2
@@ -743,19 +744,23 @@ class Horse(Piece):
         elif value_pack == 2:
             change = 0
             if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
-                change += -10
-            elif len(self.admissible_moves) == 2:
                 change += -5
+            elif len(self.admissible_moves) == 2:
+                change += -2.5
             elif len(self.admissible_moves) == 5 or len(self.admissible_moves) == 6:
-                change += 5
+                change += 2.5
             elif len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
-                change += 10
-
-            if self.number_of_pieces <= 16 and self.is_crossed_river():
                 change += 5
 
-            change += (32 - self.number_of_pieces) * 1.25
-            change += (16 - self.number_of_team_pieces) * 0.25
+            change += (22 - self.number_of_pieces) * 0.75
+            
+            palace_pos = None
+            if self.team is Team.RED:
+                palace_pos = (1, 4)
+            else:
+                palace_pos = (8, 4)
+            change += (32 - self.number_of_pieces) * 0.15 * (5 - (abs(palace_pos[0] - self.position[0]) + abs(palace_pos[1] - self.position[1])))
+            
             return self._piece_value + change
         else:
             raise ValueError("Value pack is not found")
