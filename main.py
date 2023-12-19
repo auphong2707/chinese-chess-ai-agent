@@ -30,7 +30,7 @@ clock = pygame.time.Clock()
 
 
 def pve_screen():
-    bot = GameTreeDeepeningMinimax(Team.BLACK, 5, 2)
+    bot = GameTreeMCTS(Team.BLACK, 30, 1, "RANDOM")
     is_bot_process = False
     position_chosen = None
     player_turn, player_gamestate = True, GameState.generate_initial_game_state()
@@ -62,8 +62,7 @@ def pve_screen():
 
                         piece = Piece.create_instance(
                             position_chosen,
-                            player_gamestate.board[position_chosen[0]
-                                                   ][position_chosen[1]],
+                            player_gamestate.board[position_chosen[0]][position_chosen[1]],
                             player_gamestate.board,
                             None, None
                         )
@@ -194,7 +193,9 @@ def result_bots(red_type, black_type):
 def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
     althea = althea_type(Team.RED, althea_ap, althea_value)
     beth = beth_type(Team.BLACK, beth_ap, beth_value)
-    turn, max_turn = 1, 150
+    althea = GameTreeMCTS(Team.RED, 30, 2, "RANDOM")
+    beth = GameTreeMinimax(Team.BLACK, 3, 2)
+    turn, max_turn = 1, 80
     global is_end, force_end, winner
 
     move_history = list()
