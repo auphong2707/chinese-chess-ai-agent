@@ -244,7 +244,7 @@ class Cannon(Piece):
             change = 0
             if len(self.admissible_moves) == 0:
                 change += -10
-            change += (self.number_of_pieces - 20) * 1.25
+            change += (self.number_of_pieces - 16) * 0.75
             change += (16 - self.number_of_team_pieces) * 0.25
             return self._piece_value + change
         else:
@@ -462,7 +462,7 @@ class General(Piece):
             if len(self.admissible_moves) == 0:
                 change += -10
             if General.is_general_exposed(self.board, self.team, opponent) is False:
-                change += -15    
+                change += -15
             
             return self._piece_value + change
         else:
@@ -672,8 +672,8 @@ class Pawn(Piece):
                 elif self.position[0] in range(6, 9) and self.position[1] in range(1, 8):
                     change += 15
                 elif self.is_crossed_river():
-                    if Piece.is_position_in_palace(self.position):
-                        change += 15
+                    if self.position[0] == 9:
+                        change += 0
                     else:
                         change += 10
             if self.team is Team.RED:
@@ -684,8 +684,8 @@ class Pawn(Piece):
                 elif self.position[0] in range(1, 4) and self.position[1] in range(1, 8):
                     change += 15
                 elif self.is_crossed_river():
-                    if Piece.is_position_in_palace(self.position):
-                        change += 15
+                    if self.position[0] == 0:
+                        change += 0
                     else:
                         change += 10
             change += (16 - self.number_of_team_pieces) * 2
@@ -752,14 +752,14 @@ class Horse(Piece):
             elif len(self.admissible_moves) == 7 or len(self.admissible_moves) == 8:
                 change += 5
 
-            change += (22 - self.number_of_pieces) * 1.25
+            change += (22 - self.number_of_pieces) * 0.75
             
             palace_pos = None
             if self.team is Team.RED:
                 palace_pos = (1, 4)
             else:
-                palace_pos = (9, 4)
-            change += (32 - self.number_of_pieces) * 0.2 * (5 - (abs(palace_pos[0] - self.position[0]) + abs(palace_pos[1] - self.position[1])))
+                palace_pos = (8, 4)
+            change += (32 - self.number_of_pieces) * 0.15 * (5 - (abs(palace_pos[0] - self.position[0]) + abs(palace_pos[1] - self.position[1])))
             
             return self._piece_value + change
         else:
