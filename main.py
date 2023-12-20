@@ -11,7 +11,7 @@ from game_tree import GameTreeMinimax, GameTreeMCTS, GameTreeDynamicMinimax, Gam
 from team import Team
 from piece import Piece
 
-moves_queue = list()
+moves_queue, value_queue = list(), list()
 winner = dict()
 is_end = False
 force_end = False
@@ -111,6 +111,7 @@ def pve_screen():
 
 
 def result_bots(red_type, black_type):
+    SCREEN = pygame.display.set_mode((661, 660))
     global winner
 
     quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 550),
@@ -200,7 +201,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
     move_history = list()
     while turn <= max_turn:
         if force_end is True:
-            return
+            break
         # [ALTHEA'S TURN]
         # Check whether Althea has been checkmated
         if althea.is_lost() is True:
@@ -212,12 +213,13 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
         print("Turn: {}".format(turn))
         old_pos, new_pos = althea.process(moves_queue)
         beth.move_to_child_node_with_move(old_pos, new_pos)
+        value_queue.append((althea.current_node.game_state.value, beth.current_node.game_state.value))
         move_history.append((old_pos, new_pos))
         gc.collect()
         # [END ALTHEA'S TURN]
 
         if force_end is True:
-            return
+            break
         # [BETH'S TURN]
         # Check whether Beth has been checkmated
         if beth.is_lost() is True:
@@ -228,6 +230,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
             return
         old_pos, new_pos = beth.process(moves_queue)
         althea.move_to_child_node_with_move(old_pos, new_pos)
+        value_queue.append((althea.current_node.game_state.value, beth.current_node.game_state.value))
         gc.collect()
         # [END BETH'S TURN]
         
@@ -303,51 +306,147 @@ def simulation(red_type, red_value, red_another_property,
         red_another_property), int(black_another_property)
     number_of_simulations = int(number_of_simulations)
 
+    pause_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(765, 450),
+                          text_input="Pause", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+    
+    skip_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(765, 550),
+                          text_input="Skip", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+    
+    is_paused = False
+
     # Main game loop
+    SCREEN = pygame.display.set_mode((900, 660))
+    MOVE_TIME = 1
+    
+    
     start = time()
-    global is_end, force_end
+    global is_end, force_end, winner, althea, beth
+    winner = {"BLACK" : 0, "DRAW" : 0, "RED" : 0}
     is_end = True
-    gamestate, bot_run_thread = None, None
+    check_point = time()
+    gamestate, move, bot_run_thread = None, None, None
     games_done_count = 0
+    black_win, red_win, draw = 0, 0, 0
     while True:
-        if is_end is True:
-            games_done_count += 1
-            if games_done_count > number_of_simulations:
-                bot_run_thread.join()
-                break
-
-            is_end = False
-            if bot_run_thread is not None:
-                bot_run_thread.join()
-            bot_run_thread = threading.Thread(target=bot_run, args=(
-                red_type, red_value, red_another_property,
-                black_type, black_value, black_another_property
-            ))
-
-            moves_queue.clear()
-            gamestate = GameState.generate_initial_game_state()
-            bot_run_thread.start()
-
         # Handle events
+        mouse_pos = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 force_end = True
                 pygame.quit()
                 sys.exit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if pause_button.checkForInput(mouse_pos):
+                    is_paused = not is_paused
+                elif skip_button.checkForInput(mouse_pos):
+                    is_paused = False
+                    force_end = True
+                    is_end = True
+                    bot_run_thread.join()
+                    moves_queue.clear()
 
         # Try update_board
-        try:
-            move = moves_queue.pop(0)
-            gamestate = gamestate.generate_game_state_with_move(move[0], move[1])[0]
-        except IndexError:
-            pass
+        if is_paused is False:
+            if is_end is True and len(moves_queue) == 0:
+                black_win, red_win, draw = winner["BLACK"], winner["RED"], winner["DRAW"]
+                games_done_count += 1
+                if games_done_count > number_of_simulations:
+                    bot_run_thread.join()
+                    break
+
+                is_end = False
+                force_end = False
+                if bot_run_thread is not None:
+                    bot_run_thread.join()
+                bot_run_thread = threading.Thread(target=bot_run, args=(
+                    red_type, red_value, red_another_property,
+                    black_type, black_value, black_another_property
+                ))
+                gamestate = GameState.generate_initial_game_state()
+                current_red_value, current_black_value = 0, 0
+                move = None
+                bot_run_thread.start()
+            
+            try:
+                if time() - check_point > MOVE_TIME:
+                    move = moves_queue.pop(0)
+                    gamestate = gamestate.generate_game_state_with_move(move[0], move[1])[0]
+                    current_red_value, current_black_value = value_queue.pop(0)
+                          
+                    check_point = time()
+                    
+            except IndexError:
+                pass
 
         # Clear the screen
         SCREEN.fill((241, 203, 157))
 
         # Draw here
         draw_gamestate(gamestate)
+        if move is not None:
+            chosen_ring_img, draw_pos = resources.chosen_ring_sprite(move[0])
+            SCREEN.blit(chosen_ring_img, draw_pos)
+            
+            chosen_ring_img, draw_pos = resources.chosen_ring_sprite(move[1])
+            SCREEN.blit(chosen_ring_img, draw_pos)
+        
+        for button in [pause_button, skip_button]:
+            button.draw(SCREEN)
+        
+        pygame.draw.rect(SCREEN, "#AB001B", pygame.Rect(658, 18, 208, 79))
+        pygame.draw.rect(SCREEN, "#F6F5E0", pygame.Rect(662, 22, 200, 71))
+        text = resources.get_font(25, 0).render("Black " + str(black_win), True, "Black")
+        SCREEN.blit(text, (670, 30))
+        
+        text = resources.get_font(25, 0).render("Red " + str(red_win), True, "Red")
+        SCREEN.blit(text, (790, 30))
+        
+        text = resources.get_font(25, 0).render("Draw " + str(draw), True, "#56000E")
+        SCREEN.blit(text, (730, 60))
+        
+        pygame.draw.rect(SCREEN, "#AB001B", pygame.Rect(658, 110, 208, 109))
+        pygame.draw.rect(SCREEN, "#F6F5E0", pygame.Rect(662, 114, 200, 101))
+        
+        text = resources.get_font(25, 0).render("Statistic", True, "#56000E")
+        SCREEN.blit(text, (730, 118))
+        
+        text = resources.get_font(25, 0).render("Black        " + str(round(float(current_black_value), 2)), True, "Black")
+        SCREEN.blit(text, (670, 148))
 
+        text = resources.get_font(25, 0).render("Red          " + str(round(float(current_red_value), 2)), True, "Red")
+        SCREEN.blit(text, (670, 178))
+        
+        pygame.draw.rect(SCREEN, "#AB001B", pygame.Rect(658, 240, 208, 92))
+        pygame.draw.rect(SCREEN, "#F6F5E0", pygame.Rect(662, 244, 200, 84))
+        
+        piece_position = resources.get_piece_position(mouse_pos)
+        if piece_position is not None:
+            notation = gamestate.board[piece_position[0]][piece_position[1]]
+            if notation != "NN":
+                if Team[notation[0]] is Team.RED:
+                    number_of_team_piece = gamestate.number_of_red_pieces
+                else:
+                    number_of_team_piece = gamestate.number_of_black_pieces
+                
+                piece = Piece.create_instance(
+                    piece_position, notation, gamestate.board,
+                    gamestate.number_of_black_pieces + gamestate.number_of_red_pieces,
+                    number_of_team_piece
+                )
+                
+                text = pygame.font.SysFont(None, 26).render("Piece Type: " + piece._piece_type.capitalize(), True, "#56000E")
+                SCREEN.blit(text, (670, 250))
+                
+                text = pygame.font.SysFont(None, 26).render("Piece Team: " + str(piece.team).capitalize(), True, "#56000E")
+                SCREEN.blit(text, (670, 275))
+                
+                if piece.team is Team.RED:
+                    text = pygame.font.SysFont(None, 26).render("Piece Value: " + str(round(piece.piece_value(red_value), 2)), True, "#56000E")
+                else:
+                    text = pygame.font.SysFont(None, 26).render("Piece Value: " + str(round(piece.piece_value(black_value), 2)), True, "#56000E")
+                SCREEN.blit(text, (670, 300))
+        
         # Update the screen
         pygame.display.flip()
 
