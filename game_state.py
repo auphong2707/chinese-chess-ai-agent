@@ -15,16 +15,15 @@ class GameState:
     # Board size
     BOARD_SIZE_X = 10
     BOARD_SIZE_Y = 9
-    MAX_CHECKMATE = 5
+    MAX_PERPETUAL = 3
 
     # [BEGIN INITILIZATION]
     def __init__(
         self,
         board: list,
         current_team: Team,
+        move_history: dict,
         value_pack: int = 0,
-        red_num_checkmate: int = 0,
-        black_num_checkmate: int = 0,
         number_of_red_pieces: int = 16,
         number_of_black_pieces: int = 16,
     ) -> None:
@@ -32,10 +31,9 @@ class GameState:
         self.board = board
         self.number_of_red_pieces = number_of_red_pieces
         self.number_of_black_pieces = number_of_black_pieces
+        self.move_history = move_history
 
         # Declare properties
-        self._red_num_checkmate = red_num_checkmate
-        self._black_num_checkmate = black_num_checkmate
         self._value_pack = value_pack
         self._value = None
         self._current_team = current_team
@@ -118,7 +116,7 @@ class GameState:
 
         self.board[old_pos[0]][old_pos[1]] = "NN"
         self.board[new_pos[0]][new_pos[1]] = old_pos_notation
-
+        
         # Get the opponent team
         opponent = self._get_the_opponent_team()
 
@@ -126,7 +124,13 @@ class GameState:
         def _return_to_old_state():
             self.board[old_pos[0]][old_pos[1]] = old_pos_notation
             self.board[new_pos[0]][new_pos[1]] = new_pos_notation
-
+            
+        # .Check for perpetual moves
+        hash_code = self.hash_board(self.board)
+        if self.move_history.get(hash_code, 0) + 1 == self.MAX_PERPETUAL:
+            _return_to_old_state()
+            return None
+        
         # .If the check is not passed, then return None
         if (
             General.is_general_exposed(self.board, self._current_team, opponent)
@@ -135,32 +139,10 @@ class GameState:
             _return_to_old_state()
             return None
 
-        new_red_num_checkmate = self._red_num_checkmate
-        new_black_num_checkmate = self._black_num_checkmate
-
-        # If the current team checks the opponent, increase the check count by 1
-        if (
-            General.is_general_exposed(self.board, opponent, self._current_team)
-            is False
-        ):
-            if self._current_team is Team.RED:
-                new_red_num_checkmate += 1
-            else:
-                new_black_num_checkmate += 1
-        # If no check happens, reset the count
-        else:
-            if self._current_team is Team.RED:
-                new_red_num_checkmate = 0
-            else:
-                new_black_num_checkmate = 0
-
-        # If the current team checks 4 times continuously, the next check will not be made
-        if max(new_red_num_checkmate, new_black_num_checkmate) > self.MAX_CHECKMATE:
-            _return_to_old_state()
-            return None
-
         # Create a copy of moved board and return the board to the old state
         new_board = list(map(list, self.board))
+        new_move_history = dict(self.move_history)
+        new_move_history[hash_code] = new_move_history.get(hash_code, 0) + 1
         _return_to_old_state()
         
         # Calculate the number of pieces of the gamestate
@@ -172,13 +154,11 @@ class GameState:
             else:
                 new_number_of_red_pieces -= 1
         
-        # Return the game state which has the new information
         return GameState(
             new_board,
             opponent,
+            new_move_history,
             self._value_pack,
-            new_red_num_checkmate,
-            new_black_num_checkmate,
             new_number_of_red_pieces,
             new_number_of_black_pieces,
         ), (old_pos, new_pos)
@@ -288,6 +268,12 @@ class GameState:
         # Return the opponent if current team has no admissible move
         return self._get_the_opponent_team()
 
+    # Static method
+    @staticmethod
+    def hash_board(board):
+        board_str = ''.join(piece for row in board for piece in row)
+        return hash(board_str)
+
     # Class method
     @classmethod
     def generate_initial_game_state(cls, value_pack: int = 0):
@@ -306,28 +292,24 @@ class GameState:
                 ["RR", "RH", "RE", "RA", "RG", "RA", "RE", "RH", "RR"],
             ]
         )
-        return GameState(initial_board, Team.RED, value_pack)
+        initial_move_history = dict()
+        hash_code = GameState.hash_board(initial_board)
+        initial_move_history[hash_code] = 1
+        return GameState(initial_board, Team.RED, initial_move_history, value_pack)
 
     # [END METHOD]
 
 
 if __name__ == "__main__":
-    import psutil
-
     queue = [GameState.generate_initial_game_state(1)]
-    for depth in range(1, 4):
+    for depth in range(1, 5):
         start = time.time()
 
         new_queue = list()
         for game_state_ in queue:
             for state, move_ in game_state_.all_child_gamestates:
                 new_queue.append(state)
-                print(state.number_of_red_pieces, state.number_of_black_pieces)
 
         queue = new_queue
         end = time.time()
         print(depth, len(queue), end - start)
-
-    pid = psutil.Process()
-    memory_info = pid.memory_info()
-    print(f"Memory Usage: {memory_info.rss/(1024**2)} megabytes")
