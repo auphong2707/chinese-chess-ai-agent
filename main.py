@@ -194,7 +194,6 @@ def result_bots(red_type, black_type):
 def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
     althea = althea_type(Team.RED, althea_ap, althea_value)
     beth = beth_type(Team.BLACK, beth_ap, beth_value)
-    althea = GameTreeMCTS(Team.RED, 30, 2, "RANDOM")
     beth = GameTreeMinimax(Team.BLACK, 3, 2)
     turn, max_turn = 1, 80
     global is_end, force_end, winner

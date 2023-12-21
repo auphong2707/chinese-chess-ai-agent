@@ -150,8 +150,8 @@ class NodeMinimax(Node):
 class NodeMCTS(Node):
     """This class represents a "Monte-Carlo tree search's node" in game tree"""
 
-    EXPLORATION_CONSTANT = sqrt(2)
-    EXPONENTIAL_INDEX = 1
+    EXPLORATION_CONSTANT = sqrt(6)-1
+    EXPONENTIAL_INDEX = 0.99
     MAX_NODE_COUNT = 5
 
     # [INITIALIZATION]
@@ -363,7 +363,7 @@ class NodeMCTS(Node):
                                gchild.game_state.value, ' ', gchild._rating, '\n']
                     for _ in output:
                         file.write(str(_))'''
-        print(self.q, self.n, self.q/self.n, sep = ' ')
+        #print(self.q, self.n, self.q/self.n, sep = ' ')
         shuffle(current_best_child)
         return current_best_child.pop()
     # [END METHOD]
