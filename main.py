@@ -10,6 +10,10 @@ from game_state import GameState
 from game_tree import GameTreeMinimax, GameTreeMCTS, GameTreeDynamicMinimax, GameTreeDeepeningMinimax
 from team import Team
 from piece import Piece
+import os
+
+os.environ['PYPY_GC_MAX_DELTA'] = '3000 MB'
+os.environ['PYPY_GC_MAX_EXTERNAL_SIZE'] = '1000 MB'
 
 moves_queue, value_queue = list(), list()
 winner = dict()
