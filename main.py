@@ -194,17 +194,22 @@ def result_bots(red_type, black_type):
 def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap):
     althea = althea_type(Team.RED, althea_ap, althea_value)
     beth = beth_type(Team.BLACK, beth_ap, beth_value)
-    beth = GameTreeMinimax(Team.BLACK, 3, 2)
-    turn, max_turn = 1, 80
+    turn, max_turn = 1, 200
     global is_end, force_end, winner
 
-    move_history = list()
     while turn <= max_turn:
         if force_end is True:
             break
         # [ALTHEA'S TURN]
         # Check whether Althea has been checkmated
         if althea.is_lost() is True:
+            gamestate_temp = GameState(
+                althea.current_node.game_state.board,
+                Team.RED,
+                dict(),
+            )
+            if len(gamestate_temp.all_child_gamestates) > 0:
+                break
             winner[beth.team.name] = winner.get(beth.team.name, 0) + 1
             print("Checkmate! {} wins!".format(beth.team.name))
             print()
@@ -214,7 +219,6 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
         old_pos, new_pos = althea.process(moves_queue)
         beth.move_to_child_node_with_move(old_pos, new_pos)
         value_queue.append((althea.current_node.game_state.value, beth.current_node.game_state.value))
-        move_history.append((old_pos, new_pos))
         gc.collect()
         # [END ALTHEA'S TURN]
 
@@ -223,6 +227,13 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
         # [BETH'S TURN]
         # Check whether Beth has been checkmated
         if beth.is_lost() is True:
+            gamestate_temp = GameState(
+                beth.current_node.game_state.board,
+                Team.BLACK,
+                dict(),
+            )
+            if len(gamestate_temp.all_child_gamestates) > 0:
+                break
             winner[althea.team.name] = winner.get(althea.team.name, 0) + 1
             print("Checkmate! {} wins!".format(althea.team.name))
             print()
@@ -233,9 +244,6 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
         value_queue.append((althea.current_node.game_state.value, beth.current_node.game_state.value))
         gc.collect()
         # [END BETH'S TURN]
-        
-        if len(move_history) > 2 and move_history[-8:].count(move_history[-1]) == 4:
-            break
         
         turn += 1
 
@@ -316,7 +324,7 @@ def simulation(red_type, red_value, red_another_property,
 
     # Main game loop
     SCREEN = pygame.display.set_mode((900, 660))
-    MOVE_TIME = 1
+    MOVE_TIME = 0
     
     
     start = time()
