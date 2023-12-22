@@ -34,7 +34,7 @@ clock = pygame.time.Clock()
 
 
 def pve_screen():
-    bot = GameTreeDeepeningMinimax(Team.BLACK, 5, 2)
+    bot = GameTreeMCTS(Team.BLACK, 30, 1, "RANDOM")
     is_bot_process = False
     position_chosen = None
     player_turn, player_gamestate = True, GameState.generate_initial_game_state()
@@ -66,8 +66,7 @@ def pve_screen():
 
                         piece = Piece.create_instance(
                             position_chosen,
-                            player_gamestate.board[position_chosen[0]
-                                                   ][position_chosen[1]],
+                            player_gamestate.board[position_chosen[0]][position_chosen[1]],
                             player_gamestate.board,
                             None, None
                         )

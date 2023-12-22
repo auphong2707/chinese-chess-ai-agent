@@ -93,9 +93,10 @@ class GameTreeMinimax(GameTree):
 class GameTreeMCTS(GameTree):
     """This class is responsible for performance of the MCTS game tree"""
 
-    def __init__(self, team, time_allowed, value_pack: int=0):
+    def __init__(self, team, time_allowed, value_pack: int=2, rollout_policy = "RANDOM"):
         super().__init__(team, value_pack)
         self.time_allowed = time_allowed
+        self.rollout_policy = rollout_policy
 
     def traverse(self, node: NodeMCTS) -> NodeMCTS:
         """This module performs the MCTS initial traversion"""
@@ -108,11 +109,13 @@ class GameTreeMCTS(GameTree):
     def monte_carlo_tree_search(self, root):
         """This function performs the MCTS itself"""
 
+        root.num = 0
         starting_time = time()
         while time()-starting_time < self.time_allowed:
+            root.num += 1
             leaf = self.traverse(root)
             leaf.generate_all_children()
-            stimulation_result = leaf.rollout()
+            stimulation_result = leaf.rollout(self.rollout_policy)
             leaf.backpropagate(stimulation_result)
 
     def process(self, moves_queue) -> tuple:

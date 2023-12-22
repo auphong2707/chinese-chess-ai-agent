@@ -150,9 +150,9 @@ class NodeMinimax(Node):
 class NodeMCTS(Node):
     """This class represents a "Monte-Carlo tree search's node" in game tree"""
 
-    EXPLORATION_CONSTANT = sqrt(2)
-    EXPONENTIAL_INDEX = 1
-    MAX_NODE_COUNT = 90
+    EXPLORATION_CONSTANT = sqrt(6)-1
+    EXPONENTIAL_INDEX = 0.99
+    MAX_NODE_COUNT = 5
 
     # [INITIALIZATION]
     def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
@@ -162,17 +162,28 @@ class NodeMCTS(Node):
         # MCTS statistics
         self._number_of_visits = 0
         self._rating = 0
+        self.worst_child = None
+
+        # Other statistics
+        self.is_children_sorted = False
+        self.rollout_index = -1
+        self.num = 0
 
     # Properties initialization
     @property
     def q(self):
         """Return the node's personal rating"""
-        return self.game_state._current_team.value * self._rating
+        return -self.game_state._current_team.value * self._rating
 
     @property
     def n(self):
         """Return the number of visits of this node"""
         return self._number_of_visits
+    
+    @property
+    def e(self):
+        """Return the current exploration constant"""
+        return self.EXPLORATION_CONSTANT #+ self.n * 0.001
 
     # [END INITIALIZATION]
 
@@ -189,9 +200,9 @@ class NodeMCTS(Node):
         for child in self.list_of_children:
             if child.n != 0:
                 # The current child has been visited
-                uct = child.q/child.n\
-                    + self.EXPLORATION_CONSTANT * \
-                    (log(self.n)/child.n)**self.EXPONENTIAL_INDEX
+                uct = child.q/child.n \
+                    + self.e * \
+                    (log(self.n)/child.n**2)**self.EXPONENTIAL_INDEX
             else:
                 # The curent child has not been visited
                 uct = inf
@@ -204,7 +215,18 @@ class NodeMCTS(Node):
                 current_result_child.append(child)
 
         shuffle(current_result_child)
-        return current_result_child.pop()
+        res =  current_result_child.pop()
+        '''if res.n == 0:
+            uct = inf
+        else:
+            uct = res.q/res.n + res.EXPLORATION_CONSTANT * (log(self.n)/res.n) * self.e
+        if res.parent_move == ((2, 1), (9, 1)):
+            sel = "!@#$%^&*()"
+        else:
+            sel = ''
+        if self.parent_move == ((7, 7), (7, 4)):
+            print(res.parent_move, uct, sel, sep = ' ')'''
+        return res
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         return NodeMCTS(game_state, parent, parent_move)
@@ -214,6 +236,13 @@ class NodeMCTS(Node):
 
         self._rating += result
         self._number_of_visits += 1
+        if self.worst_child is None:
+            self.worst_child = result
+        else:
+            if self.game_state._current_team is Team.RED:
+                self.worst_child = min(self.worst_child, result)
+            else:
+                self.worst_child = max(self.worst_child, result)
 
     def terminate_value(self, is_end: bool) -> float:
         """This module returns the value if a node is at it's termination"""
@@ -226,26 +255,69 @@ class NodeMCTS(Node):
             if winning_team is Team.BLACK:
                 return -1
         else:
-            return self.game_state.value / 500
+            if self.game_state.value == inf:
+                return 1
+            elif self.game_state.value == -inf:
+                return -1
+            return self.game_state.value / 1000
 
-    def rollout_policy(self):
+    def rollout_policy(self, value_pack):
         """This module returns the chosen simulation init node
         based on the given rollout policy"""
 
-        # Random policy
-        new_game_state = self.game_state.generate_random_game_state()
-        if new_game_state is None:
-            return None
-        else:
-            return self._create_node(new_game_state[0], self, new_game_state[1])
+        # Random policy'''
+        if value_pack == "RANDOM":
+            new_game_state = self.game_state.generate_random_game_state()
+            if new_game_state is None:
+                return None
+            else:
+                return self._create_node(new_game_state[0], self, new_game_state[1])
+        
+        # MCTSVariant1: Highest random pick
+        if value_pack == "VAR1":
+            potential_game_state = None
+            potential_game_value = -inf
+            all_states = self.game_state.all_child_gamestates
 
-    def rollout(self):
+            if len(all_states) == 0:
+                return None
+            
+            for _ in range(5):
+                cur = choice(all_states)
+                if cur[0].value > potential_game_value:
+                    potential_game_state = cur
+                    potential_game_value = cur[0].value
+
+            if potential_game_state == None:
+                return None
+            return self._create_node(potential_game_state[0], self, potential_game_state[1])
+
+        # MCTSVariant2: Sorted selection
+        if value_pack == "VAR2":
+            if len(self.game_state.all_child_gamestates) == 0:
+                return None
+            
+            if self.is_children_sorted is False:
+                self.game_state.all_child_gamestates.sort(
+                    key = lambda child: child[0].value, reverse = True
+                )
+                self.is_children_sorted = True
+
+            self.rollout_index = min(self.rollout_index+1,
+                len(self.game_state.all_child_gamestates)-1)
+            
+            return self._create_node(
+                self.game_state.all_child_gamestates[self.rollout_index][0], self,
+                self.game_state.all_child_gamestates[self.rollout_index][1]
+            )
+
+    def rollout(self, rollout_policy):
         """This module performs the rollout simulation"""
 
         node_count = 0
         current_node = self
         while node_count < self.MAX_NODE_COUNT:
-            new_node = current_node.rollout_policy()
+            new_node = current_node.rollout_policy(rollout_policy)
             # If the current node is terminal, return; otherwise, assign current to a random child node
             if new_node is None:
                 return current_node.terminate_value(True)
@@ -266,21 +338,32 @@ class NodeMCTS(Node):
 
         current_node.update_stat(result)
 
-    def best_move(self, team):
+    def best_move(self):
         """This module returns the so-considered "best child" 
         of the current node"""
 
-        max_number_of_visits = 0
+        max_number_of_visits = -inf
         current_best_child = []
 
         # Traversing my sons
-        for child in self.list_of_children:
-            if child.n > max_number_of_visits:
-                max_number_of_visits = child.n
-                current_best_child.clear()
-            if child.n == max_number_of_visits:
-                current_best_child.append(child)
-
+        with open("output.txt", 'w') as file:
+            for child in self.list_of_children:
+                val = child.n + child.q/child.n * 21000
+                if val > max_number_of_visits:
+                    max_number_of_visits = val
+                    current_best_child.clear()
+                if val == max_number_of_visits:
+                    current_best_child.append(child)
+                output = [child.parent_move, ' ', child.q, ' ', child.n, ' ', child.game_state.value, ' ',
+                    child._rating, ' ', child.worst_child, '\n']
+                for _ in output:
+                    file.write(str(_))
+                '''for gchild in child.list_of_children:
+                    output = [child.parent_move, ' ', gchild.parent_move, ' ', gchild.q, ' ', gchild.n, ' ', 
+                               gchild.game_state.value, ' ', gchild._rating, '\n']
+                    for _ in output:
+                        file.write(str(_))'''
+        #print(self.q, self.n, self.q/self.n, sep = ' ')
         shuffle(current_best_child)
         return current_best_child.pop()
     # [END METHOD]
