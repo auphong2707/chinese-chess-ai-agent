@@ -73,6 +73,9 @@ class GameState:
 
         if self.get_team_win() is Team.BLACK:
             return -inf
+        
+        if self.get_team_win() is Team.NONE:
+            return 0
 
         current_value = 0
         # Iterate through all position in the board
@@ -260,11 +263,15 @@ class GameState:
                         ):
                             self.board[old_pos[0]][old_pos[1]] = old_pos_notation
                             self.board[new_pos[0]][new_pos[1]] = new_pos_notation
-                            return Team.NONE
+                            return None
 
                         self.board[old_pos[0]][old_pos[1]] = old_pos_notation
                         self.board[new_pos[0]][new_pos[1]] = new_pos_notation
 
+        gamestate_tmp = GameState(self.board, self._current_team, dict())
+        if len(gamestate_tmp.all_child_gamestates) > 0:
+            return Team.NONE
+        
         # Return the opponent if current team has no admissible move
         return self._get_the_opponent_team()
 
