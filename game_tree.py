@@ -19,6 +19,7 @@ class GameTree(ABC):
         self.current_node = self._create_node(
             GameState.generate_initial_game_state(value_pack), None, None
         )
+        self._value_pack = value_pack
         self.count = 0
 
     def move_to_best_child(self) -> tuple:
@@ -80,7 +81,7 @@ class GameTreeMinimax(GameTree):
         moves_queue.append((old_pos, new_pos))
 
         # [POST PROCESS]
-        print(self.count)
+        print(self.current_node.minimax_value)
         self.count = 0
         end = time()  # End time counter
         print("Time: {:.2f} s".format(end - start))
@@ -169,12 +170,17 @@ class GameTreeDeepeningMinimax(GameTreeMinimax):
     def process(self, moves_queue) -> tuple:
         """Let the bot run"""
         # [START BOT'S TURN]
-        DEPTH_VALUE_CONSTANT = [0, 0, 0, -3, 4, 9]
+        if self._value_pack == 1:
+            DEPTH_VALUE_CONSTANT = [0, 1, 2, 3, 16, 12]
+        elif self._value_pack == 2:
+            DEPTH_VALUE_CONSTANT = [0, 1, 1, 2, 4, 7]
 
         start = time()  # Start time counter
         # Find list of best moves
         best_moves = dict()
         for depth in range(1, self.target_depth + 1):
+            if DEPTH_VALUE_CONSTANT[depth] == 0:
+                continue
             self.current_node.minimax(depth, self.team is Team.RED)
             for child in self.current_node.list_of_children:
                 if child.minimax_value == self.current_node.minimax_value:
@@ -184,7 +190,7 @@ class GameTreeDeepeningMinimax(GameTreeMinimax):
                     
         # Find the best value
         old_pos, new_pos = None, None
-        max_move_val = 0
+        max_move_val = -inf
         for key, val in best_moves.items():
             if val > max_move_val:
                 max_move_val = val
