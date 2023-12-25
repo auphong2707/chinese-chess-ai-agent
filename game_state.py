@@ -88,7 +88,7 @@ class GameState:
                 piece = Piece.create_instance(
                     (i, j), notation, self.board,
                     self.number_of_black_pieces + self.number_of_red_pieces,
-                    self._get_number_of_team_pieces(),
+                    self._get_number_of_team_pieces(Team[notation[0]]),
                 )
                 current_value += piece.piece_value(self._value_pack) * piece.team.value
 
@@ -101,8 +101,8 @@ class GameState:
         else:
             return Team.BLACK
         
-    def _get_number_of_team_pieces(self):
-        if self._current_team is Team.BLACK:
+    def _get_number_of_team_pieces(self, team):
+        if team is Team.BLACK:
             return self.number_of_black_pieces
         else:
             return self.number_of_red_pieces
@@ -183,7 +183,7 @@ class GameState:
             moves_list = Piece.create_instance(
                 pos, notation, self.board,
                 self.number_of_black_pieces + self.number_of_red_pieces,
-                self._get_number_of_team_pieces(),
+                self._get_number_of_team_pieces(Team[notation[0]]),
             ).admissible_moves
             shuffle(moves_list)
 
@@ -214,7 +214,7 @@ class GameState:
                     moves_list = Piece.create_instance(
                         (i, j), notation, self.board,
                         self.number_of_black_pieces + self.number_of_red_pieces,
-                        self._get_number_of_team_pieces(),
+                        self._get_number_of_team_pieces(Team[notation[0]]),
                     ).admissible_moves
 
                     for new_pos in moves_list:
@@ -239,7 +239,7 @@ class GameState:
                     moves_list = Piece.create_instance(
                         (i, j), notation, self.board,
                         self.number_of_black_pieces + self.number_of_red_pieces,
-                        self._get_number_of_team_pieces(),
+                        self._get_number_of_team_pieces(Team[notation[0]]),
                     ).admissible_moves
 
                     old_pos = (i, j)

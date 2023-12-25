@@ -311,11 +311,9 @@ def simulation(red_type, red_value, red_another_property,
         black_type, black_another_property, black_value)
 
     red_type, black_type = str_to_type(red_type), str_to_type(black_type)
-    red_value, black_value = str_to_value_pack(
-        red_value), str_to_value_pack(black_value)
+    red_value, black_value = str_to_value_pack(red_value), str_to_value_pack(black_value)
 
-    red_another_property, black_another_property = int(
-        red_another_property), int(black_another_property)
+    red_another_property, black_another_property = int(red_another_property), int(black_another_property)
     number_of_simulations = int(number_of_simulations)
 
     pause_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(765, 450),
@@ -328,7 +326,7 @@ def simulation(red_type, red_value, red_another_property,
 
     # Main game loop
     SCREEN = pygame.display.set_mode((900, 660))
-    MOVE_TIME = 0
+    MOVE_TIME = 0.5
     
     
     start = time()
@@ -357,6 +355,7 @@ def simulation(red_type, red_value, red_another_property,
                     is_end = True
                     bot_run_thread.join()
                     moves_queue.clear()
+                    value_queue.clear()
 
         # Try update_board
         if is_paused is False:
@@ -366,7 +365,8 @@ def simulation(red_type, red_value, red_another_property,
                 if games_done_count > number_of_simulations:
                     bot_run_thread.join()
                     break
-
+                
+                value_queue.clear()
                 is_end = False
                 force_end = False
                 if bot_run_thread is not None:
