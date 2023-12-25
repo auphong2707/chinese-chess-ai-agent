@@ -147,7 +147,7 @@ class GameTreeDynamicMinimax(GameTreeMinimax):
 
         start = time()  # Start time counter
         print(self.current_node.game_state.value * self.team.value)
-        if len(self.current_node.game_state.all_child_gamestates) <= 10:
+        if len(self.current_node.game_state.all_child_gamestates) <= 3:
             self.current_node.minimax(self.target_depth + 2, self.team is Team.RED)
         elif self.current_node.game_state.value * self.team.value >= ADVANTAGE_CONSTANT:
             self.current_node.minimax(self.target_depth + 1, self.team is Team.RED)
