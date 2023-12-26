@@ -249,11 +249,13 @@ class NodeMCTS(Node):
 
         # Outplay case
         if is_end:
-            winning_team = self.game_state._get_the_opponent_team()
+            winning_team = self.game_state.get_team_win()
             if winning_team is Team.RED:
                 return 1
-            if winning_team is Team.BLACK:
+            elif winning_team is Team.BLACK:
                 return -1
+            elif winning_team is Team.NONE:
+                return 0
         else:
             if self.game_state.value == inf:
                 return 1

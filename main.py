@@ -374,12 +374,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
         # [ALTHEA'S TURN]
         # Check whether Althea has been checkmated
         if althea.is_lost() is True:
-            gamestate_temp = GameState(
-                althea.current_node.game_state.board,
-                Team.RED,
-                dict(),
-            )
-            if len(gamestate_temp.all_child_gamestates) > 0:
+            if althea.current_node.game_state.get_team_win() is Team.NONE:
                 break
             winner[beth.team.name] = winner.get(beth.team.name, 0) + 1
             print("Checkmate! {} wins!".format(beth.team.name))
@@ -398,12 +393,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
         # [BETH'S TURN]
         # Check whether Beth has been checkmated
         if beth.is_lost() is True:
-            gamestate_temp = GameState(
-                beth.current_node.game_state.board,
-                Team.BLACK,
-                dict(),
-            )
-            if len(gamestate_temp.all_child_gamestates) > 0:
+            if beth.current_node.game_state.get_team_win() is Team.NONE:
                 break
             winner[althea.team.name] = winner.get(althea.team.name, 0) + 1
             print("Checkmate! {} wins!".format(althea.team.name))
