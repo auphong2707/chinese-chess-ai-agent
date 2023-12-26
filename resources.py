@@ -30,7 +30,7 @@ def chosen_ring_sprite(pos):
     
     return chosen_ring_img, (position_x, position_y)
 
-def get_piece_position(pos):
+def get_piece_position(pos, inverse: bool = False):
     position_x = (pos[1] - START_Y)//STEP_Y
     position_y = (pos[0] - START_X)//STEP_X
     
@@ -39,7 +39,7 @@ def get_piece_position(pos):
         or position_y not in range(0, 9)
     ):
         return None
-    return position_x, position_y
+    return abs(position_x - 9 * int(inverse)), position_y
 
 def board_sprite():
     """This method will return the board sprite

@@ -19,3 +19,12 @@ class Team(Enum):
 
     def __str__(self):
         return self.name.lower()
+    
+    @staticmethod
+    def get_reverse_team(team):
+        if team is Team.RED:
+            return Team.BLACK
+        elif team is Team.BLACK:
+            return Team.RED
+        else:
+            raise ValueError("Invalid input team")

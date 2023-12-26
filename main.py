@@ -32,79 +32,128 @@ REFRESH_RATE = 30
 # Create a clock object
 clock = pygame.time.Clock()
 
+def str_to_type(type_str):
+        if type_str == 'Minimax':
+            return GameTreeMinimax
+        elif type_str == 'MCTS':
+            return GameTreeMCTS
+        elif type_str == 'DyMinimax':
+            return GameTreeDynamicMinimax
+        elif type_str == 'DeMinimax':
+            return GameTreeDeepeningMinimax
 
-def pve_screen():
-    bot = GameTreeMCTS(Team.BLACK, 30, 1, "RANDOM")
+def draw_gamestate(game_state: GameState, inverse: bool = False):
+    """This method will draw a gamestate"""
+
+    board_img, board_position = resources.board_sprite()
+    SCREEN.blit(board_img, board_position)
+
+    for x in range(GameState.BOARD_SIZE_X):
+        for y in range(GameState.BOARD_SIZE_Y):
+            notation = game_state.board[x][y]
+            if notation == "NN":
+                continue
+
+            piece = Piece.create_instance((abs(x - int(inverse) * 9), y), notation, game_state.board, None, None)
+            piece_img, piece_position = resources.piece_sprite(piece)
+            SCREEN.blit(piece_img, piece_position)
+
+
+def pve_screen(bot_type, bot_value, bot_another_property, player_team):
+    bot = bot_type(Team.get_reverse_team(player_team), bot_another_property, bot_value)
     is_bot_process = False
-    position_chosen = None
-    player_turn, player_gamestate = True, GameState.generate_initial_game_state()
+    position_chosen, piece_chosen = None, None
+    player_turn, player_gamestate = player_team is Team.RED, GameState.generate_initial_game_state()
+    is_player_win = None
+    
+    quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 530),
+                         text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+
+    back_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(495, 530),
+                         text_input="BACK", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+    
     while True:
         # Handle event
+        mouse_pos = pygame.mouse.get_pos()
         events_list = pygame.event.get()
         for event in events_list:
             if event.type == pygame.QUIT:
-                force_end = True
                 pygame.quit()
                 sys.exit()
-
-        if player_turn:
-            for event in events_list:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = pygame.mouse.get_pos()
-
-                    click_pos = resources.get_piece_position(mouse_pos)
-                    print(mouse_pos, click_pos)
-                    if position_chosen is None:
-                        if click_pos is None:
-                            continue
-                        if player_gamestate.board[click_pos[0]][click_pos[1]][0] == "R":
-                            position_chosen = click_pos
-                    else:
-                        if click_pos is None or click_pos == position_chosen:
-                            position_chosen = None
-                            continue
-
-                        piece = Piece.create_instance(
-                            position_chosen,
-                            player_gamestate.board[position_chosen[0]][position_chosen[1]],
-                            player_gamestate.board,
-                            None, None
-                        )
-
-                        if click_pos in piece.admissible_moves:
-                            new_gamestate = player_gamestate.generate_game_state_with_move(
-                                position_chosen, click_pos)
-                            if new_gamestate is not None:
-                                player_gamestate = new_gamestate[0]
-                                bot.move_to_child_node_with_move(
-                                    position_chosen, click_pos)
-                                position_chosen = None
-                                player_turn = False
-
-        else:
-            if is_bot_process is False:
-                bot_thread = threading.Thread(
-                    target=bot.process, args=(moves_queue,))
-                bot_thread.start()
-                is_bot_process = True
-
-            try:
-                old_pos, new_pos = moves_queue.pop(0)
-                player_gamestate = player_gamestate.generate_game_state_with_move(old_pos, new_pos)[
-                    0]
-                player_turn = True
-                bot_thread.join()
-                is_bot_process = False
-            except IndexError:
-                pass
-
+                
+            if is_player_win is not None and event.type == pygame.MOUSEBUTTONDOWN:
+                if quit_button.checkForInput(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+                if back_button.checkForInput(mouse_pos):
+                    pve_menu()
+                
         # Draw
         SCREEN.fill(((241, 203, 157)))
-        draw_gamestate(player_gamestate)
+        draw_gamestate(player_gamestate, player_team is Team.BLACK)
         if position_chosen is not None:
-            chosen_ring_img, draw_pos = resources.chosen_ring_sprite(
-                position_chosen)
+            chosen_ring_img, draw_pos = resources.chosen_ring_sprite(position_chosen)
             SCREEN.blit(chosen_ring_img, draw_pos)
+
+        if is_player_win is not None:
+            pygame.draw.rect(SCREEN, "#AB001B", pygame.Rect(0, 270, 660, 120))
+            pygame.draw.rect(SCREEN, "#F6F5E0", pygame.Rect(4, 274, 652, 112))
+            if is_player_win is True:
+                text = resources.get_font(50, 0).render("Congratulation, you win!", True, "Black")
+            else:
+                text = resources.get_font(50, 0).render("Better luck next time", True, "Black")
+            rect = text.get_rect(center=(330.5, 330))
+            SCREEN.blit(text, rect)
+            
+            for button in [quit_button, back_button]:
+                button.draw(SCREEN)
+        # Move solving
+        else:
+            if player_turn:
+                if len(player_gamestate.all_child_gamestates) == 0:
+                    is_player_win = False
+                else:
+                    for event in events_list:
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            mouse_pos = pygame.mouse.get_pos()
+
+                            click_pos = resources.get_piece_position(mouse_pos)
+                            board_pos = resources.get_piece_position(mouse_pos, player_team is Team.BLACK)
+                            
+                            if click_pos is None or click_pos == position_chosen:
+                                position_chosen, piece_chosen = None, None
+                                continue
+                            
+                            notation = player_gamestate.board[board_pos[0]][board_pos[1]]
+                            if Team[notation[0]] is player_team:
+                                position_chosen = click_pos
+                                piece_chosen = Piece.create_instance(
+                                    board_pos, notation, player_gamestate.board, None, None
+                                )
+                            elif piece_chosen is not None and board_pos in piece_chosen.admissible_moves:
+                                new_gamestate = player_gamestate.generate_game_state_with_move(piece_chosen.position, board_pos)
+                                if new_gamestate is not None:
+                                    player_gamestate = new_gamestate[0]
+                                    bot.move_to_child_node_with_move(piece_chosen.position, board_pos)
+                                    position_chosen, piece_chosen = None, None
+                                    player_turn = False
+            else:
+                if bot.is_lost() is True:
+                    is_player_win = True
+                else:
+                    if is_bot_process is False:
+                        bot_thread = threading.Thread(target=bot.process, args=(moves_queue,))
+                        bot_thread.start()
+                        is_bot_process = True
+
+                    try:
+                        old_pos, new_pos = moves_queue.pop(0)
+                        player_gamestate = player_gamestate.generate_game_state_with_move(old_pos, new_pos)[0]
+                        player_turn = True
+                        bot_thread.join()
+                        is_bot_process = False
+                    except IndexError:
+                        pass
 
         # Update the screen
         pygame.display.flip()
@@ -113,7 +162,125 @@ def pve_screen():
         clock.tick(REFRESH_RATE)
 
 
-def result_bots(red_type, black_type):
+def pve_menu():
+    bot_type = DropDown(
+        ["#000000", "#202020"],
+        ["#404040", "#606060"],
+        20, 270, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax"])
+
+    bot_value = DropDown(
+        ["#000000", "#202020"],
+        ["#404040", "#606060"],
+        180, 270, 100, 30,
+        pygame.font.SysFont(None, 25),
+        "Pack", ["0", "1", "2"])
+    
+    team_select = DropDown(
+        ["#000000", "#202020"],
+        ["#404040", "#606060"],
+        430, 220, 150, 50,
+        pygame.font.SysFont(None, 30),
+        "Team", ["BLACK", "RED"])
+
+    bot_another_property = InputBox(165, 210, 40, 30, pygame.font.SysFont(None, 25), "Black", "Red", "Depth/Time allowed")
+
+    start_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(330.5, 430),
+                          text_input="Simulate", font=resources.get_font(40, 0), base_color="#AB001B", hovering_color="Black")
+
+    quit_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(165, 530),
+                         text_input="QUIT", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+
+    back_button = Button(image=pygame.image.load("resources/button/small_rect.png"), pos=(495, 530),
+                         text_input="BACK", font=resources.get_font(30, 0), base_color="Black", hovering_color="#AB001B")
+
+    while True:
+        # Draw main menu
+        # .background
+        bg_img, bg_pos = resources.background()
+        SCREEN.blit(bg_img, bg_pos)
+
+        # Text
+        menu_text = resources.get_font(70, 0).render("PvE Menu", True, "Black")
+        menu_rect = menu_text.get_rect(center=(330.5, 60))
+        SCREEN.blit(menu_text, menu_rect)
+
+        text = resources.get_font(50, 0).render("Bot select", True, "Black")
+        rect = text.get_rect(center=(165, 165))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Bot type", True, "Black")
+        rect = text.get_rect(center=(70, 250))
+        SCREEN.blit(text, rect)
+
+        text = resources.get_font(30, 0).render("Value pack", True, "Black")
+        rect = text.get_rect(center=(230, 250))
+        SCREEN.blit(text, rect)
+        
+        text = resources.get_font(50, 0).render("Team Select", True, "Black")
+        rect = text.get_rect(center=(495, 165))
+        SCREEN.blit(text, rect)
+
+        # Button
+        for button in [start_button, quit_button, back_button]:
+            button.draw(SCREEN)
+
+        event_list = pygame.event.get()
+        # List
+        for lst in [bot_type, bot_value, team_select]:
+            selected_option = lst.update(event_list)
+            if selected_option >= 0:
+                lst.main = lst.options[selected_option]
+
+            lst.draw(SCREEN)
+
+        # Input box
+        for input_box in [bot_another_property]:
+            input_box.update()
+            input_box.draw(SCREEN)
+
+        # Handle events
+        mouse_pos = pygame.mouse.get_pos()
+        for event in event_list:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if start_button.checkForInput(mouse_pos):
+                    print(bot_type.main, bot_value.main, team_select.main, bot_another_property.text.isnumeric())
+                    if (
+                        bot_type.main == "Type"
+                        or bot_value.main == "Pack"
+                        or team_select.main == "Team"
+                        or not bot_another_property.text.isnumeric()
+                    ):
+                        continue
+                    
+                    pve_screen(
+                        str_to_type(bot_type.main), 
+                        int(bot_value.main), 
+                        int(bot_another_property.text), 
+                        Team[team_select.main]
+                    )
+                if quit_button.checkForInput(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+                if back_button.checkForInput(mouse_pos):
+                    main_menu()
+
+            for input_box in [bot_another_property]:
+                input_box.handle_event(event)
+
+         # Update the screen
+        pygame.display.flip()
+
+        # Wait for the next frame
+        clock.tick(REFRESH_RATE)
+
+
+def eve_result(red_type, black_type):
     SCREEN = pygame.display.set_mode((661, 660))
     global winner
 
@@ -186,7 +353,7 @@ def result_bots(red_type, black_type):
                     sys.exit()
                 if back_button.checkForInput(mouse_pos):
                     winner = dict()
-                    bots_menu()
+                    eve_menu()
 
         # Update the screen
         pygame.display.flip()
@@ -256,24 +423,7 @@ def bot_run(althea_type, althea_value, althea_ap, beth_type, beth_value, beth_ap
     print("DRAW")
 
 
-def draw_gamestate(game_state: GameState):
-    """This method will draw a gamestate"""
-
-    board_img, board_position = resources.board_sprite()
-    SCREEN.blit(board_img, board_position)
-
-    for x in range(GameState.BOARD_SIZE_X):
-        for y in range(GameState.BOARD_SIZE_Y):
-            notation = game_state.board[x][y]
-            if notation == "NN":
-                continue
-
-            piece = Piece.create_instance((x, y), notation, game_state.board, None, None)
-            piece_img, piece_position = resources.piece_sprite(piece)
-            SCREEN.blit(piece_img, piece_position)
-
-
-def simulation(red_type, red_value, red_another_property,
+def simulation_screen(red_type, red_value, red_another_property,
                black_type, black_value, black_another_property,
                number_of_simulations):
     def get_bot_full_type(bot_type, bot_property, bot_value):
@@ -292,26 +442,11 @@ def simulation(red_type, red_value, red_another_property,
 
         return res
 
-    def str_to_type(type_str):
-        if type_str == 'Minimax':
-            return GameTreeMinimax
-        elif type_str == 'MCTS':
-            return GameTreeMCTS
-        elif type_str == 'DyMinimax':
-            return GameTreeDynamicMinimax
-        elif type_str == 'DeMinimax':
-            return GameTreeDeepeningMinimax
-
-    def str_to_value_pack(value_pack_str):
-        return int(value_pack_str)
-
-    red_full_type = get_bot_full_type(
-        red_type, red_another_property, red_value)
-    black_full_type = get_bot_full_type(
-        black_type, black_another_property, black_value)
+    red_full_type = get_bot_full_type(red_type, red_another_property, red_value)
+    black_full_type = get_bot_full_type(black_type, black_another_property, black_value)
 
     red_type, black_type = str_to_type(red_type), str_to_type(black_type)
-    red_value, black_value = str_to_value_pack(red_value), str_to_value_pack(black_value)
+    red_value, black_value = int(red_value), int(black_value)
 
     red_another_property, black_another_property = int(red_another_property), int(black_another_property)
     number_of_simulations = int(number_of_simulations)
@@ -470,10 +605,10 @@ def simulation(red_type, red_value, red_another_property,
     print("Total time: {} s".format(end - start))
     print()
     # Quit Pygame
-    result_bots(red_full_type, black_full_type)
+    eve_result(red_full_type, black_full_type)
 
 
-def bots_menu():
+def eve_menu():
     black_type = DropDown(
         ["#000000", "#202020"],
         ["#404040", "#606060"],
@@ -527,8 +662,7 @@ def bots_menu():
         SCREEN.blit(bg_img, bg_pos)
 
         # Text
-        menu_text = resources.get_font(70, 0).render(
-            "Bots select", True, "Black")
+        menu_text = resources.get_font(70, 0).render("Bots select", True, "Black")
         menu_rect = menu_text.get_rect(center=(330.5, 60))
         SCREEN.blit(menu_text, menu_rect)
 
@@ -585,13 +719,13 @@ def bots_menu():
                 if start_button.checkForInput(mouse_pos):
                     if (
                         red_type.main == "Type" or black_type.main == "Type"
-                        or red_value.main == "Pack" or red_value.main == "Pack"
+                        or red_value.main == "Pack" or black_value.main == "Pack"
                         or not num_box.text.isnumeric()
                         or not red_another_property.text.isnumeric()
                         or not black_another_property.text.isnumeric()
                     ):
                         continue
-                    simulation(
+                    simulation_screen(
                         red_type.main, red_value.main, red_another_property.text,
                         black_type.main, black_value.main, black_another_property.text,
                         num_box.text
@@ -645,9 +779,9 @@ def main_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pve_button.checkForInput(mouse_pos):
-                    pve_screen()
+                    pve_menu()
                 if eve_button.checkForInput(mouse_pos):
-                    bots_menu()
+                    eve_menu()
                 if quit_button.checkForInput(mouse_pos):
                     pygame.quit()
                     sys.exit()
