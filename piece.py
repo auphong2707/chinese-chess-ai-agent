@@ -461,7 +461,7 @@ class General(Piece):
             change = 0
             if len(self.admissible_moves) == 0:
                 change += -10
-            if General.is_general_exposed(self.board, self.team, opponent) is False:
+            if General.is_general_exposed(self.board, self.team, opponent) is True:
                 change += -15
             
             return self._piece_value + change
@@ -494,7 +494,7 @@ class General(Piece):
 
     @staticmethod
     def is_general_exposed(board: list, current_team: Team, opponent: Team) -> bool:
-        """This method True if the board is valid, vice versa"""
+        """This method True if the general is exposed"""
 
         # Find the position of the current team's General
         cur_general_pos = None
@@ -533,9 +533,9 @@ class General(Piece):
                 notation = board[check_pos[0]][check_pos[1]]
                 # If check position is our team then break
                 if Team[notation[0]] is not Team.NONE:
-                    # If check position is oponent Rook then return False
+                    # If check position is oponent Rook then return True
                     if Team[notation[0]] is opponent and notation[1] == "R":
-                        return False
+                        return True
                     # Otherwise break
                     else:
                         break
@@ -559,7 +559,7 @@ class General(Piece):
                 )
                 mid_pos_notation = board[mid_pos[0]][mid_pos[1]]
                 if mid_pos_notation == "NN":
-                    return False
+                    return True
 
         # .Check the cannon
         for direction in range(4):
@@ -574,13 +574,13 @@ class General(Piece):
                     break
 
                 notation = board[pos[0]][pos[1]]
-                # If there is 1 piece behind and the pos is oponent cannon, return False
+                # If there is 1 piece behind and the pos is oponent cannon, return True
                 if (
                     piece_behind == 1
                     and Team[notation[0]] is opponent
                     and notation[1] == "C"
                 ):
-                    return False
+                    return True
                 # If there is a piece, then add 1 to piece_behind
                 if notation != "NN":
                     piece_behind += 1
@@ -596,15 +596,15 @@ class General(Piece):
                 cur_general_pos[1] + y_str_dir[index],
             )
             notation = board[check_pos[0]][check_pos[1]]
-            # If the piece is the opponent piece then return False
+            # If the piece is the opponent piece then return True
             if Team[notation[0]] is opponent and notation[1] == "P":
-                return False
+                return True
         # Check forward
         forward_notation = board[cur_general_pos[0] + opponent.value][
             cur_general_pos[1]
         ]
         if Team[forward_notation[0]] is opponent and forward_notation[1] == "P":
-            return False
+            return True
 
         # .Check the general
         for steps in range(1, 10):
@@ -617,14 +617,14 @@ class General(Piece):
             notation = board[pos[0]][pos[1]]
             if notation == "NN":
                 continue
-            # If the piece is opponent's general then return False
+            # If the piece is opponent's general then return True
             if notation[1] == "G":
-                return False
+                return True
             # If the piece is other piece then break
             else:
                 break
 
-        return True
+        return False
 
 
 class Pawn(Piece):

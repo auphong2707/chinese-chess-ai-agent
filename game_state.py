@@ -132,10 +132,7 @@ class GameState:
             return None
         
         # .If the check is not passed, then return None
-        if (
-            General.is_general_exposed(self.board, self._current_team, opponent)
-            is False
-        ):
+        if General.is_general_exposed(self.board, self._current_team, opponent) is True:
             _return_to_old_state()
             return None
 
@@ -256,7 +253,7 @@ class GameState:
                                 self._current_team,
                                 self._get_the_opponent_team(),
                             )
-                            is True
+                            is False
                         ):
                             self.board[old_pos[0]][old_pos[1]] = old_pos_notation
                             self.board[new_pos[0]][new_pos[1]] = new_pos_notation
