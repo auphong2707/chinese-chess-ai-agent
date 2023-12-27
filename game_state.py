@@ -309,7 +309,3 @@ class GameState:
         return GameState(initial_board, Team.RED, initial_move_history, value_pack)
 
     # [END METHOD]
-
-
-if __name__ == "__main__":
-    pass
