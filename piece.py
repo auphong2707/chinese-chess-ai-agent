@@ -29,7 +29,7 @@ class Piece(ABC):
         board: list,
         number_of_pieces: int,
         nummber_of_team_pieces: int,
-        ) -> None:
+    ) -> None:
         # Create properties
         self.position = position
         self.team = team
@@ -42,9 +42,9 @@ class Piece(ABC):
     def __str__(self) -> str:
         return str(self.team) + "_" + self._piece_type
 
-
     # Properties initialization
     # .position
+
     @property
     def position(self) -> tuple:
         """Getter of the position property, return the position of the piece"""
@@ -57,9 +57,11 @@ class Piece(ABC):
             raise ValueError("The position is out of range")
 
         self._position = new_position
- 
+
     @property
     def admissible_moves(self) -> list:
+        """Getter of admissible_moves property,
+        return a list of admissible movement of a piece"""
         if self._admissible_moves is None:
             self._admissible_moves = self.get_admissible_moves()
 
@@ -141,6 +143,8 @@ class Piece(ABC):
 
     @staticmethod
     def create_instance(position: tuple, notation: str, board: list, number_of_pieces: int, number_of_team_pieces: int):
+        """This method creates an instance of a piece 
+        depending on the input notation and other additional arguments"""
         team = Team[notation[0]]
         piece_type = notation[1]
         match piece_type:
@@ -163,28 +167,32 @@ class Piece(ABC):
 
 
 class Advisor(Piece):
-    """Class representing an advisor"""
+    """Class representing the advisor piece"""
 
     _piece_value = 20
     _piece_type = "advisor"
 
-    def piece_value(self, value_pack=0):
+    def piece_value(self, value_pack: int = 0):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+
+        # Value pack 1
         elif value_pack == 1:
             change = 0
             if len(self.admissible_moves) == 0:
                 change = -10
             return self._piece_value + change
+
+        # Value pack 2
         elif value_pack == 2:
             change = 0
             x_orient = [1, 1, -1, -1]
             y_orient = [1, -1, -1, 1]
             for cnt in range(4):
-            # Possible position setting
+                # Possible position setting
                 pos = (self.position[0] + x_orient[cnt],
-                    self.position[1] + y_orient[cnt])
+                       self.position[1] + y_orient[cnt])
 
                 # Checkment
                 if (
@@ -195,6 +203,8 @@ class Advisor(Piece):
                         change += 5
 
             return self._piece_value + change
+
+        # If the value pack is not found
         else:
             raise ValueError("Value pack is not found")
 
@@ -226,7 +236,7 @@ class Advisor(Piece):
 
 
 class Cannon(Piece):
-    """Class representing a cannon"""
+    """Class representing the cannon piece"""
 
     _piece_value = 45
     _piece_type = "cannon"
@@ -235,11 +245,15 @@ class Cannon(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+
+        # Value pack 1
         elif value_pack == 1:
             change = 0
             if len(self.admissible_moves) == 0:
                 change = -10
             return self._piece_value + change
+
+        # Value pack 2
         elif value_pack == 2:
             change = 0
             if len(self.admissible_moves) == 0:
@@ -247,18 +261,25 @@ class Cannon(Piece):
             change += (self.number_of_pieces - 16) * 0.75
             change += (16 - self.number_of_team_pieces) * 0.25
             return self._piece_value + change
+
+        # If the value pack is not found
         else:
             raise ValueError("Value pack is not found")
 
     def get_admissible_moves(self) -> list:
-        x_direction = [1, -1, 0, 0]
-        y_direction = [0, 0, 1, -1]
         admissible_moves = []
 
+        # Define possible direction of the piece
+        x_direction = [1, -1, 0, 0]
+        y_direction = [0, 0, 1, -1]
+
+        # Iterate through direction
         for direction in range(4):
             piece_behind = 0
 
+            # Gradually increase the steps
             for steps in range(1, 10):
+                # Calculate the new position
                 new_position = (
                     self.position[0] + steps * x_direction[direction],
                     self.position[1] + steps * y_direction[direction],
@@ -283,7 +304,7 @@ class Cannon(Piece):
 
 
 class Rook(Piece):
-    """Class representing a rook"""
+    """Class representing the rook piece"""
 
     _piece_value = 90
     _piece_type = "rook"
@@ -295,7 +316,7 @@ class Rook(Piece):
         board: list,
         number_of_pieces: int,
         number_of_team_pieces: int
-        ) -> None:
+    ) -> None:
         super().__init__(position, team, board, number_of_pieces, number_of_team_pieces)
         self._control_pos_count = 0
 
@@ -303,6 +324,8 @@ class Rook(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+
+        # Value pack 1
         elif value_pack == 1:
             change = 0
             if len(self.admissible_moves) == 0:
@@ -310,6 +333,8 @@ class Rook(Piece):
             else:
                 change = self._control_pos_count * 0.5
             return self._piece_value + change
+
+        # Value pack 2
         elif value_pack == 2:
             change = 0
             if len(self.admissible_moves) == 0:
@@ -317,19 +342,26 @@ class Rook(Piece):
             else:
                 change += self._control_pos_count * 0.5
             change += (16 - self.number_of_team_pieces) * 0.25
-            change += (32 - self.number_of_pieces) * int(self.is_crossed_river())
+            change += (32 - self.number_of_pieces) * \
+                int(self.is_crossed_river())
             return self._piece_value + change
+
+        # If the value pack is not found
         else:
             raise ValueError("Value pack is not found")
 
     def get_admissible_moves(self) -> list:
+        admissible_moves = []
+
+        # Define possible direction of the piece
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
 
-        admissible_moves = []
-
+        # Iterate through direction
         for direction in range(4):
+            # Gradually increase the steps
             for steps in range(1, 10):
+                # Calculate the new position
                 new_position = (
                     self.position[0] + steps * x_direction[direction],
                     self.position[1] + steps * y_direction[direction],
@@ -351,14 +383,13 @@ class Rook(Piece):
 
 
 class Elephant(Piece):
-    """Class representing an elephant"""
+    """Class representing the elephant piece"""
 
     _piece_value = 25
     _piece_type = "elephant"
 
-
     def _cross_river(self, position: tuple):
-        """Return True if the piece cross river, vice versa"""
+        """Return True if the postion is crossed river, vice versa"""
         if self.team is Team.RED and position[0] < 5:
             return True
         if self.team is Team.BLACK and position[0] > 4:
@@ -369,19 +400,23 @@ class Elephant(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+
+        # Value pack 1
         elif value_pack == 1:
             change = 0
             if len(self.admissible_moves) == 0:
                 change = -10
             return self._piece_value + change
+
+        # Value pack 2
         elif value_pack == 2:
             change = 0
             x_direction = [2, 2, -2, -2]
             y_direction = [2, -2, 2, -2]
-            
+
             x_block = [1, 1, -1, -1]
             y_block = [1, -1, 1, -1]
-            
+
             for direction in range(4):
                 new_pos = (
                     self.position[0] + x_direction[direction],
@@ -402,6 +437,8 @@ class Elephant(Piece):
                         change += 5
                         break
             return self._piece_value + change
+
+        # If the value pack is not found
         else:
             raise ValueError("Value pack is not found")
 
@@ -417,6 +454,7 @@ class Elephant(Piece):
         x_block = [1, 1, -1, -1]
         y_block = [1, -1, 1, -1]
 
+        # Iterate through direction
         for direction in range(maximum_move_count):
             new_pos = (
                 self.position[0] + x_direction[direction],
@@ -441,7 +479,7 @@ class Elephant(Piece):
 
 
 class General(Piece):
-    """Class representing a general"""
+    """Class representing the general piece"""
 
     _piece_value = 0
     _piece_type = "general"
@@ -450,8 +488,12 @@ class General(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+
+        # Value pack 1
         elif value_pack == 1:
             return self._piece_value
+
+        # Value pack 2
         elif value_pack == 2:
             opponent = Team.NONE
             if self.team is Team.RED:
@@ -463,18 +505,23 @@ class General(Piece):
                 change += -10
             if General.is_general_exposed(self.board, self.team, opponent) is True:
                 change += -15
-            
+
             return self._piece_value + change
+
+        # If the value pack is not found
         else:
             raise ValueError("Value pack is not found")
 
     def get_admissible_moves(self) -> list:
+        admissible_moves = []
+
+        # Define possible direction of the piece
         x_direction = [1, -1, 0, 0]
         y_direction = [0, 0, 1, -1]
 
-        admissible_moves = []
-
+        # Iterate through direction
         for direction in range(4):
+            # Calculate the new position
             new_position = (
                 self.position[0] + x_direction[direction],
                 self.position[1] + y_direction[direction],
@@ -624,11 +671,12 @@ class General(Piece):
             else:
                 break
 
+        # If all check are passed, then return False
         return False
 
 
 class Pawn(Piece):
-    """Class representing a pawn"""
+    """Class representing the pawn piece"""
 
     _piece_value = 10
     _piece_type = "pawn"
@@ -639,6 +687,8 @@ class Pawn(Piece):
             if self.is_crossed_river() is True:
                 self._piece_value = 20
             return self._piece_value
+
+        # Value pack 1
         elif value_pack == 1:
             change = 0
             if self.team is Team.BLACK:
@@ -662,6 +712,8 @@ class Pawn(Piece):
                     else:
                         change = 10
             return self._piece_value + change
+
+        # Value pack 2
         elif value_pack == 2:
             change = 0
             if self.team is Team.BLACK:
@@ -690,34 +742,36 @@ class Pawn(Piece):
                         change += 10
             change += (16 - self.number_of_team_pieces) * 2
             return self._piece_value + change
+
+        # If the value pack is not found
         else:
             raise ValueError("Value pack is not found")
 
     # Searching admissible moves for the pawn
     def get_admissible_moves(self) -> list:
-        possible_moves = []
+        admissible_moves = []
 
         # Movement
         new_pos = (self.position[0] - self.team.value, self.position[1])
         if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
-            possible_moves.append(new_pos)
+            admissible_moves.append(new_pos)
 
         if self.is_crossed_river() is True:
             new_pos = (self.position[0], self.position[1] + 1)
             if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
-                possible_moves.append(new_pos)
+                admissible_moves.append(new_pos)
 
             new_pos = (self.position[0], self.position[1] - 1)
             if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
-                possible_moves.append(new_pos)
+                admissible_moves.append(new_pos)
 
         # Capture (it's the same with movement, dang it)
 
-        return possible_moves
+        return admissible_moves
 
 
 class Horse(Piece):
-    """Class representing a horse"""
+    """Class representing the horse piece"""
 
     _piece_value = 40
     _piece_type = "horse"
@@ -726,6 +780,8 @@ class Horse(Piece):
         # Default value pack
         if value_pack == 0:
             return self._piece_value
+        
+        # Value pack 1
         elif value_pack == 1:
             change = 0
             if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
@@ -741,6 +797,8 @@ class Horse(Piece):
             elif self.team is Team.RED and self.position == (8, 4):
                 change += -25
             return self._piece_value + change
+        
+        # Value pack 2
         elif value_pack == 2:
             change = 0
             if len(self.admissible_moves) == 0 or len(self.admissible_moves) == 1:
@@ -753,20 +811,22 @@ class Horse(Piece):
                 change += 5
 
             change += (22 - self.number_of_pieces) * 0.75
-            
+
             palace_pos = None
             if self.team is Team.RED:
                 palace_pos = (1, 4)
             else:
                 palace_pos = (8, 4)
-            change += (32 - self.number_of_pieces) * 0.15 * (5 - (abs(palace_pos[0] - self.position[0]) + abs(palace_pos[1] - self.position[1])))
-            
+            change += (32 - self.number_of_pieces) * 0.15 * (5 - (
+                abs(palace_pos[0] - self.position[0]) + abs(palace_pos[1] - self.position[1])))
+
             return self._piece_value + change
+        
+        # If the value pack is not found
         else:
             raise ValueError("Value pack is not found")
 
     def get_admissible_moves(self) -> list:
-        # Movement
         admissible_moves = []
 
         # Possible goal positions
