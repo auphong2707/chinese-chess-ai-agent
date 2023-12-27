@@ -22,6 +22,7 @@ class Team(Enum):
     
     @staticmethod
     def get_reverse_team(team):
+        """This method return reversed team"""
         if team is Team.RED:
             return Team.BLACK
         elif team is Team.BLACK:
