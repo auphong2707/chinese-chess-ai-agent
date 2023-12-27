@@ -1,10 +1,9 @@
 # Made by: Veil
 import time
 from cmath import inf
-from random import randint, shuffle
+from random import shuffle
 from piece import General, Advisor, Elephant, Rook, Cannon, Horse, Pawn, Piece
 from team import Team
-from copy import deepcopy
 
 
 class GameState:
@@ -27,13 +26,11 @@ class GameState:
         number_of_red_pieces: int = 16,
         number_of_black_pieces: int = 16,
     ) -> None:
-        # Add the chess pieces to the list
         self.board = board
+        self.move_history = move_history
         self.number_of_red_pieces = number_of_red_pieces
         self.number_of_black_pieces = number_of_black_pieces
-        self.move_history = move_history
 
-        # Declare properties
         self._value_pack = value_pack
         self._value = None
         self._current_team = current_team
@@ -73,7 +70,7 @@ class GameState:
 
         if self.get_team_win() is Team.BLACK:
             return -inf
-        
+
         if self.get_team_win() is Team.NONE:
             return 0
 
@@ -103,7 +100,7 @@ class GameState:
             return Team.RED
         else:
             return Team.BLACK
-        
+
     def _get_number_of_team_pieces(self, team):
         if team is Team.BLACK:
             return self.number_of_black_pieces
@@ -119,7 +116,7 @@ class GameState:
 
         self.board[old_pos[0]][old_pos[1]] = "NN"
         self.board[new_pos[0]][new_pos[1]] = old_pos_notation
-        
+
         # Get the opponent team
         opponent = self._get_the_opponent_team()
 
@@ -127,13 +124,13 @@ class GameState:
         def _return_to_old_state():
             self.board[old_pos[0]][old_pos[1]] = old_pos_notation
             self.board[new_pos[0]][new_pos[1]] = new_pos_notation
-            
+
         # .Check for perpetual moves
         hash_code = self.hash_board(self.board)
         if self.move_history.get(hash_code, 0) + 1 == self.MAX_PERPETUAL:
             _return_to_old_state()
             return None
-        
+
         # .If the check is not passed, then return None
         if General.is_general_exposed(self.board, self._current_team, opponent) is True:
             _return_to_old_state()
@@ -144,7 +141,7 @@ class GameState:
         new_move_history = dict(self.move_history)
         new_move_history[hash_code] = new_move_history.get(hash_code, 0) + 1
         _return_to_old_state()
-        
+
         # Calculate the number of pieces of the gamestate
         new_number_of_red_pieces = self.number_of_red_pieces
         new_number_of_black_pieces = self.number_of_black_pieces
@@ -153,7 +150,7 @@ class GameState:
                 new_number_of_black_pieces -= 1
             else:
                 new_number_of_red_pieces -= 1
-        
+
         return GameState(
             new_board,
             opponent,
@@ -207,9 +204,12 @@ class GameState:
             for j in range(self.BOARD_SIZE_Y):
                 notation = self.board[i][j]
 
+                # If the position is empty, then skip
                 if notation == "NN":
                     continue
 
+                # If the position contains the current team's piece,
+                # then create an instance and get the its admissible moves list
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
                         (i, j), notation, self.board,
@@ -217,9 +217,12 @@ class GameState:
                         self._get_number_of_team_pieces(Team[notation[0]]),
                     ).admissible_moves
 
+                    # Iterate all move in the moves list
                     for new_pos in moves_list:
+                        # Try to create the new game state with that move
                         game_state = self.generate_game_state_with_move((i, j), new_pos)
 
+                        # If the game state is valid the append to the result
                         if game_state is not None:
                             game_states_available.append(game_state)
 
@@ -228,7 +231,7 @@ class GameState:
     def get_team_win(self):
         """This method return the winning team"""
 
-        # If the current game state has child game states, then return Team.NONE
+        # If the current game state has child game states, then return None
         for i in range(self.BOARD_SIZE_X):
             for j in range(self.BOARD_SIZE_Y):
                 notation = self.board[i][j]
@@ -265,16 +268,19 @@ class GameState:
                         self.board[old_pos[0]][old_pos[1]] = old_pos_notation
                         self.board[new_pos[0]][new_pos[1]] = new_pos_notation
 
+        # If the current can still move but it's a perpetual move
+        # then return Team.None which means the match is draw
         gamestate_tmp = GameState(self.board, self._current_team, dict())
         if len(gamestate_tmp.all_child_gamestates) > 0:
             return Team.NONE
-        
+
         # Return the opponent if current team has no admissible move
         return self._get_the_opponent_team()
 
     # Static method
     @staticmethod
     def hash_board(board):
+        """This method returns the hash code of a board"""
         board_str = ''.join(piece for row in board for piece in row)
         return hash(board_str)
 
