@@ -290,7 +290,7 @@ class NodeMCTS(Node):
                     potential_game_state = cur
                     potential_game_value = cur[0].value
 
-            if potential_game_state == None:
+            if potential_game_state is None:
                 return None
             return self._create_node(potential_game_state[0], self, potential_game_state[1])
 
@@ -313,12 +313,12 @@ class NodeMCTS(Node):
                 self.game_state.all_child_gamestates[self.rollout_index][1]
             )
 
-    def rollout(self, rollout_policy):
+    def rollout(self, rollout_policy, target_depth: int = MAX_NODE_COUNT):
         """This module performs the rollout simulation"""
 
         node_count = 0
         current_node = self
-        while node_count < self.MAX_NODE_COUNT:
+        while node_count < target_depth:
             new_node = current_node.rollout_policy(rollout_policy)
             # If the current node is terminal, return; otherwise, assign current to a random child node
             if new_node is None:
@@ -368,6 +368,101 @@ class NodeMCTS(Node):
         #print(self.q, self.n, self.q/self.n, sep = ' ')
         shuffle(current_best_child)
         return current_best_child.pop()
+    
+class NodeExcavationMinimax(NodeMinimax):
+    
+    SIMULATION_FACTOR = 3
+    DEPTH_COUNT = 3
+    NORMALIZE_CONST = 6
+    
+    # [METHOD]
+    # Instance methods
+
+    def _simulation(self):
+        """Gradually excavate the lower depths"""
+        res = 0
+        for depth in range(1, self.DEPTH_COUNT + 1):
+            simulation_count = self.SIMULATION_FACTOR ** depth
+            for simulation in range(simulation_count):
+                node = NodeMCTS(self.game_state, None, None)
+                value = node.rollout("RANDOM", depth)
+                res += value * (1 / self.NORMALIZE_CONST ** depth)
+        return res
+                
+    def minimax(self, depth: int, max_turn: bool, alpha: float = -inf, beta: float = inf):
+        """ExcavationMinimax method"""
+        
+        self.minimax_value = None
+        # If the node reaches the target depth or the count reaches max number
+        if depth == 0:
+            temp = self._simulation()
+            self.minimax_value = self.game_state.value + temp
+            return self.minimax_value
+
+        self.generate_all_children()
+        
+        if len(self.list_of_children) == 0:
+            if self.game_state._current_team is Team.RED:
+                self.minimax_value = -inf
+            else:
+                self.minimax_value = inf
+                
+            return self.minimax_value
+        
+        # Max turn
+        if max_turn is True:
+            best_value = -inf
+            
+            # Sort the list of children
+            if self._is_children_sorted is False:
+                self.list_of_children.sort(key=lambda node:node.game_state.value, reverse=True)
+                self._is_children_sorted = True
+                
+            # Go to the deeper depth
+            for child in self.list_of_children:
+                value = child.minimax(depth - 1, False, alpha, beta)
+                best_value = max(best_value, value)
+                alpha = max(alpha, best_value)
+                if beta <= alpha:
+                    break
+            self.minimax_value = best_value
+            return best_value
+        # Min turn
+        else:
+            best_value = inf
+
+            # Sort the list of children
+            if self._is_children_sorted is False:
+                self.list_of_children.sort(key=lambda node:node.game_state.value, reverse=False)
+                self._is_children_sorted = True
+                
+            for child in self.list_of_children:
+                value = child.minimax(depth - 1, True, alpha, beta)
+                best_value = min(best_value, value)
+                beta = min(beta, best_value)
+                if beta <= alpha:
+                    break
+            self.minimax_value = best_value
+            return best_value
+    
+    def _create_node(self, game_state: GameState, parent, parent_move: tuple):
+        return NodeExcavationMinimax(game_state, parent, parent_move)
+
+    def best_move(self):
+        """This module returns the so-considered "best child" 
+        of the current node"""
+
+        # Create a list of best value node
+        best_children = list()
+
+        for child in self.list_of_children:
+            # If the node has value equal to the current node's value, then add it to the list
+            if child.minimax_value == self.minimax_value:
+                best_children.append(child)
+
+        # Return a random child among the best
+        return choice(best_children)
+    
     # [END METHOD]
 
 if __name__ == "__main__":

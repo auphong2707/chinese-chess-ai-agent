@@ -2,7 +2,7 @@
 from math import inf
 from abc import ABC, abstractmethod
 from game_state import GameState
-from node import NodeMinimax, NodeMCTS
+from node import NodeMinimax, NodeMCTS, NodeExcavationMinimax
 from time import time
 from team import Team
 from random import choice
@@ -209,6 +209,14 @@ class GameTreeDeepeningMinimax(GameTreeMinimax):
         return old_pos, new_pos
 
         # [END BOT'S TURN]
+        
+class GameTreeExcavationMinimax(GameTreeMinimax):
+    def __init__(self, team, value_pack: int=2, rollout_policy = "RANDOM"):
+        super().__init__(team, value_pack)
+        self.rollout_policy = rollout_policy
+        
+    def _create_node(self, game_state, parent, parent_move) -> NodeExcavationMinimax:
+        return NodeExcavationMinimax(game_state, parent, parent_move)
 
 if __name__ == "main":
     # Test the class here Focalors
