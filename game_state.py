@@ -1,8 +1,8 @@
 # Made by: Veil
-import time
+"""Module providing the property of game state"""
 from cmath import inf
 from random import shuffle
-from piece import General, Advisor, Elephant, Rook, Cannon, Horse, Pawn, Piece
+from piece import General, Piece
 from team import Team
 
 
@@ -14,6 +14,7 @@ class GameState:
     # Board size
     BOARD_SIZE_X = 10
     BOARD_SIZE_Y = 9
+    # Limit for repeated moves
     MAX_PERPETUAL = 3
 
     # [BEGIN INITILIZATION]
@@ -61,10 +62,10 @@ class GameState:
     # [END INITILIZATION]
 
     # [BEGIN METHOD]
-    # Instance method
-    def _get_game_state_value(self):
+    # Private method
+    def _get_game_state_value(self) -> float:
         """Return the evaluation value of the board"""
-
+        # Return the value of a game state when a team wins
         if self.get_team_win() is Team.RED:
             return inf
 
@@ -72,18 +73,20 @@ class GameState:
             return -inf
 
         current_value = 0
-        # Iterate through all position in the board
+        # Iterate through all the positions on the board
         for i in range(self.BOARD_SIZE_X):
             for j in range(self.BOARD_SIZE_Y):
                 # Get the notation of the position
                 notation = self.board[i][j]
-                # If the notation is empty, then there is no piece at that position -> skip
+                # If the notation is empty, then skip
                 if notation == "NN":
                     continue
 
-                # Otherwise, create a instance of the piece and take value of the piece
+                # Otherwise, create an instance of the piece and take value of that piece
                 piece = Piece.create_instance(
-                    (i, j), notation, self.board,
+                    (i, j),
+                    notation,
+                    self.board,
                     self.number_of_black_pieces + self.number_of_red_pieces,
                     self._get_number_of_team_pieces(Team[notation[0]]),
                 )
@@ -91,19 +94,21 @@ class GameState:
 
         return current_value
 
-    def _get_the_opponent_team(self):
-        """This method will return the opponent team in this game state"""
+    def _get_the_opponent_team(self) -> Team:
+        """This method returns the opponent's team in the game state"""
         if self._current_team is Team.BLACK:
             return Team.RED
         else:
             return Team.BLACK
 
-    def _get_number_of_team_pieces(self, team):
+    def _get_number_of_team_pieces(self, team) -> int:
+        """This method returns the number of pieces of a team"""
         if team is Team.BLACK:
             return self.number_of_black_pieces
         else:
             return self.number_of_red_pieces
 
+    # Instance method
     def generate_game_state_with_move(self, old_pos: tuple, new_pos: tuple):
         """This method creates a game state with a move
         (return None if the game state is invalid)"""
@@ -133,7 +138,7 @@ class GameState:
             _return_to_old_state()
             return None
 
-        # Create a copy of moved board and return the board to the old state
+        # Create a copy of the moved board and return the board to the old state
         new_board = list(map(list, self.board))
         new_move_history = dict(self.move_history)
         new_move_history[hash_code] = new_move_history.get(hash_code, 0) + 1
@@ -158,9 +163,9 @@ class GameState:
         ), (old_pos, new_pos)
 
     def generate_random_game_state(self):
-        """This method will generate another gamestate that can be tranformed
-        by current method using each move of the piece"""
-        # Get all position of curretn team's piece into a list and randomly shuffle it
+        """This method generates another gamestate that can be tranformed
+        by the current method using each move of the piece"""
+        # Put all positions of the current team's pieces into a list and shuffle it
         team_positions = list()
         for i in range(self.BOARD_SIZE_X):
             for j in range(self.BOARD_SIZE_Y):
@@ -171,11 +176,13 @@ class GameState:
 
         shuffle(team_positions)
 
-        # Iterate through every piece in the list, generate the piece's move list and shuffle it
+        # Iterate through every pieces in the list, generate the piece's move list and shuffle it
         for pos in team_positions:
             notation = self.board[pos[0]][pos[1]]
             moves_list = Piece.create_instance(
-                pos, notation, self.board,
+                pos,
+                notation,
+                self.board,
                 self.number_of_black_pieces + self.number_of_red_pieces,
                 self._get_number_of_team_pieces(Team[notation[0]]),
             ).admissible_moves
@@ -189,14 +196,14 @@ class GameState:
         # If the gamestate is terminal then return None
         return None
 
-    def generate_all_game_states(self):
-        """This method will return the list of all states that can be accessed
+    def generate_all_game_states(self) -> list:
+        """This method returns the list of all states that can be accessed
         from the current state by a single move"""
 
         # Create a list that keeps track of all game states that can be generated.
         game_states_available = list()
 
-        # Iterating through all moves
+        # Iterate through all moves
         for i in range(self.BOARD_SIZE_X):
             for j in range(self.BOARD_SIZE_Y):
                 notation = self.board[i][j]
@@ -205,28 +212,30 @@ class GameState:
                 if notation == "NN":
                     continue
 
-                # If the position contains the current team's piece,
-                # then create an instance and get the its admissible moves list
+                # If the current team's piece is on that position,
+                # then create an instance and get its admissible moves list
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation, self.board,
+                        (i, j),
+                        notation,
+                        self.board,
                         self.number_of_black_pieces + self.number_of_red_pieces,
                         self._get_number_of_team_pieces(Team[notation[0]]),
                     ).admissible_moves
 
-                    # Iterate all move in the moves list
+                    # Iterate all moves in the moves list
                     for new_pos in moves_list:
-                        # Try to create the new game state with that move
+                        # Create a new game state with that move
                         game_state = self.generate_game_state_with_move((i, j), new_pos)
 
-                        # If the game state is valid the append to the result
+                        # If the new game state is valid then add it to the list at the beginning
                         if game_state is not None:
                             game_states_available.append(game_state)
 
         return game_states_available
 
     def get_team_win(self):
-        """This method return the winning team"""
+        """This method returns the winning team"""
 
         # If the current game state has child game states, then return Team.NONE
         for i in range(self.BOARD_SIZE_X):
@@ -237,7 +246,9 @@ class GameState:
 
                 if Team[notation[0]] is self._current_team:
                     moves_list = Piece.create_instance(
-                        (i, j), notation, self.board,
+                        (i, j),
+                        notation,
+                        self.board,
                         self.number_of_black_pieces + self.number_of_red_pieces,
                         self._get_number_of_team_pieces(Team[notation[0]]),
                     ).admissible_moves
@@ -265,7 +276,7 @@ class GameState:
                         self.board[old_pos[0]][old_pos[1]] = old_pos_notation
                         self.board[new_pos[0]][new_pos[1]] = new_pos_notation
 
-        # Return the opponent if current team has no admissible move
+        # Return the opponent's team if the current team has no admissible moves
         return self._get_the_opponent_team()
 
     # Static method
@@ -301,15 +312,4 @@ class GameState:
 
 
 if __name__ == "__main__":
-    queue = [GameState.generate_initial_game_state(1)]
-    for depth in range(1, 4):
-        start = time.time()
-
-        new_queue = list()
-        for game_state_ in queue:
-            for state, move_ in game_state_.all_child_gamestates:
-                new_queue.append(state)
-
-        queue = new_queue
-        end = time.time()
-        print(depth, len(queue), end - start)
+    pass

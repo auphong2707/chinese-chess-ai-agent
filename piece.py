@@ -375,7 +375,7 @@ class Rook(Piece):
                 change += self._control_pos_count * 0.5
             # Avoid trading when losing
             change += (16 - self.number_of_team_pieces) * 0.25
-            # Receive a bonus or penalty based on the game phase and whether it has crossed the river
+            # Receive a bonus based on the game phase and whether it has crossed the river
             change += (32 - self.number_of_pieces) * int(self.is_crossed_river())
             return self._piece_value + change
 
