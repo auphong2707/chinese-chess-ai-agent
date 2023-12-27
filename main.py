@@ -82,10 +82,10 @@ def pve_screen(bot_type, bot_value, bot_another_property, player_team):
                 sys.exit()
                 
             if is_player_win is not None and event.type == pygame.MOUSEBUTTONDOWN:
-                if quit_button.checkForInput(mouse_pos):
+                if quit_button.check_for_input(mouse_pos):
                     pygame.quit()
                     sys.exit()
-                if back_button.checkForInput(mouse_pos):
+                if back_button.check_for_input(mouse_pos):
                     pve_menu()
                 
         # Draw
@@ -248,7 +248,7 @@ def pve_menu():
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if start_button.checkForInput(mouse_pos):
+                if start_button.check_for_input(mouse_pos):
                     print(bot_type.main, bot_value.main, team_select.main, bot_another_property.text.isnumeric())
                     if (
                         bot_type.main == "Type"
@@ -264,10 +264,10 @@ def pve_menu():
                         int(bot_another_property.text), 
                         Team[team_select.main]
                     )
-                if quit_button.checkForInput(mouse_pos):
+                if quit_button.check_for_input(mouse_pos):
                     pygame.quit()
                     sys.exit()
-                if back_button.checkForInput(mouse_pos):
+                if back_button.check_for_input(mouse_pos):
                     main_menu()
 
             for input_box in [bot_another_property]:
@@ -348,10 +348,10 @@ def eve_result(red_type, black_type):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if quit_button.checkForInput(mouse_pos):
+                if quit_button.check_for_input(mouse_pos):
                     pygame.quit()
                     sys.exit()
-                if back_button.checkForInput(mouse_pos):
+                if back_button.check_for_input(mouse_pos):
                     winner = dict()
                     eve_menu()
 
@@ -472,9 +472,9 @@ def simulation_screen(red_type, red_value, red_another_property,
                 sys.exit()
             
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if pause_button.checkForInput(mouse_pos):
+                if pause_button.check_for_input(mouse_pos):
                     is_paused = not is_paused
-                elif skip_button.checkForInput(mouse_pos):
+                elif skip_button.check_for_input(mouse_pos):
                     is_paused = False
                     force_end = True
                     is_end = True
@@ -706,7 +706,7 @@ def eve_menu():
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if start_button.checkForInput(mouse_pos):
+                if start_button.check_for_input(mouse_pos):
                     if (
                         red_type.main == "Type" or black_type.main == "Type"
                         or red_value.main == "Pack" or black_value.main == "Pack"
@@ -720,10 +720,10 @@ def eve_menu():
                         black_type.main, black_value.main, black_another_property.text,
                         num_box.text
                     )
-                if quit_button.checkForInput(mouse_pos):
+                if quit_button.check_for_input(mouse_pos):
                     pygame.quit()
                     sys.exit()
-                if back_button.checkForInput(mouse_pos):
+                if back_button.check_for_input(mouse_pos):
                     main_menu()
 
             for input_box in [num_box, black_another_property, red_another_property]:
@@ -768,11 +768,11 @@ def main_menu():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if pve_button.checkForInput(mouse_pos):
+                if pve_button.check_for_input(mouse_pos):
                     pve_menu()
-                if eve_button.checkForInput(mouse_pos):
+                if eve_button.check_for_input(mouse_pos):
                     eve_menu()
-                if quit_button.checkForInput(mouse_pos):
+                if quit_button.check_for_input(mouse_pos):
                     pygame.quit()
                     sys.exit()
 
