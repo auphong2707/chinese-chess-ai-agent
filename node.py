@@ -290,7 +290,7 @@ class NodeMCTS(Node):
                     potential_game_state = cur
                     potential_game_value = cur[0].value
 
-            if potential_game_state == None:
+            if potential_game_state is None:
                 return None
             return self._create_node(potential_game_state[0], self, potential_game_state[1])
 
@@ -385,7 +385,7 @@ class NodeExcavationMinimax(NodeMinimax):
             simulation_count = self.SIMULATION_FACTOR ** depth
             for simulation in range(simulation_count):
                 node = NodeMCTS(self.game_state, None, None)
-                value = node.rollout(depth, 1)
+                value = node.rollout("RANDOM")
                 res += value * (1 / self.NORMALIZE_CONST ** depth)
         return res
                 

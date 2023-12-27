@@ -211,6 +211,10 @@ class GameTreeDeepeningMinimax(GameTreeMinimax):
         # [END BOT'S TURN]
         
 class GameTreeExcavationMinimax(GameTreeMinimax):
+    def __init__(self, team, value_pack: int=2, rollout_policy = "RANDOM"):
+        super().__init__(team, value_pack)
+        self.rollout_policy = rollout_policy
+        
     def _create_node(self, game_state, parent, parent_move) -> NodeExcavationMinimax:
         return NodeExcavationMinimax(game_state, parent, parent_move)
 
