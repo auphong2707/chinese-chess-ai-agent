@@ -281,8 +281,7 @@ class GameState:
     @staticmethod
     def hash_board(board):
         """This method returns the hash code of a board"""
-        board_str = ''.join(piece for row in board for piece in row)
-        return hash(board_str)
+        return hash(tuple(map(tuple, board)))
 
     # Class method
     @classmethod
@@ -312,7 +311,7 @@ class GameState:
 
 if __name__ == "__main__":
     queue = [GameState.generate_initial_game_state(1)]
-    for depth in range(1, 5):
+    for depth in range(1, 4):
         start = time.time()
 
         new_queue = list()
