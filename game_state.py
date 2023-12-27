@@ -1,14 +1,8 @@
 # Made by: Veil
+import time
 from cmath import inf
-from copy import deepcopy
-from random import randint
-from general import General
-from advisor import Advisor
-from elephant import Elephant
-from chariot import Chariot
-from cannon import Cannon
-from horse import Horse
-from pawn import Pawn
+from random import shuffle
+from piece import General, Advisor, Elephant, Rook, Cannon, Horse, Pawn, Piece
 from team import Team
 
 
@@ -20,28 +14,27 @@ class GameState:
     # Board size
     BOARD_SIZE_X = 10
     BOARD_SIZE_Y = 9
+    MAX_PERPETUAL = 3
 
     # [BEGIN INITILIZATION]
     def __init__(
         self,
-        pieces_list_red: list,
-        pieces_list_black: list,
-        board: tuple,
+        board: list,
         current_team: Team,
+        move_history: dict,
+        value_pack: int = 0,
+        number_of_red_pieces: int = 16,
+        number_of_black_pieces: int = 16,
     ) -> None:
-        # Add the chess pieces to the list
-        self.pieces_list_red = pieces_list_red
-        self.pieces_list_black = pieces_list_black
+        self.board = board
+        self.move_history = move_history
+        self.number_of_red_pieces = number_of_red_pieces
+        self.number_of_black_pieces = number_of_black_pieces
 
-        # Declare read-only properties
+        self._value_pack = value_pack
         self._value = None
-        self._checked_team = Team.NONE
-        self._win_status = None
-        self._board = board
         self._current_team = current_team
-
-        # Remove the checked move
-        self._remove_checked_move()
+        self._all_child_gamestates = None
 
     # Properties initialization
     # .value
@@ -55,27 +48,15 @@ class GameState:
 
         return self._value
 
-    # .checked_team
+    # .all_child_gamestates
     @property
-    def checked_team(self) -> Team:
-        """This is the Getter function of the checked_team property,
-        return the team which checkmates the opponent"""
+    def all_child_gamestates(self) -> list:
+        """This is the Getter function of the list of child game states"""
 
-        if self._checked_team is Team.NONE:
-            self._checked_team = self._get_checked_team
+        if self._all_child_gamestates is None:
+            self._all_child_gamestates = self.generate_all_game_states()
 
-        return self._checked_team
-
-    # .win_status
-    @property
-    def win_status(self) -> bool:
-        """This is the Getter function of the win_status property.
-        If the state always recieves victory, then this will return True"""
-
-        if self._win_status is None:
-            self.win_status = self._get_win_status()
-
-        return self._win_status
+        return self._all_child_gamestates
 
     # [END INITILIZATION]
 
@@ -84,30 +65,31 @@ class GameState:
     def _get_game_state_value(self):
         """Return the evaluation value of the board"""
 
-        current_value = 0
-
-        if self.get_team_win is Team.RED:
+        if self.get_team_win() is Team.RED:
             return inf
 
-        if self.get_team_win is Team.BLACK:
+        if self.get_team_win() is Team.BLACK:
             return -inf
 
-        for piece in self.pieces_list_black:
-            current_value = current_value - piece.piece_value
+        current_value = 0
+        # Iterate through all position in the board
+        for i in range(self.BOARD_SIZE_X):
+            for j in range(self.BOARD_SIZE_Y):
+                # Get the notation of the position
+                notation = self.board[i][j]
+                # If the notation is empty, then there is no piece at that position -> skip
+                if notation == "NN":
+                    continue
 
-        for piece in self.pieces_list_red:
-            current_value = current_value + piece.piece_value
+                # Otherwise, create a instance of the piece and take value of the piece
+                piece = Piece.create_instance(
+                    (i, j), notation, self.board,
+                    self.number_of_black_pieces + self.number_of_red_pieces,
+                    self._get_number_of_team_pieces(Team[notation[0]]),
+                )
+                current_value += piece.piece_value(self._value_pack) * piece.team.value
 
         return current_value
-
-    def _get_checked_team(self):
-        # Incomplete code: Return the team that checked the oponent in this state
-        return Team.NONE
-
-    def _get_win_status(self):
-        # Incomplete code: Return the evaluation result that confirm this state
-        # can always end the game with the victory
-        return False
 
     def _get_the_opponent_team(self):
         """This method will return the opponent team in this game state"""
@@ -116,332 +98,218 @@ class GameState:
         else:
             return Team.BLACK
 
-    def _create_a_new_board(self, old_pos, new_pos):
-        """This method returns a new board after a piece moved"""
-        # Create a deepcopy of a new board
-        new_board = deepcopy(self._board)
-
-        # Transform the new board to list
-        new_board = list(map(list, new_board))
-
-        # Assign new value to the old position and new position of the moved piece
-        new_board[old_pos[0]][old_pos[1]] = Team.NONE
-        new_board[new_pos[0]][new_pos[1]] = self._current_team
-
-        # Transform the new board to tuple again
-        new_board = tuple(map(tuple, new_board))
-
-        # Return the answer
-        return new_board
-
-    def _get_the_current_team_pieces_list(self):
-        """This method will return the chess pieces list of the current team"""
-        if self._current_team is Team.RED:
-            return self.pieces_list_red
+    def _get_number_of_team_pieces(self, team):
+        if team is Team.BLACK:
+            return self.number_of_black_pieces
         else:
-            return self.pieces_list_black
+            return self.number_of_red_pieces
 
-    def _get_the_opponent_pieces_list(self):
-        """This method will return the chess pieces list of the opponent"""
-        if self._current_team is Team.RED:
-            return self.pieces_list_black
-        else:
-            return self.pieces_list_red
+    def generate_game_state_with_move(self, old_pos: tuple, new_pos: tuple):
+        """This method creates a game state with a move
+        (return None if the game state is invalid)"""
+        # Temporary move the piece
+        old_pos_notation = self.board[old_pos[0]][old_pos[1]]
+        new_pos_notation = self.board[new_pos[0]][new_pos[1]]
 
-    def generate_game_state_with_move(self, old_pos, new_pos):
-        """This method creates a game state with a move"""
-        # Create a copy of current board and transform it
-        new_board = self._create_a_new_board(old_pos, new_pos)
+        self.board[old_pos[0]][old_pos[1]] = "NN"
+        self.board[new_pos[0]][new_pos[1]] = old_pos_notation
 
         # Get the opponent team
         opponent = self._get_the_opponent_team()
 
-        # Create new chess piece list
-        new_pieces_list_red, new_pieces_list_black = list(), list()
+        # Check if the game state is valid
+        def _return_to_old_state():
+            self.board[old_pos[0]][old_pos[1]] = old_pos_notation
+            self.board[new_pos[0]][new_pos[1]] = new_pos_notation
 
-        for piece in self.pieces_list_red + self.pieces_list_black:
-            # If the piece is on the new position of the chosen one, then remove it
-            if piece.position == new_pos:
-                continue
+        # .Check for perpetual moves
+        hash_code = self.hash_board(self.board)
+        if self.move_history.get(hash_code, 0) + 1 == self.MAX_PERPETUAL:
+            _return_to_old_state()
+            return None
 
-            # Create a copy of the current piece, and initialize it
-            new_piece = deepcopy(piece)
+        # .If the check is not passed, then return None
+        if General.is_general_exposed(self.board, self._current_team, opponent) is True:
+            _return_to_old_state()
+            return None
 
-            new_piece.set_board(new_board)  # Update board
-            if piece.position == old_pos:  # Update position
-                new_piece.position = new_pos
-            if piece.team is opponent:  # Update admissible_moves
-                new_piece.set_admissible_moves()
+        # Create a copy of moved board and return the board to the old state
+        new_board = list(map(list, self.board))
+        new_move_history = dict(self.move_history)
+        new_move_history[hash_code] = new_move_history.get(hash_code, 0) + 1
+        _return_to_old_state()
 
-            # Append new piece to the list
-            if new_piece.team is Team.RED:
-                new_pieces_list_red.append(new_piece)
+        # Calculate the number of pieces of the gamestate
+        new_number_of_red_pieces = self.number_of_red_pieces
+        new_number_of_black_pieces = self.number_of_black_pieces
+        if self.board[new_pos[0]][new_pos[1]] != "NN":
+            if self._current_team is Team.RED:
+                new_number_of_black_pieces -= 1
             else:
-                new_pieces_list_black.append(new_piece)
+                new_number_of_red_pieces -= 1
 
-        # Return the game state which has the new information
         return GameState(
-            new_pieces_list_red, new_pieces_list_black, new_board, opponent
-        ), (
-            old_pos, new_pos
-        )
+            new_board,
+            opponent,
+            new_move_history,
+            self._value_pack,
+            new_number_of_red_pieces,
+            new_number_of_black_pieces,
+        ), (old_pos, new_pos)
 
-    def generate_random_game_state(self, policy):
+    def generate_random_game_state(self):
         """This method will generate another gamestate that can be tranformed
         by current method using each move of the piece"""
+        # Get all position of curretn team's piece into a list and randomly shuffle it
+        team_positions = list()
+        for i in range(self.BOARD_SIZE_X):
+            for j in range(self.BOARD_SIZE_Y):
+                notation = self.board[i][j]
 
-        # Get the current team chess chess pieces list
-        pieces_list = self._get_the_current_team_pieces_list()
+                if Team[notation[0]] is self._current_team:
+                    team_positions.append((i, j))
 
-        # Get a random move and a random piece
-        rand_piece_index = randint(0, len(pieces_list) - 1)
-        while len(pieces_list[rand_piece_index].admissible_moves) == 0:
-            rand_piece_index = randint(0, len(pieces_list) - 1)
+        shuffle(team_positions)
 
-        rand_move_index = randint(
-            0, len(pieces_list[rand_piece_index].admissible_moves) - 1
-        )
+        # Iterate through every piece in the list, generate the piece's move list and shuffle it
+        for pos in team_positions:
+            notation = self.board[pos[0]][pos[1]]
+            moves_list = Piece.create_instance(
+                pos, notation, self.board,
+                self.number_of_black_pieces + self.number_of_red_pieces,
+                self._get_number_of_team_pieces(Team[notation[0]]),
+            ).admissible_moves
+            shuffle(moves_list)
 
-        # Get the old position and new position of the chosen piece
-        old_pos = pieces_list[rand_piece_index].position
-        new_pos = pieces_list[rand_piece_index].admissible_moves[rand_move_index]
+            for new_pos in moves_list:
+                new_gamestate = self.generate_game_state_with_move(pos, new_pos)
+                if new_gamestate is not None:
+                    return new_gamestate
 
-        # Return the game state which has the new information
-        return self.generate_game_state_with_move(old_pos, new_pos)
+        # If the gamestate is terminal then return None
+        return None
 
     def generate_all_game_states(self):
         """This method will return the list of all states that can be accessed
         from the current state by a single move"""
 
         # Create a list that keeps track of all game states that can be generated.
-        game_states_available = []
-        pieces_list = self._get_the_current_team_pieces_list()
+        game_states_available = list()
 
         # Iterating through all moves
-        for pieces in pieces_list:
-            for move in pieces.admissible_moves:
-                # Get the old position and new position of the chosen piece
-                old_pos = pieces.position
-                new_pos = move
+        for i in range(self.BOARD_SIZE_X):
+            for j in range(self.BOARD_SIZE_Y):
+                notation = self.board[i][j]
 
-                # Add new game state into the above list
-                game_states_available.append(
-                    self.generate_game_state_with_move(old_pos, new_pos)
-                )
+                # If the position is empty, then skip
+                if notation == "NN":
+                    continue
+
+                # If the position contains the current team's piece,
+                # then create an instance and get the its admissible moves list
+                if Team[notation[0]] is self._current_team:
+                    moves_list = Piece.create_instance(
+                        (i, j), notation, self.board,
+                        self.number_of_black_pieces + self.number_of_red_pieces,
+                        self._get_number_of_team_pieces(Team[notation[0]]),
+                    ).admissible_moves
+
+                    # Iterate all move in the moves list
+                    for new_pos in moves_list:
+                        # Try to create the new game state with that move
+                        game_state = self.generate_game_state_with_move((i, j), new_pos)
+
+                        # If the game state is valid the append to the result
+                        if game_state is not None:
+                            game_states_available.append(game_state)
 
         return game_states_available
-
-    def _remove_checked_move(self):
-        """This method removes all moves that lead the current team's loss"""
-        # Get the opponent team
-        opponent = self._get_the_opponent_team()
-
-        # Get the piece list
-        pieces_list_current_team = self._get_the_current_team_pieces_list()
-        pieces_list_opponent = self._get_the_opponent_pieces_list()
-
-        # Find the current team general position
-        general_position = None
-        for piece in pieces_list_current_team:
-            if isinstance(piece, General):
-                general_position = piece.position
-                break
-
-        # This method will return False if the move made the current team be checked
-        def check_checkmate(board, general_position):
-            for piece in pieces_list_opponent:
-                # If the piece is advisor or elephant, then skip
-                if isinstance(piece, Advisor) or isinstance(piece, Elephant):
-                    continue
-
-                # If the piece is general, check the y position
-                if (
-                    isinstance(piece, General)
-                    and piece.position[1] == general_position[1]
-                ):
-                    x_min = piece.position[0] - opponent.value
-                    x_max = general_position[0] - self._current_team.value
-                    if x_min > x_max:
-                        x_min, x_max = x_max, x_min
-
-                    has_obstacle = False
-                    for x in range(x_min, x_max + 1):
-                        if board[x][general_position[1]] is not Team.NONE:
-                            has_obstacle = True
-                            break
-
-                    if has_obstacle is False:
-                        return False
-
-                    continue
-
-                # Made the copy of the piece, add the board
-                # and get the new admissible moves of that piece
-                piece_clone = deepcopy(piece)
-                piece_clone.set_board(board)
-                piece_clone.set_admissible_moves()
-
-                # Check if admissible moves of the piece containing the general position
-                if general_position in piece_clone.admissible_moves:
-                    return False
-            return True
-
-        # Iterate through all the moves
-        for piece in pieces_list_current_team:
-            # Assign current position of the piece
-            old_pos = piece.position
-
-            # Iterate over admissible position of the piece
-            new_admisible_moves = list()  # Create the new admissible moves list
-            for new_pos in piece.admissible_moves:
-                # Creating a new board by using the move
-                new_board = self._create_a_new_board(old_pos, new_pos)
-
-                # Check if the move made the current team be checked
-                if (
-                    isinstance(piece, General) and check_checkmate(new_board, new_pos)
-                ) or (
-                    not isinstance(piece, General)
-                    and check_checkmate(new_board, general_position)
-                ):
-                    new_admisible_moves.append(new_pos)
-
-            # Assign filtered adssible moves list
-            piece.admissible_moves = new_admisible_moves
 
     def get_team_win(self):
         """This method return the winning team"""
 
-        # Get the current team piece list
-        pieces_list_current_team = self._get_the_current_team_pieces_list()
+        # If the current game state has child game states, then return Team.NONE
+        for i in range(self.BOARD_SIZE_X):
+            for j in range(self.BOARD_SIZE_Y):
+                notation = self.board[i][j]
+                if notation == "NN":
+                    continue
 
-        for piece in pieces_list_current_team:  # Check every piece in team
-            if (
-                len(piece.admissible_moves) > 0
-            ):  # If any piece has at least 1 possible move, then return none
-                return Team.NONE
+                if Team[notation[0]] is self._current_team:
+                    moves_list = Piece.create_instance(
+                        (i, j), notation, self.board,
+                        self.number_of_black_pieces + self.number_of_red_pieces,
+                        self._get_number_of_team_pieces(Team[notation[0]]),
+                    ).admissible_moves
+
+                    old_pos = (i, j)
+                    for new_pos in moves_list:
+                        old_pos_notation = self.board[old_pos[0]][old_pos[1]]
+                        new_pos_notation = self.board[new_pos[0]][new_pos[1]]
+
+                        self.board[old_pos[0]][old_pos[1]] = "NN"
+                        self.board[new_pos[0]][new_pos[1]] = old_pos_notation
+
+                        if (
+                            General.is_general_exposed(
+                                self.board,
+                                self._current_team,
+                                self._get_the_opponent_team(),
+                            )
+                            is False
+                        ):
+                            self.board[old_pos[0]][old_pos[1]] = old_pos_notation
+                            self.board[new_pos[0]][new_pos[1]] = new_pos_notation
+                            return Team.NONE
+
+                        self.board[old_pos[0]][old_pos[1]] = old_pos_notation
+                        self.board[new_pos[0]][new_pos[1]] = new_pos_notation
 
         # Return the opponent if current team has no admissible move
         return self._get_the_opponent_team()
 
+    # Static method
+    @staticmethod
+    def hash_board(board):
+        """This method returns the hash code of a board"""
+        return hash(tuple(map(tuple, board)))
+
     # Class method
     @classmethod
-    def generate_initial_game_state(cls):
+    def generate_initial_game_state(cls, value_pack: int = 0):
         """This method creates the initial board"""
-
-        # Create a list of chess pieces
-        pieces_list_red, pieces_list_black = list(), list()
-
-        # Create a list to keep track of the team of pieces in chess_pieces
-        board = [
-            [Team.NONE for columns in range(GameState.BOARD_SIZE_Y)]
-            for rows in range(GameState.BOARD_SIZE_X)
-        ]
-
-        # Create pieces in the first row of black team
-        for columns in range(GameState.BOARD_SIZE_Y):
-            # Create black chariots
-            if columns == 0 or columns == 8:
-                black_piece = Chariot((0, columns), Team.BLACK, board)
-
-            # Create black horses
-            elif columns == 1 or columns == 7:
-                black_piece = Horse((0, columns), Team.BLACK, board)
-
-            # Create black elephants
-            elif columns == 2 or columns == 6:
-                black_piece = Elephant((0, columns), Team.BLACK, board)
-
-            # Create black advisors
-            elif columns == 3 or columns == 5:
-                black_piece = Advisor((0, columns), Team.BLACK, board)
-
-            # Create black general
-            else:
-                black_piece = General((0, columns), Team.BLACK, board)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_black.append(black_piece)
-
-            # Assign team of the pieces to its position
-            board[0][columns] = Team.BLACK
-
-        # Create black cannons
-        for columns in range(1, 8, 6):
-            black_cannon = Cannon((2, columns), Team.BLACK, board)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_black.append(black_cannon)
-
-            # Assign team of the pieces to its position
-            board[2][columns] = Team.BLACK
-
-        # Create black pawns
-        for columns in range(0, GameState.BOARD_SIZE_Y, 2):
-            black_pawn = Pawn((3, columns), Team.BLACK, board)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_black.append(black_pawn)
-
-            # Assign team of the pieces to its position
-            board[3][columns] = Team.BLACK
-
-        # Create pieces in the last row of red team
-        for columns in range(GameState.BOARD_SIZE_Y):
-            # Create red chariots
-            if columns == 0 or columns == 8:
-                red_piece = Chariot((9, columns), Team.RED, board)
-
-            # Create red horses
-            elif columns == 1 or columns == 7:
-                red_piece = Horse((9, columns), Team.RED, board)
-
-            # Create red elephants
-            elif columns == 2 or columns == 6:
-                red_piece = Elephant((9, columns), Team.RED, board)
-
-            # Create red advisors
-            elif columns == 3 or columns == 5:
-                red_piece = Advisor((9, columns), Team.RED, board)
-
-            # Create red general
-            else:
-                red_piece = General((9, columns), Team.RED, board)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_red.append(red_piece)
-
-            # Assign team of the pieces to its position
-            board[9][columns] = Team.RED
-
-        # Create red cannons
-        for columns in range(1, 8, 6):
-            red_cannon = Cannon((7, columns), Team.RED, board)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_red.append(red_cannon)
-
-            # Assign team of the pieces to its position
-            board[7][columns] = Team.RED
-
-        # Create red pawns
-        for columns in range(0, GameState.BOARD_SIZE_Y, 2):
-            red_pawn = Pawn((6, columns), Team.RED, board)
-
-            # Put the pieces created into chess_pieces list
-            pieces_list_red.append(red_pawn)
-
-            # Assign team of the pieces to its position
-            board[6][columns] = Team.RED
-
-        # Change type of board into tuple
-        board = tuple(map(tuple, board))
-
-        # Set all admissible moves of the red pieces
-        for piece in pieces_list_red:
-            piece.set_admissible_moves()
-
-        # return the initial board
-        return GameState(pieces_list_red, pieces_list_black, board, Team.RED)
+        initial_board = list(
+            [
+                ["BR", "BH", "BE", "BA", "BG", "BA", "BE", "BH", "BR"],
+                ["NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN"],
+                ["NN", "BC", "NN", "NN", "NN", "NN", "NN", "BC", "NN"],
+                ["BP", "NN", "BP", "NN", "BP", "NN", "BP", "NN", "BP"],
+                ["NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN"],
+                ["NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN"],
+                ["RP", "NN", "RP", "NN", "RP", "NN", "RP", "NN", "RP"],
+                ["NN", "RC", "NN", "NN", "NN", "NN", "NN", "RC", "NN"],
+                ["NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN", "NN"],
+                ["RR", "RH", "RE", "RA", "RG", "RA", "RE", "RH", "RR"],
+            ]
+        )
+        initial_move_history = dict()
+        hash_code = GameState.hash_board(initial_board)
+        initial_move_history[hash_code] = 1
+        return GameState(initial_board, Team.RED, initial_move_history, value_pack)
 
     # [END METHOD]
+
+
+if __name__ == "__main__":
+    queue = [GameState.generate_initial_game_state(1)]
+    for depth in range(1, 4):
+        start = time.time()
+
+        new_queue = list()
+        for game_state_ in queue:
+            for state, move_ in game_state_.all_child_gamestates:
+                new_queue.append(state)
+
+        queue = new_queue
+        end = time.time()
+        print(depth, len(queue), end - start)
