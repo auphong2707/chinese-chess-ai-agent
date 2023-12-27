@@ -71,9 +71,6 @@ class GameState:
         if self.get_team_win() is Team.BLACK:
             return -inf
 
-        if self.get_team_win() is Team.NONE:
-            return 0
-
         current_value = 0
         # Iterate through all position in the board
         for i in range(self.BOARD_SIZE_X):
@@ -231,7 +228,7 @@ class GameState:
     def get_team_win(self):
         """This method return the winning team"""
 
-        # If the current game state has child game states, then return None
+        # If the current game state has child game states, then return Team.NONE
         for i in range(self.BOARD_SIZE_X):
             for j in range(self.BOARD_SIZE_Y):
                 notation = self.board[i][j]
@@ -263,16 +260,10 @@ class GameState:
                         ):
                             self.board[old_pos[0]][old_pos[1]] = old_pos_notation
                             self.board[new_pos[0]][new_pos[1]] = new_pos_notation
-                            return None
+                            return Team.NONE
 
                         self.board[old_pos[0]][old_pos[1]] = old_pos_notation
                         self.board[new_pos[0]][new_pos[1]] = new_pos_notation
-
-        # If the current can still move but it's a perpetual move
-        # then return Team.None which means the match is draw
-        gamestate_tmp = GameState(self.board, self._current_team, dict())
-        if len(gamestate_tmp.all_child_gamestates) > 0:
-            return Team.NONE
 
         # Return the opponent if current team has no admissible move
         return self._get_the_opponent_team()
