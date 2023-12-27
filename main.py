@@ -7,7 +7,7 @@ import sys
 import gc
 from gui_utilities import Button, DropDown, InputBox
 from game_state import GameState
-from game_tree import GameTreeMinimax, GameTreeMCTS, GameTreeDynamicMinimax, GameTreeDeepeningMinimax
+from game_tree import GameTreeMinimax, GameTreeMCTS, GameTreeDynamicMinimax, GameTreeDeepeningMinimax, GameTreeExcavationMinimax
 from team import Team
 from piece import Piece
 import os
@@ -41,6 +41,8 @@ def str_to_type(type_str):
             return GameTreeDynamicMinimax
         elif type_str == 'DeMinimax':
             return GameTreeDeepeningMinimax
+        elif type_str == 'ExMinimax':
+            return GameTreeExcavationMinimax
 
 def draw_gamestate(game_state: GameState, inverse: bool = False):
     """This method will draw a gamestate"""
@@ -168,7 +170,7 @@ def pve_menu():
         ["#404040", "#606060"],
         20, 270, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax"])
+        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax", "ExMinimax"])
 
     bot_value = DropDown(
         ["#000000", "#202020"],
@@ -423,6 +425,7 @@ def simulation_screen(red_type, red_value, red_another_property,
             bot_type == 'Minimax' 
             or bot_type == 'DyMinimax' 
             or bot_type == 'DeMinimax'
+            or bot_type == 'ExMinimax'
         ):
             res += 'Depth ' + bot_property + ' '
         elif bot_type == 'MCTS':
@@ -604,7 +607,7 @@ def eve_menu():
         ["#404040", "#606060"],
         20, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax"])
+        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax", "ExMinimax"])
 
     black_value = DropDown(
         ["#000000", "#202020"],
@@ -618,7 +621,7 @@ def eve_menu():
         ["#F07470", "#F1959B"],
         350, 290, 100, 30,
         pygame.font.SysFont(None, 25),
-        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax"])
+        "Type", ["Minimax", "MCTS", "DyMinimax", "DeMinimax", "ExMinimax"])
 
     red_value = DropDown(
         ["#DC1C13", "#EA4C46"],
