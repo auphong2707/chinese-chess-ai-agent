@@ -1,18 +1,75 @@
-# Chinese chess AI agent
-This is the project about creating a simple AI game engine for Chinese chess
+# Chinese Chess AI
 
-## Overview: How to contribute to this project
-First, you need to take a look at the to-do list, each develop branch has a unique to-do list so you need to make sure you are in the correct branch. For each task of the list, you need to create a branch apart from the develop branch (for example: creating a piece branch apart from the game-state branch). After finishing the task, you need to pull a request to merge your branch with the develop-branch and wait for the acceptance. You can do another task at that time.
-## Convention of branch name
-You need to create the branch name with this convention: **taskcode-tasksubcode-taskname**. In which:
-- **taskcode**: This is the code representing the part of the develop branch which the task aims for.
-- **tasksubcode**: This is the code representing the feature, bug fix, update,... of the part represented by **taskcode**
-- **yourname**: This is the name (alias) of the user who do the task
+This is the project about creating a simple Chinese Chess AI using for education purpose in module *IT3160E - Introduction to AI* of Hanoi University of Science and Technology
 
-You can remove unimportant part of the taskname to make the branch name more compact. For example, we have a task: *"1-001: Create generate_admissible_moves method of General"* then the branch name will be: "**1-001-veil**"
+## Table of Contents
+- [Chinese Chess AI](#chinese-chess-ai)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Features](#features)
+  - [Installation](#installation)
+    - [Python guide:](#python-guide)
+    - [PyPy guide:](#pypy-guide)
+  - [Details about our code](#details-about-our-code)
 
-## Problem during the process
-After you create the name of the branch, you need to solve the problem that the task gives to you. If you have any question about the task or any support, you can ask the team members on the Messenger group, or inbox to the specific member.
+## Introduction
 
-## Finishing
-After you finish the task, you must **tick the task** in the to-do list then pull a merge request on **Github website** (GitHub desktop don't support pull request). You may need to notify the leader about the request. During the waiting time, you can do another task. If there is any issue with your file, your request will be declined and the leader will tell you why.
+
+
+## Features
+
+
+
+## How to use
+
+For optimal performance, we strongly advise executing our code using the Pypy compiler. Utilizing Pypy can enhance performance by 2-3 times for each operation. It's worth noting that all results presented in our report were obtained using Pypy for measurement purposes. Nevertheless, you can still execute this code in Python with a reduced performance level. Below is a step-by-step installation guide:
+
+### Python guide:
+1. Clone the repository:
+```bash
+git clone https://github.com/auphong2707/chinese-chess-ai-agent.git
+```
+2. Navigate to the project directory:
+```bash
+cd \chinese-chess-ai-agent
+```
+3. Intall required modules:
+```bash
+pip install -q -r requirements.txt
+```
+4. Run the game:
+```bash
+python main.py
+```
+### PyPy guide:
+1. Clone the repository:
+```bash
+git clone https://github.com/auphong2707/chinese-chess-ai-agent.git
+```
+2. Navigate to the project directory:
+```bash
+cd \chinese-chess-ai-agent
+```
+3. Prepare PyPy **(for Window user)**:
+```bash
+curl -O https://downloads.python.org/pypy/pypy3.10-v7.3.14-win64.zip
+unzip pypy3.10-v7.3.14-win64.zip
+mv pypy3.10-v7.3.14-win64 pypy
+pypy/pypy.exe -m ensurepip
+pypy/pypy.exe -m pip install pygame-ce
+```
+4. Run the game
+```bash
+pypy/pypy.exe main.py
+```
+**Notice**: At step 3, if you are using an OS other than Window, you may need to download Pypy from [here](https://www.pypy.org/download.html), add the extracted folder to PATH. Afer that, you need to install the pygame community edition by using these commands:
+```bash
+pypy -m ensurepip
+pypy -m pip install pygame-ce
+```
+Finally, you can run the game:
+```bash
+pypy main.py
+```
+
+## Details about our code
