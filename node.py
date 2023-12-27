@@ -313,12 +313,12 @@ class NodeMCTS(Node):
                 self.game_state.all_child_gamestates[self.rollout_index][1]
             )
 
-    def rollout(self, rollout_policy):
+    def rollout(self, rollout_policy, target_depth: int = MAX_NODE_COUNT):
         """This module performs the rollout simulation"""
 
         node_count = 0
         current_node = self
-        while node_count < self.MAX_NODE_COUNT:
+        while node_count < target_depth:
             new_node = current_node.rollout_policy(rollout_policy)
             # If the current node is terminal, return; otherwise, assign current to a random child node
             if new_node is None:
@@ -385,7 +385,7 @@ class NodeExcavationMinimax(NodeMinimax):
             simulation_count = self.SIMULATION_FACTOR ** depth
             for simulation in range(simulation_count):
                 node = NodeMCTS(self.game_state, None, None)
-                value = node.rollout("RANDOM")
+                value = node.rollout("RANDOM", depth)
                 res += value * (1 / self.NORMALIZE_CONST ** depth)
         return res
                 
