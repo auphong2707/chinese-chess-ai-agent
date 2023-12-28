@@ -693,9 +693,7 @@ class General(Piece):
             if Team[notation[0]] is opponent and notation[1] == "P":
                 return True
         # Check forward position
-        forward_notation = board[cur_general_pos[0] + opponent.value][
-            cur_general_pos[1]
-        ]
+        forward_notation = board[cur_general_pos[0] + opponent.value][cur_general_pos[1]]
         if Team[forward_notation[0]] is opponent and forward_notation[1] == "P":
             return True
 
@@ -766,13 +764,9 @@ class Pawn(Piece):
             if self.team is Team.BLACK:
                 if self.position == (3, 4):
                     change += 20 - (32 - self.number_of_pieces) * 2
-                elif self.position[0] in range(7, 9) and self.position[1] in range(
-                    2, 7
-                ):
+                elif self.position[0] in range(7, 9) and self.position[1] in range(2, 7):
                     change += 20
-                elif self.position[0] in range(6, 9) and self.position[1] in range(
-                    1, 8
-                ):
+                elif self.position[0] in range(6, 9) and self.position[1] in range(1, 8):
                     change += 15
                 elif self.is_crossed_river():
                     if self.position[0] == 9:
@@ -782,13 +776,9 @@ class Pawn(Piece):
             if self.team is Team.RED:
                 if self.position == (6, 4):
                     change += 20 - (32 - self.number_of_pieces) * 2
-                elif self.position[0] in range(1, 3) and self.position[1] in range(
-                    2, 7
-                ):
+                elif self.position[0] in range(1, 3) and self.position[1] in range(2, 7):
                     change += 20
-                elif self.position[0] in range(1, 4) and self.position[1] in range(
-                    1, 8
-                ):
+                elif self.position[0] in range(1, 4) and self.position[1] in range(1, 8):
                     change += 15
                 elif self.is_crossed_river():
                     if self.position[0] == 0:
@@ -810,22 +800,16 @@ class Pawn(Piece):
 
         # Check the new position
         new_pos = (self.position[0] - self.team.value, self.position[1])
-        if self.is_position_on_board(new_pos) and not self.is_position_teammate(
-            new_pos
-        ):
+        if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
             admissible_moves.append(new_pos)
 
         if self.is_crossed_river() is True:
             new_pos = (self.position[0], self.position[1] + 1)
-            if self.is_position_on_board(new_pos) and not self.is_position_teammate(
-                new_pos
-            ):
+            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
                 admissible_moves.append(new_pos)
 
             new_pos = (self.position[0], self.position[1] - 1)
-            if self.is_position_on_board(new_pos) and not self.is_position_teammate(
-                new_pos
-            ):
+            if self.is_position_on_board(new_pos) and not self.is_position_teammate(new_pos):
                 admissible_moves.append(new_pos)
 
         return admissible_moves

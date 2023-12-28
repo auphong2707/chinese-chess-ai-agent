@@ -62,7 +62,7 @@ class GameState:
     # [END INITILIZATION]
 
     # [BEGIN METHOD]
-    # Private method
+    # Instance method
     def _get_game_state_value(self) -> float:
         """Return the evaluation value of the board"""
         # Return the value of a game state when a team wins
@@ -108,7 +108,6 @@ class GameState:
         else:
             return self.number_of_red_pieces
 
-    # Instance method
     def generate_game_state_with_move(self, old_pos: tuple, new_pos: tuple):
         """This method creates a game state with a move
         (return None if the game state is invalid)"""

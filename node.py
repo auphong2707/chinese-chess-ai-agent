@@ -158,6 +158,7 @@ class NodeMinimax(Node):
 
 class NodeMCTS(Node):
     """This class represents a "Monte-Carlo tree search's node" in the game tree"""
+
     # [BEGIN CONSTANTS]
 
     EXPLORATION_CONSTANT = sqrt(6) - 1
@@ -167,6 +168,7 @@ class NodeMCTS(Node):
     # [END CONSTANTS]
 
     # [BEGIN INITIALIZATION]
+
     def __init__(self, game_state: GameState, parent, parent_move: tuple) -> None:
         # Reference to a node
         super().__init__(game_state, parent, parent_move)
@@ -336,7 +338,7 @@ class NodeMCTS(Node):
 
         current_node = self
         while current_node.parent is not None:
-            # I am going to meet my ultimate ancestor!
+            # Ultimate ancestor
             current_node.update_stat(result)
             current_node = current_node.parent
 
@@ -452,6 +454,7 @@ class NodeExcavationMinimax(NodeMinimax):
 
     def _create_node(self, game_state: GameState, parent, parent_move: tuple):
         """This method creates a new Excavation Minimax node"""
+
         return NodeExcavationMinimax(game_state, parent, parent_move)
 
     def best_move(self):

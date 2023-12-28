@@ -2,9 +2,9 @@
 """Module used to create GameTree class and its subclasses"""
 from math import inf
 from abc import ABC, abstractmethod
+from time import time
 from game_state import GameState
 from node import NodeMinimax, NodeMCTS, NodeExcavationMinimax
-from time import time
 from team import Team
 
 
@@ -32,8 +32,10 @@ class GameTree(ABC):
 
     # [BEGIN METHODS]
     # Instance method
+
     def move_to_best_child(self) -> tuple:
         """This method moves the current node to its "best child" on the game tree"""
+
         self.current_node = self.current_node.best_move()
         self.current_node.parent = None
 
@@ -60,6 +62,7 @@ class GameTree(ABC):
 
     def is_lost(self) -> bool:
         """This method checks if the bot had lost or not"""
+
         return len(self.current_node.game_state.all_child_gamestates) == 0
 
     # Abstract method
@@ -84,10 +87,14 @@ class GameTreeMinimax(GameTree):
 
     # [BEGIN METHODS]
     # Private method
+
     def _create_node(self, game_state, parent, parent_move) -> NodeMinimax:
+        """This method creates a Minimax node"""
+
         return NodeMinimax(game_state, parent, parent_move)
 
     # Instance method
+
     def process(self, moves_queue) -> tuple:
         """Let the bot run"""
         # [START BOT'S TURN]
@@ -126,6 +133,7 @@ class GameTreeMCTS(GameTree):
 
     # [BEGIN METHODS]
     # Instance method
+
     def traverse(self, node: NodeMCTS) -> NodeMCTS:
         """This method performs the MCTS initial traversion"""
 
@@ -135,6 +143,8 @@ class GameTreeMCTS(GameTree):
             return node
 
     def monte_carlo_tree_search(self, root) -> None:
+        """This method performs the MCTS"""
+
         root.num = 0
         starting_time = time()
         while time() - starting_time < self.time_allowed:
@@ -161,10 +171,9 @@ class GameTreeMCTS(GameTree):
         print("{} moves: {} -> {}".format(self.team.name, old_pos, new_pos))
         return old_pos, new_pos
 
-        # Private method
-
     def _create_node(self, game_state, parent, parent_move) -> NodeMCTS:
         """This method creates a new MCTS node"""
+
         return NodeMCTS(game_state, parent, parent_move)
 
     # [END METHODS]
@@ -175,6 +184,7 @@ class GameTreeDynamicMinimax(GameTreeMinimax):
 
     # [BEGIN METHODS]
     # Instance method
+
     def process(self, moves_queue) -> tuple:
         """Let the bot run"""
         # [START BOT'S TURN]
@@ -182,10 +192,15 @@ class GameTreeDynamicMinimax(GameTreeMinimax):
 
         start = time()  # Start the time counter
         print(self.current_node.game_state.value * self.team.value)
+        # If the branching factor of the current node is <= 3, then run at target depth + 2
         if len(self.current_node.game_state.all_child_gamestates) <= 3:
             self.current_node.minimax(self.target_depth + 2, self.team is Team.RED)
+        # If the advantage value of the current node is >= the advantage constant,
+        # Then run at target depth + 1
         elif self.current_node.game_state.value * self.team.value >= ADVANTAGE_CONSTANT:
             self.current_node.minimax(self.target_depth + 1, self.team is Team.RED)
+        # If the advantage value of the current node is smaller the advantage constant,
+        # Then run at target depth
         else:
             self.current_node.minimax(self.target_depth, self.team is Team.RED)
         old_pos, new_pos = self.move_to_best_child()
@@ -212,6 +227,7 @@ class GameTreeDeepeningMinimax(GameTreeMinimax):
 
     def process(self, moves_queue) -> tuple:
         """Let the bot run"""
+
         # [START BOT'S TURN]
         # The coefficients for each value pack
         if self._value_pack == 1:
@@ -271,7 +287,7 @@ class GameTreeExcavationMinimax(GameTreeMinimax):
     # [END INITIALIZATION]
 
     # [BEGIN METHODS]
-    # Private method
+
     def _create_node(self, game_state, parent, parent_move) -> NodeExcavationMinimax:
         return NodeExcavationMinimax(game_state, parent, parent_move)
 
