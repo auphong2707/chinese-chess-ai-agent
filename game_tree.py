@@ -218,6 +218,3 @@ class GameTreeExcavationMinimax(GameTreeMinimax):
     def _create_node(self, game_state, parent, parent_move) -> NodeExcavationMinimax:
         return NodeExcavationMinimax(game_state, parent, parent_move)
 
-if __name__ == "main":
-    # Test the class here Focalors
-    pass
