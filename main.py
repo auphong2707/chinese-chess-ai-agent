@@ -42,7 +42,7 @@ clock = pygame.time.Clock()
 # [BEGIN MAIN FUNCTION]
 # Additional functions
 def str_to_type(type_str: str) -> GameTree:
-    """This function returns type of GameTree corresponding to input string"""
+    """This function returns the type of GameTree corresponding to the input string"""
     if type_str == 'Minimax':
         return GameTreeMinimax
     elif type_str == 'MCTS':
@@ -67,11 +67,11 @@ def draw_gamestate(game_state: GameState, inverse: bool = False) -> None:
         for y in range(GameState.BOARD_SIZE_Y):
             notation = game_state.board[x][y]
 
-            # If there is no piece in the position, then skip
+            # Skip if there is no piece in the position
             if notation == "NN":
                 continue
 
-            # Create a instance of the piece using notation
+            # Create an instance of the piece using notation
             piece = Piece.create_instance(
                 (abs(x - int(inverse) * 9), y),
                 notation, game_state.board, None, None
@@ -90,14 +90,14 @@ def pve_screen(
     bot_another_property: int,
     player_team: Team
 ) -> None:
-    """This function is the game screen in PvE mode"""
+    """This function is the game screen in the PvE mode"""
 
     # Create bot variables
     bot = bot_type(Team.get_reverse_team(player_team), bot_another_property, bot_value)
     is_bot_process = False
 
     # Create player variables
-    player_turn = (player_team is Team.RED)
+    player_turn = player_team is Team.RED
     player_gamestate = GameState.generate_initial_game_state()
 
     # Create move variables
@@ -153,9 +153,9 @@ def pve_screen(
             chosen_ring_img, draw_pos = resources.chosen_ring_sprite(last_move[1], player_team is Team.BLACK)
             SCREEN.blit(chosen_ring_img, draw_pos)
 
-        # If the game is end, draw the anouncement and button
+        # If the game is end, draw the announcement and button
         if win_status is not Team.NONE:
-            # .Anouncement
+            # .Announcement
             pygame.draw.rect(SCREEN, "#AB001B", pygame.Rect(0, 270, 660, 120))
             pygame.draw.rect(SCREEN, "#F6F5E0", pygame.Rect(4, 274, 652, 112))
 
@@ -187,7 +187,7 @@ def pve_screen(
                             continue
 
                         notation = player_gamestate.board[board_pos[0]][board_pos[1]]
-                        # If the piece is player's, choose the piece
+                        # If the piece belongs to the player, choose the piece
                         if Team[notation[0]] is player_team:
                             position_chosen = click_pos
                             piece_chosen = Piece.create_instance(
@@ -197,7 +197,7 @@ def pve_screen(
                                 None, None
                             )
 
-                        # If the click position is in the list of admissibles move of chosen piece
+                        # If the click position is in the list of admissible moves of the chosen piece
                         elif piece_chosen is not None and board_pos in piece_chosen.admissible_moves:
                             new_gamestate = player_gamestate.generate_game_state_with_move(piece_chosen.position, board_pos)
                             # If the move is valid, then move to the position
@@ -470,7 +470,7 @@ def bot_run(
     beth_value: int,
     beth_ap: int
 ) -> None:
-    """This function is to create a background game thread"""
+    """This function creates a background game thread"""
 
     # Create the bots
     althea = althea_type(Team.RED, althea_ap, althea_value)
@@ -482,7 +482,7 @@ def bot_run(
 
     # Start the game loop
     while turn <= max_turn:
-        # There is a force end signal then break the loop
+        # If there is a force end signal, break the loop
         if force_end is True:
             break
 
@@ -567,7 +567,7 @@ def simulation_screen(
         res += 'Value ' + bot_value
         return res
 
-    # Change the string to proper type
+    # Change the string to a proper type
     red_full_type = get_bot_full_type(red_type, red_another_property, red_value)
     black_full_type = get_bot_full_type(black_type, black_another_property, black_value)
 
@@ -598,7 +598,7 @@ def simulation_screen(
     games_done_count = 0
     black_win, red_win, draw = 0, 0, 0
 
-    start = time()  # Start time counter
+    start = time()  # Start the time counter
 
     # Start the game loop
     while True:
@@ -626,9 +626,9 @@ def simulation_screen(
                     moves_queue.clear()
                     value_queue.clear()
 
-        # If the game is not paused, then upadte the board
+        # If the game is not paused, then update the board
         if is_paused is False:
-            # If a game is end
+            # If the game is end
             if is_end is True and len(moves_queue) == 0:
                 # Update the result
                 black_win, red_win, draw = winner["BLACK"], winner["RED"], winner["DRAW"]
@@ -909,7 +909,7 @@ def eve_menu():
 
 
 def main_menu():
-    """This function is main menu screen"""
+    """This function is the main menu screen"""
 
     # Create utilities
     pve_button = Button(image=pygame.image.load("resources/button/normal_rect.png"), pos=(165, 250),
