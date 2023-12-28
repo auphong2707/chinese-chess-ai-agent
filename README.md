@@ -86,7 +86,7 @@ pypy\pypy.exe main.py
 ```bash
 pypy/pypy.exe main.py
 ```
-**Notice**: At step 3, if you are using an OS other than Window, you may need to download Pypy from [here](https://www.pypy.org/download.html), add the extracted folder to PATH. Afer that, you need to install the pygame community edition by using these commands:
+**Notice**: At step 3, if you are using an OS other than Windows, you may need to download Pypy from [here](https://www.pypy.org/download.html), and add the extracted folder to PATH. Atfer that, you need to install the Pygame community edition by using these commands:
 ```bash
 pypy -m ensurepip
 pypy -m pip install pygame-ce
@@ -97,7 +97,7 @@ pypy main.py
 ```
 
 ## Details about our code
-To clearly understand our code structure, we highly recommend to take a glance at our UML diagram. Please find the link here for easy navigation: [Link to UML Diagram](https://lucid.app/lucidchart/ec68185f-a423-46e4-ae54-d047a4e859fc/edit?invitationId=inv_6149075f-f988-44a2-bd3b-41b02c10e651&page=0_0#).
+To clearly understand our code structure, we highly recommend taking a glance at our UML diagram. Please find the link here for easy navigation: [Link to UML Diagram](https://lucid.app/lucidchart/ec68185f-a423-46e4-ae54-d047a4e859fc/edit?invitationId=inv_6149075f-f988-44a2-bd3b-41b02c10e651&page=0_0#).
 
 ### game_state.py:
 This module represents the game state. It includes methods for evaluating the game state, generating possible moves, and handling game progression.
