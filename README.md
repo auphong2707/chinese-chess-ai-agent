@@ -11,6 +11,14 @@ This is the project about creating a simple Chinese Chess AI using for education
     - [Python guide:](#python-guide)
     - [PyPy guide:](#pypy-guide)
   - [Details about our code](#details-about-our-code)
+    - [game\_state.py:](#game_statepy)
+    - [game\_tree.py:](#game_treepy)
+    - [gui\_utilities.py:](#gui_utilitiespy)
+    - [main.py:](#mainpy)
+    - [node.py:](#nodepy)
+    - [piece.py:](#piecepy)
+    - [resources.py:](#resourcespy)
+    - [team.py:](#teampy)
 
 ## Introduction
 
@@ -89,9 +97,7 @@ pypy main.py
 ```
 
 ## Details about our code
-Below is the link to our UML diagram, which summarizes the structure of our code.
-
-UML link: https://lucid.app/lucidchart/ec68185f-a423-46e4-ae54-d047a4e859fc/edit?invitationId=inv_6149075f-f988-44a2-bd3b-41b02c10e651&page=0_0#
+To clearly understand our code structure, we highly recommend to take a glance at our UML diagram. Please find the link here for easy navigation: [Link to UML Diagram](https://lucid.app/lucidchart/ec68185f-a423-46e4-ae54-d047a4e859fc/edit?invitationId=inv_6149075f-f988-44a2-bd3b-41b02c10e651&page=0_0#).
 
 ### game_state.py:
 This module represents the game state. It includes methods for evaluating the game state, generating possible moves, and handling game progression.
