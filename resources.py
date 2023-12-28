@@ -22,10 +22,11 @@ def piece_sprite(piece):
 
     return piece_img, (position_x, position_y)
 
-def chosen_ring_sprite(pos):
+def chosen_ring_sprite(pos, inverse: bool = False):
     """This method returns the sprite of the chosen ring sprite
     which contains: image of the chosen ring and chosen piece position (in pixel)"""
     chosen_ring_img = pygame.image.load(RESOURCES_PATH + 'chosen_ring.png')
+    pos = (abs(pos[0] - 9 * int(inverse)), pos[1])
     
     position_x = START_X + pos[1]*STEP_X
     position_y = START_Y + pos[0]*STEP_Y
