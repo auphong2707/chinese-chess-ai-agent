@@ -89,6 +89,8 @@ pypy main.py
 ```
 
 ## Details about our code
+Below is the link to our UML diagram, which summarizes the structure of our code.
+
 UML link: https://lucid.app/lucidchart/ec68185f-a423-46e4-ae54-d047a4e859fc/edit?invitationId=inv_6149075f-f988-44a2-bd3b-41b02c10e651&page=0_0#
 
 ### game_state.py:
