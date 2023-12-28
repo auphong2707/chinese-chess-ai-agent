@@ -7,7 +7,7 @@ This is the project about creating a simple Chinese Chess AI using for education
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Features](#features)
-  - [Installation](#installation)
+  - [How to use](#how-to-use)
     - [Python guide:](#python-guide)
     - [PyPy guide:](#pypy-guide)
   - [Details about our code](#details-about-our-code)
@@ -31,7 +31,7 @@ git clone https://github.com/auphong2707/chinese-chess-ai-agent.git
 ```
 2. Navigate to the project directory:
 ```bash
-cd \chinese-chess-ai-agent
+cd chinese-chess-ai-agent
 ```
 3. Intall required modules:
 ```bash
@@ -48,9 +48,18 @@ git clone https://github.com/auphong2707/chinese-chess-ai-agent.git
 ```
 2. Navigate to the project directory:
 ```bash
-cd \chinese-chess-ai-agent
+cd chinese-chess-ai-agent
 ```
 3. Prepare PyPy **(for Window user)**:
+- For **Command Prompt (Powershell)**
+```bash
+curl -o pypy3.10-v7.3.14-win64.zip https://downloads.python.org/pypy/pypy3.10-v7.3.14-win64.zip
+tar -xf pypy3.10-v7.3.14-win64.zip
+ren pypy3.10-v7.3.14-win64 pypy
+pypy\pypy.exe -m ensurepip
+pypy\pypy.exe -m pip install pygame-ce
+```
+- For **Git Bash**
 ```bash
 curl -O https://downloads.python.org/pypy/pypy3.10-v7.3.14-win64.zip
 unzip pypy3.10-v7.3.14-win64.zip
@@ -59,6 +68,11 @@ pypy/pypy.exe -m ensurepip
 pypy/pypy.exe -m pip install pygame-ce
 ```
 4. Run the game
+- For **Command Prompt (Powershell)**
+```bash
+pypy\pypy.exe main.py
+```
+- For **Git Bash**
 ```bash
 pypy/pypy.exe main.py
 ```
